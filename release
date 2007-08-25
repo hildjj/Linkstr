@@ -17,7 +17,7 @@ ZIP_FILE="${PROJECT_NAME}_${SHORT_VERSION}.zip"
 ZIP="${PUB_DIR}/${ZIP_FILE}"
 echo "cd build/Release"
 cd "build/Release"
-echo "/usr/bin/zip -r ${ZIP} ${PROJECT_NAME}.app"
+echo "/usr/bin/zip -q -r ${ZIP} ${PROJECT_NAME}.app"
 /usr/bin/zip -r "${ZIP}" "${PROJECT_NAME}.app"
 MD5=`md5sum ${ZIP} | awk '{print $1}'`
 SIZE=`du -b ${ZIP} | awk '{print $1}'`
@@ -48,6 +48,8 @@ cat >$TMP <<EOF
 EOF
 
 mv $TMP ${PUB_DIR}/changes.xml
+rm -rf "${HOME}/Applications/Util/${PROJECT_NAME}.app"
+mv "${PROJECT_NAME}.app" "${HOME}/Applications/Util"
 
 cd "${PUB_DIR}"
 scp ${ZIP_FILE} changes.xml linkstr.net:linkstr.net
