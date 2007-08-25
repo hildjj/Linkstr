@@ -72,8 +72,7 @@
 
 - (void)ensureSheet;
 - (IBAction)genericPopup:(id)sender;
-- (void)genericDone:(NSString*)text context:(void*)context;
-- (IBAction)urlPopup:(id)sender;
+- (PendingLink*)insertTerms:(NSString*)terms forSite:(NSString*)site;
 
 - (IBAction)feedsPopup:(id)sender;
 - (IBAction)historyPopup:(id)sender;

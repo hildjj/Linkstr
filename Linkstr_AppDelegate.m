@@ -697,9 +697,7 @@ int compareSites(id one, id two, void *context)
             return YES;
         }
 
-        NSDictionary *sites = [[NSUserDefaults standardUserDefaults] objectForKey:SITES];
-        NSDictionary *site = [sites objectForKey:@"Google"];
-        [self genericDone:str context:site];
+        [self insertTerms:str forSite:@"Google"];
         [self saveAction:self];
         [self setUnread:self];
         return YES;
@@ -788,7 +786,7 @@ int compareSites(id one, id two, void *context)
     return text;
 }
 
-- (void)genericDone:(NSString*)text context:(void*)context
+- (PendingLink*)genericDone:(NSString*)text context:(void*)context
 { 
     NSDictionary *site = (NSDictionary*)context;
     NSString *fmt = [site objectForKey:@"formatter"]; 
@@ -803,15 +801,16 @@ int compareSites(id one, id two, void *context)
         pct = [text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString *url = [NSString stringWithFormat:[site objectForKey:@"url"], pct];        
     NSString *desc = [NSString stringWithFormat:[site objectForKey:@"description"], text]; 
-    [self insertURL:url withDescription:desc];
+    return [self insertURL:url withDescription:desc];
 }
 
-- (IBAction)urlPopup:(id)sender;
+- (PendingLink*)insertTerms:(NSString*)terms forSite:(NSString*)site;
 {
-    [self ensureSheet];
-    [m_sheet setTitle:@"URL"];
-    [m_sheet setImage:nil];
-    [m_sheet popup:m_win callback:@selector(urlDone:context:) context:nil];    
+    NSDictionary *sites = [[NSUserDefaults standardUserDefaults] objectForKey:SITES];
+    NSDictionary *s = [sites objectForKey:site];
+    if (!s)
+        return nil;
+    return [self genericDone:terms context:s];    
 }
 
 - (void)urlDone:(NSString*)text context:(void*)context

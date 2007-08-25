@@ -6,21 +6,6 @@
 	objectVersion = 42;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		29B60F600C53E0F500ECF6AE /* Package */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 29B60F720C53E12C00ECF6AE /* Build configuration list for PBXAggregateTarget "Package" */;
-			buildPhases = (
-				29B60F5F0C53E0F500ECF6AE /* ShellScript */,
-			);
-			dependencies = (
-				29B60F620C53E10000ECF6AE /* PBXTargetDependency */,
-			);
-			name = Package;
-			productName = Package;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		29080F4D0C7CC8D8006814DD /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29080F4C0C7CC8D8006814DD /* Sparkle.framework */; };
 		29080F510C7CC8E3006814DD /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29080F500C7CC8E3006814DD /* Growl.framework */; };
@@ -66,16 +51,6 @@
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		29B60F610C53E10000ECF6AE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8D1107260486CEB800E47090;
-			remoteInfo = Linkstr;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		295B5E190C50089900815FAC /* CopyFiles */ = {
@@ -362,7 +337,6 @@
 			projectDirPath = "";
 			targets = (
 				8D1107260486CEB800E47090 /* Linkstr */,
-				29B60F600C53E0F500ECF6AE /* Package */,
 			);
 		};
 /* End PBXProject section */
@@ -396,22 +370,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		29B60F5F0C53E0F500ECF6AE /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\nif [ $ACTION == \"build\" ] && [ $BUILD_VARIANTS == \"normal\" ] && [ `basename $BUILT_PRODUCTS_DIR` == \"Release\" ] ; then\n\tVERSION=`defaults read \"${BUILT_PRODUCTS_DIR}/Linkstr.app/Contents/Info\" CFBundleShortVersionString`\n\tSHORT_VERSION=`defaults read \"${BUILT_PRODUCTS_DIR}/Linkstr.app/Contents/Info\" CFBundleVersion`\n\tVER=\"${VERSION}/${SHORT_VERSION}\"\n\tDATE=`date -Ru`\n\tPUB_DIR=\"${HOME}/Sites/Linkstr\"\n\tZIP_FILE=\"Linkstr_${SHORT_VERSION}.zip\"\n\tZIP=\"${PUB_DIR}/${ZIP_FILE}\"\n\techo \"cd ${TARGET_BUILD_DIR}\"\n\tcd \"${TARGET_BUILD_DIR}\"\n\techo \"/usr/bin/zip -r ${ZIP} ${PROJECT_NAME}.app\"\n\t/usr/bin/zip -r \"${ZIP}\" \"${PROJECT_NAME}.app\"\n\tMD5=`md5sum ${ZIP} | awk '{print $1}'`\n\tSIZE=`du -b ${ZIP} | awk '{print $1}'`\n\techo \"Created: ${ZIP}: ${MD5}\"\n\tTMP=`tempfile`\n\tcat >$TMP <<EOF\n<?xml version=\"1.0\" encoding=\"utf-8\"?> \n<rss version=\"2.0\" \n     xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n     xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"> \n  <channel> \n    <title>Linkstr Changelog</title> \n    <link>http://linkstr.net/changes.xml</link> \n    <description>Most recent changes with links to updates.</description> \n    <language>en</language> \n    <item> \n      <title>Version ${VER}</title> \n      <description>http://linkstr.net/Last_Changes.html</description> \n      <pubDate>${DATE}</pubDate> \n      <enclosure url=\"http://linkstr.net/${ZIP_FILE}\"\n                 sparkle:shortVersionString=\"${VER}\"\n                 sparkle:md5Sum=\"${MD5}\"\n                 length=\"${SIZE}\"\n                 type=\"application/octet-stream\"/>\n    </item>\n  </channel>\n</rss>\nEOF\n\n\tmv $TMP ${PUB_DIR}/changes.xml\nfi\nexit 0";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		8D11072C0486CEB800E47090 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -440,14 +398,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		29B60F620C53E10000ECF6AE /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8D1107260486CEB800E47090 /* Linkstr */;
-			targetProxy = 29B60F610C53E10000ECF6AE /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
@@ -538,7 +488,7 @@
 					ppc,
 					i386,
 				);
-				CURRENT_PROJECT_VERSION = 41;
+				CURRENT_PROJECT_VERSION = 42;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
@@ -642,28 +592,6 @@
 			};
 			name = Release;
 		};
-		29B60F730C53E12C00ECF6AE /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = Package;
-			};
-			name = Debug;
-		};
-		29B60F740C53E12C00ECF6AE /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				PRODUCT_NAME = Package;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -681,15 +609,6 @@
 			buildConfigurations = (
 				26FC0A890875C7B200E6366F /* Debug */,
 				26FC0A8A0875C7B200E6366F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		29B60F720C53E12C00ECF6AE /* Build configuration list for PBXAggregateTarget "Package" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				29B60F730C53E12C00ECF6AE /* Debug */,
-				29B60F740C53E12C00ECF6AE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

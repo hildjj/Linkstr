@@ -22,8 +22,13 @@
         NSLog(@"desc: %@", [props objectForKey:@"descr"]);
         
         Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
-        PendingLink *p = [l insertURL:[props objectForKey:@"url"]
-                      withDescription:[props objectForKey:@"descr"]];                
+        NSString *site = [props objectForKey:@"site"];
+        PendingLink *p;
+        if (site)
+            p = [l insertTerms:[props objectForKey:@"terms"] forSite:site];
+        else
+            p = [l insertURL:[props objectForKey:@"url"]
+             withDescription:[props objectForKey:@"descr"]];                
 
 //        NSString *uniqueID = [[[p objectID] URIRepresentation] absoluteString];
 //        NSLog(@"Done (uid=%@)", uniqueID);

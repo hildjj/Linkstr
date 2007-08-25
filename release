@@ -17,8 +17,10 @@ ZIP_FILE="${PROJECT_NAME}_${SHORT_VERSION}.zip"
 ZIP="${PUB_DIR}/${ZIP_FILE}"
 echo "cd build/Release"
 cd "build/Release"
-echo "/usr/bin/zip -q -r ${ZIP} ${PROJECT_NAME}.app"
-/usr/bin/zip -r "${ZIP}" "${PROJECT_NAME}.app"
+rm -rf "Linkstr Scripts"
+svn export file:///var/svn/Linkstr/trunk/Linkstr%20Scripts
+echo "/usr/bin/zip -q -r ${ZIP} ${PROJECT_NAME}.app" "Linkstr Scripts"
+/usr/bin/zip -q -r "${ZIP}" "${PROJECT_NAME}.app" "Linkstr Scripts"
 MD5=`md5sum ${ZIP} | awk '{print $1}'`
 SIZE=`du -b ${ZIP} | awk '{print $1}'`
 echo "Created: ${ZIP}: ${MD5}"

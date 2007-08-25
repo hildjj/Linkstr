@@ -288,6 +288,12 @@
 			<property name="isViewed" code="tIsv" description="Has the url been viewed?" type="boolean">
 				<cocoa key="isViewed"/>
 			</property>
+			<property name="site" code="tSit" description="The site name.  This selects a URL template from user prefs, and injects the terms into the template to create the link.  Mutually exclusive with link." type="text" access="w">
+				<cocoa key="site"/>
+			</property>
+			<property name="terms" code="tTer" description="The site search terms.  Requires site.  Mutually exclusive with link.  Should not be escaped." type="text" access="w">
+				<cocoa key="terms"/>
+			</property>
 		</class>
 		<class name="url" code="pUrl" description="A URL." plural="urls" inherits="item">
 			<cocoa class="urlList"/>
