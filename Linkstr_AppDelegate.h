@@ -73,6 +73,7 @@
 - (void)ensureSheet;
 - (IBAction)genericPopup:(id)sender;
 - (PendingLink*)insertTerms:(NSString*)terms forSite:(NSString*)site;
+- (IBAction)scriptsMenu:(id)sender;
 
 - (IBAction)feedsPopup:(id)sender;
 - (IBAction)historyPopup:(id)sender;

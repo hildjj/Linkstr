@@ -824,6 +824,19 @@ int compareSites(id one, id two, void *context)
     [self insertURL:us withDescription:text];
 }
 
+- (IBAction)scriptsMenu:(id)sender;
+{
+    NSString *proc = [[[NSProcessInfo processInfo] arguments] objectAtIndex:0];
+    proc = [proc stringByDeletingLastPathComponent];
+    proc = [proc stringByDeletingLastPathComponent];    
+    proc = [proc stringByAppendingPathComponent:@"Resources"];
+    proc = [proc stringByAppendingPathComponent:@"Scripts"];
+    
+    NSURL *url = [NSURL fileURLWithPath:proc];
+    NSLog(@"scripts: '%@'", url);
+    [[NSWorkspace sharedWorkspace] openURL:url];
+}
+
 - (IBAction)feedsPopup:(id)sender;
 {
     if (!m_feeds)

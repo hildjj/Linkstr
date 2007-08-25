@@ -18,11 +18,11 @@
                 refresh = id; 
                 removeSelected = id; 
                 saveAction = id; 
+                scriptsMenu = id; 
                 setTopLevel = id; 
                 setUnread = id; 
                 toggleViewed = id; 
                 unfade = id; 
-                urlPopup = id; 
             }; 
             CLASS = "Linkstr_AppDelegate"; 
             LANGUAGE = ObjC; 
