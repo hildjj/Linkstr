@@ -1,0 +1,42 @@
+{
+    IBClasses = (
+        {
+            CLASS = ContextWindowController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {controller = NSArrayController; }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                copy = id; 
+                cut = id; 
+                fade = id; 
+                feedsPopup = id; 
+                googlePopup = id; 
+                launchAll = id; 
+                openSelected = id; 
+                paste = id; 
+                refresh = id; 
+                removeSelected = id; 
+                saveAction = id; 
+                setUnread = id; 
+                toggleViewed = id; 
+                unfade = id; 
+                wikiPopup = id; 
+            }; 
+            CLASS = "Linkstr_AppDelegate"; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                "m_controller" = NSArrayController; 
+                "m_drawer" = NSDrawer; 
+                "m_progress" = NSProgressIndicator; 
+                "m_sheet" = ImageTextSheet; 
+                "m_table" = NSTableView; 
+                "m_win" = NSWindow; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

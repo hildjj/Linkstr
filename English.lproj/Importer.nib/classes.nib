@@ -1,0 +1,19 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {done = id; setAll = id; }; 
+            CLASS = ImportHTML; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                "m_all" = NSButton; 
+                "m_controller" = NSArrayController; 
+                "m_table" = NSTableView; 
+                "m_win" = NSWindow; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = KeyPressTableView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }
+    ); 
+    IBVersion = 1; 
+}

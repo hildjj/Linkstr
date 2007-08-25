@@ -1,0 +1,53 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {done = id; }; 
+            CLASS = ImageTextSheet; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                "m_delegate" = id; 
+                "m_image" = NSImageView; 
+                "m_text" = NSTextField; 
+                "m_title" = NSTextField; 
+                "m_win" = NSWindow; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {
+                clearOrOpen = id; 
+                copy = id; 
+                cut = id; 
+                fade = id; 
+                googleDone = id; 
+                googlePopup = id; 
+                launchAll = id; 
+                openSelected = id; 
+                paste = id; 
+                performQuery = id; 
+                removeSelected = id; 
+                setUnread = id; 
+                toggleViewed = id; 
+                unfade = id; 
+                windowDidBecomeMain = id; 
+                windowDidResignMain = id; 
+            }; 
+            CLASS = InsDropperAppDelegate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                "m_controller" = NSArrayController; 
+                "m_drawer" = NSDrawer; 
+                "m_googleText" = NSTextField; 
+                "m_prefs" = NSPanel; 
+                "m_progress" = NSProgressIndicator; 
+                "m_sheet" = ImageTextSheet; 
+                "m_table" = NSTableView; 
+                "m_toggleMenu" = NSMenuItem; 
+                win = NSWindow; 
+            }; 
+            SUPERCLASS = NSApplication; 
+        }
+    ); 
+    IBVersion = 1; 
+}

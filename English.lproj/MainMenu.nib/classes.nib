@@ -1,0 +1,51 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = KeyPressTableView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }, 
+        {
+            ACTIONS = {
+                copy = id; 
+                cut = id; 
+                fade = id; 
+                feedsPopup = id; 
+                genericPopup = id; 
+                historyPopup = id; 
+                importSafariHistory = id; 
+                launchAll = id; 
+                openSelected = id; 
+                paste = id; 
+                postDeliciously = id; 
+                refresh = id; 
+                removeSelected = id; 
+                saveAction = id; 
+                setTopLevel = id; 
+                setUnread = id; 
+                toggleViewed = id; 
+                unfade = id; 
+                urlPopup = id; 
+            }; 
+            CLASS = "Linkstr_AppDelegate"; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                "m_action" = NSMenuItem; 
+                "m_controller" = NSArrayController; 
+                "m_drawer" = NSDrawer; 
+                "m_progress" = NSProgressIndicator; 
+                "m_search" = NSSearchField; 
+                "m_sheet" = ImageTextSheet; 
+                "m_sites" = NSArrayController; 
+                "m_table" = NSTableView; 
+                "m_win" = NSWindow; 
+                persistentStore = id; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {checkForUpdates = id; }; 
+            CLASS = SUUpdater; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}
