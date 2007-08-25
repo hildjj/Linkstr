@@ -31,6 +31,7 @@
 		29A1FB640C5A3FB8005179D2 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 29A1FB630C5A3FB8005179D2 /* Credits.html */; };
 		29A1FC3D0C5A5AD0005179D2 /* aquaball.icns in Resources */ = {isa = PBXBuildFile; fileRef = 29A1FC3C0C5A5AD0005179D2 /* aquaball.icns */; };
 		29B60E7A0C53124F00ECF6AE /* KeyPressTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B60E780C53124F00ECF6AE /* KeyPressTableView.m */; };
+		29D125D50C80120F00757E28 /* Scripts in Resources */ = {isa = PBXBuildFile; fileRef = 29D125C50C80120F00757E28 /* Scripts */; };
 		29F6D0020C5132AA001833E4 /* ContextWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29F6D0000C5132AA001833E4 /* ContextWindowController.m */; };
 		29F6D07C0C514CA8001833E4 /* Clear.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 29F6D0710C514CA8001833E4 /* Clear.tiff */; };
 		29F6D07D0C514CA8001833E4 /* Drawer.icns in Resources */ = {isa = PBXBuildFile; fileRef = 29F6D0720C514CA8001833E4 /* Drawer.icns */; };
@@ -108,6 +109,7 @@
 		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		29D125C50C80120F00757E28 /* Scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Scripts; sourceTree = "<group>"; };
 		29F6CFFF0C5132AA001833E4 /* ContextWindowController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ContextWindowController.h; sourceTree = "<group>"; };
 		29F6D0000C5132AA001833E4 /* ContextWindowController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ContextWindowController.m; sourceTree = "<group>"; };
 		29F6D0710C514CA8001833E4 /* Clear.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Clear.tiff; sourceTree = "<group>"; };
@@ -255,6 +257,7 @@
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				29D125C50C80120F00757E28 /* Scripts */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
 			name = Linkstr;
@@ -365,6 +368,7 @@
 				290E1DF30C7FD39100742667 /* ImageTextSheet.nib in Resources */,
 				290E1DF60C7FD39E00742667 /* Keychain.nib in Resources */,
 				290E1DF90C7FD3A700742667 /* UrlList.nib in Resources */,
+				29D125D50C80120F00757E28 /* Scripts in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
