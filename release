@@ -3,7 +3,7 @@ AGV=/Developer/Tools/agvtool
 PUB_DIR="${HOME}/Sites/Linkstr"
 PROJECT_NAME=Linkstr
 
-${AGV} bump
+${AGV} bump -all
 ${AGV} tag -baseurlfortag file:///var/svn/Linkstr/tags
 xcodebuild -configuration Release clean
 xcodebuild -configuration Release
