@@ -112,6 +112,7 @@ static NSArray *s_SupportedTypes;
         NSStringPboardType, nil] retain];    
 }
 
+// order the keys of the array by the text that will be shown
 int compareSites(id one, id two, void *context)
 {
     NSDictionary *sites = (NSDictionary *)context;
@@ -200,6 +201,7 @@ int compareSites(id one, id two, void *context)
     return [basePath stringByAppendingPathComponent:[[NSProcessInfo processInfo] processName]];
 }
 
+// Set the undread count in the icon
 - (IBAction)setUnread:(id)sender;
 {
     NSArray *unviewed = [self unviewedLinks];
@@ -319,7 +321,7 @@ int compareSites(id one, id two, void *context)
         [item setToolTip:[item label]];
         [item setImage:[NSImage imageNamed:@"Sections"]];
         [item setTarget:self];
-        [item setAction:@selector(toggleDrawer)];
+        [item setAction:@selector(toggleDrawer:)];
     } 
     else if ([itemIdentifier isEqualToString:@"clear"]) 
     {
@@ -366,7 +368,7 @@ int compareSites(id one, id two, void *context)
     return YES;
 }
 
-- (void) toggleDrawer;
+- (IBAction)toggleDrawer:(id)sender;
 {
     [[NSUserDefaults standardUserDefaults] setBool:![[NSUserDefaults standardUserDefaults] boolForKey:DRAWER] forKey:DRAWER];
 }
@@ -601,7 +603,7 @@ int compareSites(id one, id two, void *context)
     if (!typ)
         return NO;
     
-    NSLog(@"Drag type: %@", typ);
+    // NSLog(@"Drag type: %@", typ);
     
     [m_controller setFilterPredicate:nil];
     if ([typ isEqual:PendingLinkPBoardType])
@@ -670,7 +672,18 @@ int compareSites(id one, id two, void *context)
         ImportHTML *importer = [[ImportHTML alloc] initWithHtmlString:html
                                                                source:source
                                                               linkstr:self];
-        [importer popup];
+        if (![importer popup])
+        {
+            // If there were no links, this was plain text that happened to get
+            // copied from an HTML source.  Hope there was also a string 
+            // pasteboard type.
+            NSString *str = [pb stringForType:NSStringPboardType];
+            if (!str)
+                str = html;
+            PendingLink *p = [self insertTerms:str forSite:@"Google"];
+            [p setSource:source];
+            [self setUnread:self];
+        }
         return YES;
     }
     
@@ -950,7 +963,8 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
         p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
                                           inManagedObjectContext:[self managedObjectContext]];
         [p setUrl:url];
-        [p setText:[self DeHTML:desc]];
+        if (desc && [desc length])
+            [p setText:[self DeHTML:desc]];
     }
     [m_nagler scheduleAdd:p];
     [self setUnread:self];

@@ -53,7 +53,7 @@
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar;
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag;
 - (BOOL)validateToolbarItem:(NSToolbarItem *)theItem;
-- (void) toggleDrawer;
+- (IBAction)toggleDrawer:(id)sender;
 - (IBAction)openSelected:(id)sender;
 - (IBAction)launchAll:(id)sender;
 

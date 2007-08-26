@@ -101,20 +101,21 @@
     [(KeyPressTableView*)aTableView willDisplayCell:aCell forTableColumn:aTableColumn row:rowIndex];
 }
 
-- (void)popup;
+- (int)popup;
 {
     assert(m_controller);
     assert([m_controller content]);
     int len = [[m_controller content] count];
     if (len == 0)
-        return;
+        return 0;
     if (len == 1)
     {
         [self insertCheckedLinks];
-        return;
+        return 1;
     }
     [m_win makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
+    return len;
 }
 
 - (void)insertCheckedLinks;
@@ -129,6 +130,7 @@
                                withDescription:[link objectForKey:@"desc"]];
         [p setSource:m_source];
     }    
+    [m_delegate setUnread:self];
 }
 
 - (IBAction)done:(id)sender;

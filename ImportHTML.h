@@ -28,7 +28,7 @@
 - (Linkstr_AppDelegate*)delegate;
 
 - (void)insertCheckedLinks;
-- (void)popup;
+- (int)popup;
 - (IBAction)done:(id)sender;
 - (IBAction)setAll:(id)sender;
 

@@ -21,6 +21,7 @@
                 scriptsMenu = id; 
                 setTopLevel = id; 
                 setUnread = id; 
+                toggleDrawer = id; 
                 toggleViewed = id; 
                 unfade = id; 
             }; 
