@@ -999,10 +999,19 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
 
 - (IBAction)importSafariHistory:(id)sender;
 {
+    [m_progress startAnimation:self];
     NSString *hf = @"~/Library/Safari/History.plist";
-    hf = [hf stringByExpandingTildeInPath];
-    NSData *hist = [NSData dataWithContentsOfFile:hf];
-    NSAssert(hist, @"Can't open Safari history");
+    NSError *er;
+    NSData *hist = [NSData dataWithContentsOfFile:[hf stringByExpandingTildeInPath]
+                                          options:NSUncachedRead|NSMappedRead
+                                            error:&er];
+    if (!hist)
+    {
+        NSLog(@"Can't open Safari history: %@", er);
+        [m_progress stopAnimation:self];
+        return;
+    }
+    
     NSPropertyListFormat fmt;
     NSString *err;
     NSDictionary *plist = [NSPropertyListSerialization propertyListFromData:hist
@@ -1012,23 +1021,23 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     if (err)
     {
         NSLog(err);
+        [m_progress stopAnimation:self];
         return;
     }
 
-    NSPersistentStoreCoordinator *coord = [self persistentStoreCoordinator];
-    NSMutableDictionary *meta = [[[coord metadataForPersistentStore:persistentStore] mutableCopy] autorelease];
-    if (!meta)
-        meta = [NSMutableDictionary dictionary];
-    NSCalendarDate *last = [meta objectForKey:@"LastSafariLinkDate"];
+    NSCalendarDate *last = [[NSUserDefaults standardUserDefaults] objectForKey:@"LastSafariLinkDate"];
     if (!last)
         last = [NSCalendarDate distantPast];
-        
+    
     NSArray *h = (NSArray*)[plist objectForKey:@"WebHistoryDates"];
     NSEnumerator *en = [h objectEnumerator];
     NSDictionary *entry;
     int changes = 0;
     NSCalendarDate *first = nil;
     
+    NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
+    [undo beginUndoGrouping];
+    PendingLink *p;
     while ((entry = [en nextObject]))
     {
         NSString *dates = [entry objectForKey:@"lastVisitedDate"];
@@ -1039,17 +1048,30 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
 
         if ([date earlierDate:last] == date)
             break;
-        NSLog(@"visited: %@", date);
-        if (![self checkRedundant:[entry objectForKey:@""]
-                          forType:@"H" 
-                         withDate:date])
+        
+        NSString *url = [entry objectForKey:@""];
+        p = [self pendingForUrl:url];
+        if (!p)
+        {
+            p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
+                                              inManagedObjectContext:[self managedObjectContext]];
+            [p setUrl:url];
+            [p setText:[entry objectForKey:@"title"]];
+            [p setCreated:date];
             changes++;
+        }
+        [p setViewed:date];
+        [p release];
     }
+
     if (first)
     {
-        [meta setValue:first forKey:@"LastSafariLinkDate"];
-        [coord setMetadata:meta forPersistentStore:persistentStore];        
+        [[NSUserDefaults standardUserDefaults] setObject:first forKey:@"LastSafariLinkDate"];
     }
+    
+    [undo endUndoGrouping];
+    [self refresh:self];
+    [m_progress stopAnimation:self];
     
     [GrowlApplicationBridge notifyWithTitle:@"History Links" 
                                 description:[NSString stringWithFormat:@"%d Links Added", changes] 
