@@ -974,6 +974,10 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
 
 - (BOOL)checkRedundant:(NSString*)url forType:(NSString*)type withDate:(NSCalendarDate*)date;
 {
+    PendingLink *p = [self pendingForUrl:url];
+    if (p)
+        return YES;
+
     NSFetchRequest *fetch = 
     [[self managedObjectModel] fetchRequestFromTemplateWithName:@"checkRedundant"
                                           substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", nil]];
