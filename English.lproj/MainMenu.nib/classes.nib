@@ -10,6 +10,7 @@
                 feedsPopup = id; 
                 genericPopup = id; 
                 historyPopup = id; 
+                importDeliciousHistory = id; 
                 importSafariHistory = id; 
                 launchAll = id; 
                 openSelected = id; 

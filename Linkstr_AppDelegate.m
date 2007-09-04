@@ -26,12 +26,16 @@ NSString *TABLE_ODD_BG = @"tableOddBackground";
 NSString *TABLE_EVEN_BG = @"tableEvenBackground";
 NSString *AGRESSIVE_CLOSE = @"agressiveClose";
 NSString *FIRST_TIME = @"firstTime";
+NSString *LAST_DELICIOUS = @"LastDeliciousDate";
 
 NSString *LINK_NEW = @"New Link";
 NSString *LINK_DEL = @"Link Deleted";
 NSString *LINKS_PENDING = @"Pending Links";
 NSString *LINKS_REDUNDANT = @"Redundant Links";
 NSString *LINKS_HISTORY = @"History Links";
+
+NSString *DEL_UPDATE = @"https://api.del.icio.us/v1/posts/update";
+NSString *DEL_ALL = @"https://api.del.icio.us/v1/posts/all";
 
 static NSArray *s_SupportedTypes;
 
@@ -927,7 +931,9 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     NSFetchRequest *fetch = [[[self managedObjectModel] fetchRequestTemplateForName:@"unviewed"] copy];
     NSAssert(fetch, @"Fetch not found");
     [fetch setSortDescriptors:[self createdSortOrder]];
-    return [[self managedObjectContext] executeFetchRequest:fetch error:nil];
+    NSArray *ret = [[self managedObjectContext] executeFetchRequest:fetch error:nil];
+    [fetch release];
+    return ret;
 }
 
 - (NSString*)DeHTML:(NSString*)html;
@@ -1086,6 +1092,13 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
                                clickContext:@""];
 }
 
+- (IBAction)importDeliciousHistory:(id)sender;
+{
+    Poster *post = [[Poster alloc] initWithDelegate:self];
+    [m_progress startAnimation:self];
+    [post getURL:DEL_UPDATE];
+}
+
 - (IBAction)postDeliciously:(id)sender;
 {
     NSArray *all = [m_controller selectedObjects];
@@ -1103,6 +1116,7 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
            [p url], @"url",
            [p text], @"description", 
            @"linkstr", @"tags",
+           @"no", @"shared",
            nil]];
     }
 }
@@ -1110,6 +1124,133 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
 - (void)poster:(Poster*)poster finishedOutstanding:(int)total;
 {
     [m_progress stopAnimation:self];
+}
+
+- (NSCalendarDate*)parseDeliciousDate:(NSString*)str;
+{
+    return [NSCalendarDate dateWithString:[str stringByAppendingString:@"UTC"] 
+                           calendarFormat:@"%Y-%m-%dT%H:%M:%SZ%Z"];
+}
+
+- (void)poster:(Poster*)poster finishedLoadingUpdate:(NSDictionary*)context
+{
+    NSData *data = [context objectForKey:@"data"];
+    NSError *err;
+    NSXMLDocument *doc = [[NSXMLDocument alloc] initWithData:data
+                                                     options:0 
+                                                       error:&err];
+    if (!doc)
+    {
+        NSLog(@"Error parsing XML doc: %@", err);
+        NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"XML: %@", str);
+        [str release];
+        return;
+    }
+    NSXMLElement *posts = [doc rootElement];
+    // <update time="2007-09-04T04:43:06Z" />
+    NSString *t = [[posts attributeForName:@"time"] stringValue];
+    NSCalendarDate *date = [self parseDeliciousDate:t];
+        
+    NSCalendarDate *last = [[NSUserDefaults standardUserDefaults] objectForKey:LAST_DELICIOUS];
+    if (!last)
+        last = [NSCalendarDate distantPast];
+    
+     if (![date isGreaterThan:last])
+     {
+         [GrowlApplicationBridge notifyWithTitle:@"Del.icio.us Links" 
+                                     description:@"No new links"
+                                notificationName:LINKS_HISTORY
+                                        iconData:nil
+                                        priority:0
+                                        isSticky:NO
+                                    clickContext:@""];    
+         
+         return;
+     }
+
+     [poster getURL:DEL_ALL];
+}
+
+- (void)poster:(Poster*)poster finishedLoadingAll:(NSDictionary*)context
+{
+    NSData *data = [context objectForKey:@"data"];
+    NSError *err;
+    NSXMLDocument *doc = [[NSXMLDocument alloc] initWithData:data
+                                                     options:0 
+                                                       error:&err];
+    if (!doc)
+    {
+        NSLog(@"Error parsing XML doc: %@", err);
+        NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"XML: %@", str);
+        [str release];
+        return;
+    }
+    NSXMLElement *posts = [doc rootElement];
+    // <posts update="2007-08-24T16:20:40Z">
+    NSString *update = [[posts attributeForName:@"update"] stringValue];
+    NSCalendarDate *update_date = [self parseDeliciousDate:update];
+    NSLog(@"update: %@", update_date);
+
+    NSCalendarDate *last = [[NSUserDefaults standardUserDefaults] objectForKey:LAST_DELICIOUS];
+    if (!last)
+        last = [NSCalendarDate distantPast];
+    
+    NSEnumerator *en = [[posts elementsForName:@"post"] objectEnumerator];
+    NSXMLElement *post;
+    int changes = 0;
+    while ((post = [en nextObject]))
+    {
+        NSString *t = [[post attributeForName:@"time"] stringValue];
+        NSCalendarDate *d = [self parseDeliciousDate:t];
+
+        // hope they're in order.
+        if ([d isLessThanOrEqualTo:last])
+            break;
+        
+        NSString *u = [[post attributeForName:@"href"] stringValue];
+        PendingLink *p = [self pendingForUrl:u];
+        if (!p)
+        {
+            p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
+                                              inManagedObjectContext:[self managedObjectContext]];
+            [p setUrl:u];
+            [p setText:[[post attributeForName:@"description"] stringValue]];
+            [p setCreated:d];
+            [p setViewed:d];
+            [p release];        
+            changes++;
+        }
+    }
+    [doc release];  
+    
+    [[NSUserDefaults standardUserDefaults] setObject:update_date forKey:LAST_DELICIOUS];
+    [self refresh:self];
+    
+    [GrowlApplicationBridge notifyWithTitle:@"Del.icio.us Links" 
+                                description:[NSString stringWithFormat:@"%d Links Added", changes] 
+                           notificationName:LINKS_HISTORY
+                                   iconData:nil
+                                   priority:0
+                                   isSticky:NO
+                               clickContext:@""];    
+}
+
+- (void)poster:(Poster*)poster finishedLoading:(NSDictionary*)context;
+{
+    int code = [[context objectForKey:@"code"] intValue];
+    if (code != 200)
+    {
+        NSLog(@"Error code: %d", code);
+        return;
+    }
+    
+    NSString *url = [context objectForKey:@"url"];
+    if ([url isEqual:DEL_UPDATE])
+        [self poster:poster finishedLoadingUpdate:context];
+    else if ([url isEqual:DEL_ALL])
+        [self poster:poster finishedLoadingAll:context];
 }
 
 - (IBAction)removeSelected:(id)sender;

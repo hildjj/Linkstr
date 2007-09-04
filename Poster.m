@@ -15,11 +15,34 @@
     if (![super init])
         return nil;
     
+    m_pending = [[NSMutableArray alloc] init];
     m_delegate = delegate;
     m_outstanding = 0;
     m_total = 0;
     [NSBundle loadNibNamed:@"Keychain" owner:self];
     return self;
+}
+
+- (void) dealloc 
+{    
+    [m_pending release], m_pending = nil;
+    [super dealloc];
+}
+
+- (NSMutableDictionary*)contextForConnection:(NSURLConnection*)connection
+{
+    // well, of course I wish this wasn't a linear search.
+    // But NSURLConnection can't be used as a hash key.
+    NSEnumerator *en = [m_pending objectEnumerator];
+    NSMutableDictionary *dict;
+    while ((dict = [en nextObject]))
+    {
+        if ([[dict objectForKey:@"connection"] isEqual:connection])
+        {
+            return dict;
+        }
+    }
+    return nil;
 }
 
 - (IBAction)done:(id)sender;
@@ -51,6 +74,12 @@
         NSLog(@"could not open connection to: %@", url);
         return;
     }
+    [m_pending addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+        url, @"url",
+        con, @"connection",
+        req, @"request",
+        [NSMutableData data], @"data",
+        nil]];
 }
 
 - (NSString*)urlEscape:(NSString*)str;
@@ -89,9 +118,16 @@
     [self getURL:murl];
 }
 
-- (void)finished;
+- (void)finished:(NSURLConnection *)connection;
 {
+    NSDictionary *dict = [self contextForConnection:connection];
+    [m_pending removeObject:dict];
     m_outstanding--;
+    assert(m_outstanding == (int)[m_pending count]);
+    
+    if ([m_delegate respondsToSelector:@selector(poster:finishedLoading:)])
+        [m_delegate poster:self finishedLoading:dict];
+
     if (m_outstanding != 0)
         return;
     
@@ -102,12 +138,12 @@
 
 - (void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 {
-    [self finished];
+    [self finished:connection];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
 {
-    [self finished];
+    [self finished:connection];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
@@ -144,16 +180,17 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data;
 {
-    // TODO: we really ought to check the XML result code for 
-    // del.icio.us
-    
-    //NSLog(@"data: %@", [[[NSString alloc] initWithData:data
-    //                                          encoding:NSUTF8StringEncoding] autorelease]);
+    NSMutableDictionary *dict = [self contextForConnection:connection];
+    [[dict objectForKey:@"data"] appendData:data];
 }
 
 -(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response;
 {
-    // NSLog(@"response: %d", [(NSHTTPURLResponse*)response statusCode]);
+    NSMutableDictionary *dict = [self contextForConnection:connection];
+    int code = [(NSHTTPURLResponse*)response statusCode];
+    [dict setObject:[NSNumber numberWithInt:code] forKey:@"code"];
+    NSMutableData *data = [dict objectForKey:@"data"];
+    [data setLength:0];  // might get called more than once, on redirects
 }
 
 -(NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse;
@@ -163,6 +200,6 @@
 
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection;
 {
-    [self finished];
+    [self finished:connection];
 }
 @end

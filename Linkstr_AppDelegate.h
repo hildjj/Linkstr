@@ -92,6 +92,7 @@
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
 - (BOOL)checkRedundant:(NSString*)url forType:(NSString*)type withDate:(NSCalendarDate*)date;
 - (IBAction)importSafariHistory:(id)sender;
+- (IBAction)importDeliciousHistory:(id)sender;
 - (IBAction)postDeliciously:(id)sender;
 - (IBAction)removeSelected:(id)sender;
 - (IBAction)toggleViewed:(id)sender;
