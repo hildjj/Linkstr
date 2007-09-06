@@ -27,6 +27,7 @@ NSString *TABLE_EVEN_BG = @"tableEvenBackground";
 NSString *AGRESSIVE_CLOSE = @"agressiveClose";
 NSString *FIRST_TIME = @"firstTime";
 NSString *LAST_DELICIOUS = @"LastDeliciousDate";
+NSString *IMPORT_HTTPS = @"importHTTPS";
 
 NSString *LINK_NEW = @"New Link";
 NSString *LINK_DEL = @"Link Deleted";
@@ -99,6 +100,7 @@ static NSArray *s_SupportedTypes;
         @"YES", FLOAT,
         @"YES", AGRESSIVE_CLOSE,
         @"YES", FIRST_TIME,
+        @"NO", IMPORT_HTTPS,
         [NSNumber numberWithFloat:0.55], ALPHA,
         @"http://linkstr.net/changes.xml", @"SUFeedURL",
         sites, SITES,
@@ -957,6 +959,10 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
 
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
 {
+    if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
+        ([url hasPrefix:@"https"]))
+        return nil;
+    
     PendingLink *p = [self pendingForUrl:url];
     if (p)
     {
@@ -1060,6 +1066,10 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
             break;
         
         NSString *url = [entry objectForKey:@""];
+        if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
+            ([url hasPrefix:@"https"]))
+            continue;
+        
         p = [self pendingForUrl:url];
         if (!p)
         {
@@ -1210,6 +1220,10 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
             break;
         
         NSString *u = [[post attributeForName:@"href"] stringValue];
+        if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
+            ([u hasPrefix:@"https"]))
+            continue;
+        
         PendingLink *p = [self pendingForUrl:u];
         if (!p)
         {
