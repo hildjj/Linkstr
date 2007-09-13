@@ -15,7 +15,6 @@
 {
     IBOutlet NSWindow *m_win;
     IBOutlet NSArrayController *m_controller;  
-    IBOutlet NSArrayController *m_sites;
     IBOutlet NSProgressIndicator *m_progress;
     IBOutlet NSDrawer *m_drawer;
     IBOutlet NSTableView *m_table;
@@ -23,6 +22,7 @@
     IBOutlet ImageTextSheet *m_sheet;
     IBOutlet NSMenuItem *m_action;
         
+    NSWindowController *m_prefs;
     NSWindowController *m_feeds;
     NSWindowController *m_history;
     GrowlNagler *m_nagler;
@@ -75,6 +75,7 @@
 - (PendingLink*)insertTerms:(NSString*)terms forSite:(NSString*)site;
 - (IBAction)scriptsMenu:(id)sender;
 
+- (IBAction)prefsPopup:(id)sender;
 - (IBAction)feedsPopup:(id)sender;
 - (IBAction)historyPopup:(id)sender;
 
@@ -89,8 +90,14 @@
 - (NSArray*)redundantUrls;
 - (NSArray*)urlsForType:(NSString*)type;
 - (NSArray*)unviewedLinks;
+- (id)insertURL:(NSString*)url withDescription:(NSString*)desc
+     withViewed:(NSCalendarDate*)viewed
+    withCreated:(NSCalendarDate*)created;
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
-- (BOOL)checkRedundant:(NSString*)url forType:(NSString*)type withDate:(NSCalendarDate*)date;
+- (BOOL)checkRedundant:(NSString*)url 
+               forType:(NSString*)type 
+              withDate:(NSCalendarDate*)date
+       withDescription:(NSString*)desc;
 - (IBAction)importSafariHistory:(id)sender;
 - (IBAction)importDeliciousHistory:(id)sender;
 - (IBAction)postDeliciously:(id)sender;

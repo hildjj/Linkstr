@@ -15,8 +15,10 @@
 
 + (void)initialize;
 + (NSArray *)copyKeys;
+/*
 + (NSString*)googleUrl:(NSString*)terms;
 + (NSString*)wikipediaUrl:(NSString*)terms;
+*/
 
 - (NSDictionary *)dictionaryRepresentation;
 - (NSScriptObjectSpecifier *)objectSpecifier;

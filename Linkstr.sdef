@@ -319,6 +319,9 @@
 		<command name="check redundant" code="LnkTcfRu" description="Check a URL for redundancy.  The first time, we&apos;ll return false.  After that, true.">
 			<cocoa class="LSCheckRedundantCommand"/>
 			<direct-parameter description="The URL to check" type="text"/>
+			<parameter name="with description" code="iTdc" type="text" optional="yes">
+				<cocoa key="desc"/>
+			</parameter>
 			<result description="The first time for a given URL, we&apos;ll return false.  After that, true." type="boolean"/>
 		</command>
 		<command name="add history" code="LnkTadHi" description="Add a link to the history database">

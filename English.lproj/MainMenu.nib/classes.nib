@@ -16,6 +16,7 @@
                 openSelected = id; 
                 paste = id; 
                 postDeliciously = id; 
+                prefsPopup = id; 
                 refresh = id; 
                 removeSelected = id; 
                 saveAction = id; 
@@ -35,7 +36,6 @@
                 "m_progress" = NSProgressIndicator; 
                 "m_search" = NSSearchField; 
                 "m_sheet" = ImageTextSheet; 
-                "m_sites" = NSArrayController; 
                 "m_table" = NSTableView; 
                 "m_win" = NSWindow; 
                 persistentStore = id; 

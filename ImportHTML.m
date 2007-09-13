@@ -122,13 +122,18 @@
 {
     NSEnumerator *en = [[m_controller content] objectEnumerator];
     NSDictionary *link;
+    NSCalendarDate *now = [NSCalendarDate calendarDate];
+    
     while ((link = [en nextObject]))
     {
         if (![[link objectForKey:@"checked"] boolValue])
             continue;
         PendingLink *p = [m_delegate insertURL:[link objectForKey:@"url"]
-                               withDescription:[link objectForKey:@"desc"]];
+                               withDescription:[link objectForKey:@"desc"]
+                                    withViewed:nil
+                                   withCreated:now];
         [p setSource:m_source];
+        [p release];
     }    
     [m_delegate setUnread:self];
 }

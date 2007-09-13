@@ -13,6 +13,7 @@
 #import "KeyPressTableView.h"
 #import "ImportHTML.h"
 #import "Poster.h"
+#import "Prefs.h"
 
 NSString *PendingLinkPBoardType = @"PendingLinkPBoardType";
 
@@ -28,6 +29,7 @@ NSString *AGRESSIVE_CLOSE = @"agressiveClose";
 NSString *FIRST_TIME = @"firstTime";
 NSString *LAST_DELICIOUS = @"LastDeliciousDate";
 NSString *IMPORT_HTTPS = @"importHTTPS";
+NSString *AVOID_FUNNY = @"avoidFunnyLinks";
 
 NSString *LINK_NEW = @"New Link";
 NSString *LINK_DEL = @"Link Deleted";
@@ -97,10 +99,11 @@ static NSArray *s_SupportedTypes;
     [[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
         @"YES", DRAWER,
         @"NO", SQL_DEBUG,
-        @"YES", FLOAT,
+        @"NO", FLOAT,
         @"YES", AGRESSIVE_CLOSE,
         @"YES", FIRST_TIME,
         @"NO", IMPORT_HTTPS,
+        @"YES", AVOID_FUNNY,
         [NSNumber numberWithFloat:0.55], ALPHA,
         @"http://linkstr.net/changes.xml", @"SUFeedURL",
         sites, SITES,
@@ -175,7 +178,7 @@ int compareSites(id one, id two, void *context)
         [item setAction:@selector(genericPopup:)];
         [item setRepresentedObject:site];
         [menu addItem:item];
-        [m_sites addObject:site];
+//        [m_sites addObject:site];
     }        
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey:FIRST_TIME])
@@ -194,6 +197,10 @@ int compareSites(id one, id two, void *context)
     [persistentStoreCoordinator release], persistentStoreCoordinator = nil;
     [managedObjectModel release], managedObjectModel = nil;
     [m_nagler release], m_nagler = nil;
+    [m_prefs release], m_prefs = nil;
+    [m_feeds release], m_feeds = nil;
+    [m_history release], m_history = nil;
+    
     [super dealloc];
 }
 
@@ -856,6 +863,14 @@ int compareSites(id one, id two, void *context)
     [[NSWorkspace sharedWorkspace] openURL:url];
 }
 
+- (IBAction)prefsPopup:(id)sender;
+{
+    NSLog(@"prefs");
+    if (!m_prefs)
+        m_prefs = [[Prefs alloc] init];
+    [m_prefs showWindow:self];
+}
+
 - (IBAction)feedsPopup:(id)sender;
 {
     if (!m_feeds)
@@ -957,39 +972,78 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
         */
 }
 
+- (BOOL)isFunny:(NSString*)str
+{
+    if (!str)
+        return NO;
+    
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:AVOID_FUNNY])
+        return NO;
+    
+    int funny = 0;
+    uint i;
+    for (i=0; i<[str length]; i++)
+    {
+        unichar c = [str characterAtIndex:i];
+        if (c > 566) // arbitrary
+            funny++;
+        if (funny > 3) // that's pretty funny
+            return YES;            
+    }
+    
+    return NO;
+}
+
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
+{
+    return [self insertURL:url 
+           withDescription:desc 
+                withViewed:nil 
+               withCreated:[NSCalendarDate calendarDate]];
+}
+
+- (id)insertURL:(NSString*)url 
+withDescription:(NSString*)desc
+     withViewed:(NSCalendarDate*)viewed
+    withCreated:(NSCalendarDate*)created;
 {
     if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
         ([url hasPrefix:@"https"]))
         return nil;
     
+    if ([self isFunny:desc])
+        return nil;
+    
     PendingLink *p = [self pendingForUrl:url];
-    if (p)
-    {
-        [p setViewed:nil];
-        [p setCreated:[NSCalendarDate calendarDate]];
-        NSLog(@"clearing");
-    }
-    else    
+    if (!p)
     {
         p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
                                           inManagedObjectContext:[self managedObjectContext]];
         [p setUrl:url];
         if (desc && [desc length])
             [p setText:[self DeHTML:desc]];
+        [p setCreated:created];
     }
+    [p setViewed:viewed];
+    
     [m_nagler scheduleAdd:p];
     [self setUnread:self];
     [m_table scrollRowToVisible:0];
     return [[p retain] autorelease];
 }
 
-- (BOOL)checkRedundant:(NSString*)url forType:(NSString*)type withDate:(NSCalendarDate*)date;
+- (BOOL)checkRedundant:(NSString*)url 
+               forType:(NSString*)type 
+              withDate:(NSCalendarDate*)date
+       withDescription:(NSString*)desc;
 {
     PendingLink *p = [self pendingForUrl:url];
     if (p)
         return YES;
 
+    if ([self isFunny:desc])
+        return YES;
+    
     NSFetchRequest *fetch = 
     [[self managedObjectModel] fetchRequestFromTemplateWithName:@"checkRedundant"
                                           substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", nil]];
@@ -1070,17 +1124,12 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
             ([url hasPrefix:@"https"]))
             continue;
         
-        p = [self pendingForUrl:url];
-        if (!p)
-        {
-            p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
-                                              inManagedObjectContext:[self managedObjectContext]];
-            [p setUrl:url];
-            [p setText:[entry objectForKey:@"title"]];
-            [p setCreated:date];
+        p = [self insertURL:url 
+            withDescription:[entry objectForKey:@"title"]
+                 withViewed:date
+                withCreated:date];
+        if ([[p created] isEqual:date])
             changes++;
-        }
-        [p setViewed:date];
         [p release];
     }
 
@@ -1224,18 +1273,13 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
             ([u hasPrefix:@"https"]))
             continue;
         
-        PendingLink *p = [self pendingForUrl:u];
-        if (!p)
-        {
-            p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
-                                              inManagedObjectContext:[self managedObjectContext]];
-            [p setUrl:u];
-            [p setText:[[post attributeForName:@"description"] stringValue]];
-            [p setCreated:d];
-            [p setViewed:d];
-            [p release];        
+        PendingLink *p = [self insertURL:u 
+                         withDescription:[[post attributeForName:@"description"] stringValue]
+                              withViewed:d
+                             withCreated:d];
+        if ([[p created] isEqual:d])
             changes++;
-        }
+        [p release];
     }
     [doc release];  
     

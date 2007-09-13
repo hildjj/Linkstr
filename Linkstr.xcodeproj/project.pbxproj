@@ -30,8 +30,11 @@
 		296D95830C752F95004A1668 /* ImportHTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 296D95810C752F95004A1668 /* ImportHTML.m */; };
 		29A1FB640C5A3FB8005179D2 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 29A1FB630C5A3FB8005179D2 /* Credits.html */; };
 		29A1FC3D0C5A5AD0005179D2 /* aquaball.icns in Resources */ = {isa = PBXBuildFile; fileRef = 29A1FC3C0C5A5AD0005179D2 /* aquaball.icns */; };
+		29B2244C0C99930600A4CF8C /* Prefs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 29B2244A0C99930600A4CF8C /* Prefs.h */; };
+		29B2244D0C99930600A4CF8C /* Prefs.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B2244B0C99930600A4CF8C /* Prefs.m */; };
 		29B60E7A0C53124F00ECF6AE /* KeyPressTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B60E780C53124F00ECF6AE /* KeyPressTableView.m */; };
 		29D125D50C80120F00757E28 /* Scripts in Resources */ = {isa = PBXBuildFile; fileRef = 29D125C50C80120F00757E28 /* Scripts */; };
+		29F599910C99A62000812A9D /* Prefs.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29F5998B0C99A62000812A9D /* Prefs.nib */; };
 		29F6D0020C5132AA001833E4 /* ContextWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29F6D0000C5132AA001833E4 /* ContextWindowController.m */; };
 		29F6D07C0C514CA8001833E4 /* Clear.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 29F6D0710C514CA8001833E4 /* Clear.tiff */; };
 		29F6D07D0C514CA8001833E4 /* Drawer.icns in Resources */ = {isa = PBXBuildFile; fileRef = 29F6D0720C514CA8001833E4 /* Drawer.icns */; };
@@ -62,6 +65,7 @@
 			files = (
 				290815260C7CD4C0006814DD /* Sparkle.framework in CopyFiles */,
 				290815250C7CD4BD006814DD /* Growl.framework in CopyFiles */,
+				29B2244C0C99930600A4CF8C /* Prefs.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,6 +107,8 @@
 		296D95810C752F95004A1668 /* ImportHTML.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ImportHTML.m; sourceTree = "<group>"; };
 		29A1FB630C5A3FB8005179D2 /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		29A1FC3C0C5A5AD0005179D2 /* aquaball.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = aquaball.icns; sourceTree = "<group>"; };
+		29B2244A0C99930600A4CF8C /* Prefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefs.h; sourceTree = "<group>"; };
+		29B2244B0C99930600A4CF8C /* Prefs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Prefs.m; sourceTree = "<group>"; };
 		29B60E770C53124F00ECF6AE /* KeyPressTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyPressTableView.h; sourceTree = "<group>"; };
 		29B60E780C53124F00ECF6AE /* KeyPressTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyPressTableView.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -110,6 +116,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		29D125C50C80120F00757E28 /* Scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Scripts; sourceTree = "<group>"; };
+		29F5998C0C99A62000812A9D /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/Prefs.nib; sourceTree = "<group>"; };
 		29F6CFFF0C5132AA001833E4 /* ContextWindowController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ContextWindowController.h; sourceTree = "<group>"; };
 		29F6D0000C5132AA001833E4 /* ContextWindowController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ContextWindowController.m; sourceTree = "<group>"; };
 		29F6D0710C514CA8001833E4 /* Clear.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Clear.tiff; sourceTree = "<group>"; };
@@ -165,6 +172,8 @@
 				296D95810C752F95004A1668 /* ImportHTML.m */,
 				290815D80C7CE36D006814DD /* Poster.h */,
 				290815D90C7CE36D006814DD /* Poster.m */,
+				29B2244A0C99930600A4CF8C /* Prefs.h */,
+				29B2244B0C99930600A4CF8C /* Prefs.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -239,10 +248,11 @@
 		295B5E550C500AD100815FAC /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
+				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
 				290E1DF10C7FD39100742667 /* ImageTextSheet.nib */,
 				296D957D0C752E5A004A1668 /* Importer.nib */,
 				290E1DF40C7FD39E00742667 /* Keychain.nib */,
-				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
+				29F5998B0C99A62000812A9D /* Prefs.nib */,
 				290E1DF70C7FD3A700742667 /* UrlList.nib */,
 			);
 			name = Interfaces;
@@ -369,6 +379,7 @@
 				290E1DF60C7FD39E00742667 /* Keychain.nib in Resources */,
 				290E1DF90C7FD3A700742667 /* UrlList.nib in Resources */,
 				29D125D50C80120F00757E28 /* Scripts in Resources */,
+				29F599910C99A62000812A9D /* Prefs.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,6 +409,7 @@
 				290E1E2F0C7FD4CD00742667 /* LSParseHtmlCommand.m in Sources */,
 				290E1E310C7FD4CD00742667 /* OpenAllCommand.m in Sources */,
 				290E1E330C7FD4CD00742667 /* RefreshCommand.m in Sources */,
+				29B2244D0C99930600A4CF8C /* Prefs.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -450,6 +462,14 @@
 				29B97319FDCFA39411CA2CEA /* English */,
 			);
 			name = MainMenu.nib;
+			sourceTree = "<group>";
+		};
+		29F5998B0C99A62000812A9D /* Prefs.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				29F5998C0C99A62000812A9D /* English */,
+			);
+			name = Prefs.nib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

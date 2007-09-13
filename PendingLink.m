@@ -35,7 +35,7 @@ NSString *WIKI = @"http://www.wikipedia.org/w/wiki.phtml?search=%@";
         copyKeys = [[NSArray alloc] initWithObjects: @"url", @"created", @"viewed", @"text", @"source", nil];
     return copyKeys;
 }
-
+/*
 + (NSString*)googleUrl:(NSString*)terms;
 {
     NSString *pct = [terms stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -47,7 +47,7 @@ NSString *WIKI = @"http://www.wikipedia.org/w/wiki.phtml?search=%@";
     NSString *pct = [terms stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     return [NSString stringWithFormat:WIKI, pct];
 }
-
+*/
 - (NSDictionary *)dictionaryRepresentation;
 {
     return [self dictionaryWithValuesForKeys:[[self class] copyKeys]];
