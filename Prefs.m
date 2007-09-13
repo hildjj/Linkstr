@@ -15,7 +15,7 @@
 {
     if (!(self = [super initWithWindowNibName:@"Prefs" owner:self]))
         return nil;
-    return self;
+   return self;
 }
 
 - (void)dealloc;
@@ -23,6 +23,13 @@
     [m_sites release], m_sites = nil;
     
     [super dealloc];
+}
+
+- (void)showWindow:(id)sender;
+{
+    NSLog(@"win: %@", [self window]);
+    [super showWindow:sender];
+    [[self window] makeKeyAndOrderFront:sender];
 }
 
 @end

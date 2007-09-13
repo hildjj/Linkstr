@@ -865,7 +865,6 @@ int compareSites(id one, id two, void *context)
 
 - (IBAction)prefsPopup:(id)sender;
 {
-    NSLog(@"prefs");
     if (!m_prefs)
         m_prefs = [[Prefs alloc] init];
     [m_prefs showWindow:self];
