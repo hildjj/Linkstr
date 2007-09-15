@@ -43,6 +43,11 @@
     [controller setEntityName:entity];
 }
 
+- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
+{
+    [(KeyPressTableView*)aTableView willDisplayCell:aCell forTableColumn:aTableColumn row:rowIndex];
+}
+
 #pragma mark -
 #pragma mark Copy/Paste/Drag/Drop
 

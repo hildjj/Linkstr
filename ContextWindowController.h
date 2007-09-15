@@ -1,11 +1,12 @@
 /* FeedsWindowController */
 
 #import <Cocoa/Cocoa.h>
+#import "KeyPressTableView.h"
 
 @interface ContextWindowController : NSWindowController
 {
     IBOutlet NSArrayController *controller;
-    
+    IBOutlet KeyPressTableView *tableView;
     NSManagedObjectContext *managedObjectContext;
     NSString *entity;
 }

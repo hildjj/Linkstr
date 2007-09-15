@@ -11,7 +11,6 @@
 static NSColor *s_foreground = nil;
 static NSArray *s_backgroundColors = nil;
 
-
 @implementation KeyPressTableView
 
 - (void)awakeFromNib;
@@ -59,7 +58,6 @@ static NSArray *s_backgroundColors = nil;
             return;
         s_foreground = [(NSColor *)[NSUnarchiver unarchiveObjectWithData:d] retain];
     }
-    
     [aCell setTextColor:s_foreground];
 }
 
