@@ -8,7 +8,7 @@
 
 #import "Sites.h"
 
-NSString *SITES = @"sites";
+extern NSString *SITES;
 
 @implementation Sites
 
