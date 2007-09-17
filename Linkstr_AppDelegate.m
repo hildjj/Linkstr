@@ -14,22 +14,23 @@
 #import "ImportHTML.h"
 #import "Poster.h"
 #import "Prefs.h"
+#import "Sites.h"
 
 NSString *PendingLinkPBoardType = @"PendingLinkPBoardType";
 
-NSString *DRAWER = @"showDrawer";
-NSString *ALPHA = @"alpha";
-NSString *SQL_DEBUG = @"sqlDebug";
-NSString *FLOAT = @"floatOnTop";
-NSString *SITES = @"sites";
-NSString *TABLE_TEXT_FG = @"tableTextForeground";
-NSString *TABLE_ODD_BG = @"tableOddBackground";
-NSString *TABLE_EVEN_BG = @"tableEvenBackground";
 NSString *AGRESSIVE_CLOSE = @"agressiveClose";
-NSString *FIRST_TIME = @"firstTime";
-NSString *LAST_DELICIOUS = @"LastDeliciousDate";
-NSString *IMPORT_HTTPS = @"importHTTPS";
+NSString *ALPHA = @"alpha";
 NSString *AVOID_FUNNY = @"avoidFunnyLinks";
+NSString *DRAWER = @"showDrawer";
+NSString *FIRST_TIME = @"firstTime";
+NSString *FLOAT = @"floatOnTop";
+NSString *IMPORT_HTTPS = @"importHTTPS";
+NSString *LAST_DELICIOUS = @"LastDeliciousDate";
+NSString *SITES = @"sites";
+NSString *SQL_DEBUG = @"sqlDebug";
+NSString *TABLE_EVEN_BG = @"tableEvenBackground";
+NSString *TABLE_ODD_BG = @"tableOddBackground";
+NSString *TABLE_TEXT_FG = @"tableTextForeground";
 
 NSString *LINK_NEW = @"New Link";
 NSString *LINK_DEL = @"Link Deleted";
@@ -121,15 +122,6 @@ static NSArray *s_SupportedTypes;
         NSStringPboardType, nil] retain];    
 }
 
-// order the keys of the array by the text that will be shown
-int compareSites(id one, id two, void *context)
-{
-    NSDictionary *sites = (NSDictionary *)context;
-    NSDictionary *od = [sites objectForKey:one];
-    NSDictionary *td = [sites objectForKey:two];
-    return [[od objectForKey:@"name"] compare:[td objectForKey:@"name"]];
-}
-
 - (void)awakeFromNib;
 {
     m_closing = NO;
@@ -145,31 +137,14 @@ int compareSites(id one, id two, void *context)
     [GrowlApplicationBridge setGrowlDelegate:self];
     
     NSMenu *menu = [m_action submenu];
-    id anon_sites = [[NSUserDefaults standardUserDefaults] objectForKey:SITES];
+    Sites *s = [[Sites alloc] init];
+    NSEnumerator *en = [s objectEnumerator];
     NSDictionary *site;
-    NSEnumerator *en;
-    if ([anon_sites isKindOfClass:[NSArray class]])
+    while ((site = [en nextObject]))
     {
-        // convert old.
-        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-        en = [anon_sites objectEnumerator];
-        while ((site = [en nextObject]))
-            [dict setObject:site forKey:[site objectForKey:@"name"]];
-        [[NSUserDefaults standardUserDefaults] setObject:dict forKey:SITES];
-        anon_sites = dict;
-    }
-    NSDictionary *sites = anon_sites;
-    NSArray *keys = [sites allKeys];
-    keys = [keys sortedArrayUsingFunction:compareSites context:sites];
-    
-    en = [keys objectEnumerator];
-    NSString *key;
-    while ((key = [en nextObject]))
-    {
-        site = [sites objectForKey:key];
         NSMenuItem *item = [[NSMenuItem alloc] init];
         [item setTitle:[site objectForKey:@"name"]];
-        key = [site objectForKey:@"key"];
+        NSString *key = [site objectForKey:@"key"];
         if (key)
             [item setKeyEquivalent:key];
         NSNumber *mask = [site objectForKey:@"mask"];
@@ -178,8 +153,8 @@ int compareSites(id one, id two, void *context)
         [item setAction:@selector(genericPopup:)];
         [item setRepresentedObject:site];
         [menu addItem:item];
-//        [m_sites addObject:site];
     }        
+    [s release];
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey:FIRST_TIME])
     {
@@ -615,9 +590,7 @@ int compareSites(id one, id two, void *context)
     NSString *typ = [pb availableTypeFromArray:s_SupportedTypes];
     if (!typ)
         return NO;
-    
-    // NSLog(@"Drag type: %@", typ);
-    
+        
     [m_controller setFilterPredicate:nil];
     if ([typ isEqual:PendingLinkPBoardType])
     {

@@ -7,7 +7,7 @@
 //
 
 #import "Prefs.h"
-
+#import "KeyPressTableView.h"
 
 @implementation Prefs
 
@@ -15,7 +15,8 @@
 {
     if (!(self = [super initWithWindowNibName:@"Prefs" owner:self]))
         return nil;
-   return self;
+    
+    return self;
 }
 
 - (void)dealloc;
@@ -27,9 +28,13 @@
 
 - (void)showWindow:(id)sender;
 {
-    NSLog(@"win: %@", [self window]);
     [super showWindow:sender];
     [[self window] makeKeyAndOrderFront:sender];
+}
+
+- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
+{
+    [(KeyPressTableView*)aTableView willDisplayCell:aCell forTableColumn:aTableColumn row:rowIndex];
 }
 
 @end

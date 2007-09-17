@@ -22,6 +22,8 @@
 		290E1E2F0C7FD4CD00742667 /* LSParseHtmlCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 290E1E210C7FD4CD00742667 /* LSParseHtmlCommand.m */; };
 		290E1E310C7FD4CD00742667 /* OpenAllCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 290E1E230C7FD4CD00742667 /* OpenAllCommand.m */; };
 		290E1E330C7FD4CD00742667 /* RefreshCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 290E1E250C7FD4CD00742667 /* RefreshCommand.m */; };
+		291EA68A0C9C2D170038DF11 /* Sites.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 291EA6880C9C2D170038DF11 /* Sites.h */; };
+		291EA68B0C9C2D170038DF11 /* Sites.m in Sources */ = {isa = PBXBuildFile; fileRef = 291EA6890C9C2D170038DF11 /* Sites.m */; };
 		2936725E0C733B5A009EDA42 /* GrowlNagler.m in Sources */ = {isa = PBXBuildFile; fileRef = 2936725C0C733B5A009EDA42 /* GrowlNagler.m */; };
 		295B57BA0C4F17A000815FAC /* PendingLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 295B57B90C4F17A000815FAC /* PendingLink.m */; };
 		295B5BE50C4FBFB700815FAC /* Linkstr.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 295B5BE40C4FBFB700815FAC /* Linkstr.sdef */; };
@@ -66,6 +68,7 @@
 				290815260C7CD4C0006814DD /* Sparkle.framework in CopyFiles */,
 				290815250C7CD4BD006814DD /* Growl.framework in CopyFiles */,
 				29B2244C0C99930600A4CF8C /* Prefs.h in CopyFiles */,
+				291EA68A0C9C2D170038DF11 /* Sites.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,6 +98,8 @@
 		290E1E230C7FD4CD00742667 /* OpenAllCommand.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = OpenAllCommand.m; sourceTree = "<group>"; };
 		290E1E240C7FD4CD00742667 /* RefreshCommand.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = RefreshCommand.h; sourceTree = "<group>"; };
 		290E1E250C7FD4CD00742667 /* RefreshCommand.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = RefreshCommand.m; sourceTree = "<group>"; };
+		291EA6880C9C2D170038DF11 /* Sites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sites.h; sourceTree = "<group>"; };
+		291EA6890C9C2D170038DF11 /* Sites.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Sites.m; sourceTree = "<group>"; };
 		2936725B0C733B5A009EDA42 /* GrowlNagler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrowlNagler.h; sourceTree = "<group>"; };
 		2936725C0C733B5A009EDA42 /* GrowlNagler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GrowlNagler.m; sourceTree = "<group>"; };
 		295B57B80C4F17A000815FAC /* PendingLink.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PendingLink.h; sourceTree = "<group>"; };
@@ -311,6 +316,8 @@
 				29F6D0F20C51557E001833E4 /* urlList.m */,
 				295B57B80C4F17A000815FAC /* PendingLink.h */,
 				295B57B90C4F17A000815FAC /* PendingLink.m */,
+				291EA6880C9C2D170038DF11 /* Sites.h */,
+				291EA6890C9C2D170038DF11 /* Sites.m */,
 				770B37EC0679A11B001EADE2 /* Linkstr_DataModel.xcdatamodel */,
 				29F6D0C10C51519C001833E4 /* urlLists.xcdatamodel */,
 			);
@@ -410,6 +417,7 @@
 				290E1E310C7FD4CD00742667 /* OpenAllCommand.m in Sources */,
 				290E1E330C7FD4CD00742667 /* RefreshCommand.m in Sources */,
 				29B2244D0C99930600A4CF8C /* Prefs.m in Sources */,
+				291EA68B0C9C2D170038DF11 /* Sites.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

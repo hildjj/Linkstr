@@ -7,7 +7,8 @@
             LANGUAGE = ObjC; 
             OUTLETS = {"m_sites" = NSArrayController; }; 
             SUPERCLASS = NSWindowController; 
-        }
+        }, 
+        {CLASS = Sites; LANGUAGE = ObjC; SUPERCLASS = NSArrayController; }
     ); 
     IBVersion = 1; 
 }
