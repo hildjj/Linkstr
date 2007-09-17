@@ -957,7 +957,8 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     for (i=0; i<[str length]; i++)
     {
         unichar c = [str characterAtIndex:i];
-        if (c > 566) // arbitrary
+        if ((c == '&') ||
+            (c > 566)) // arbitrary
             funny++;
         if (funny > 3) // that's pretty funny
             return YES;            
