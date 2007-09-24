@@ -88,6 +88,7 @@
 
 - (NSArray*)fullContentUrls;
 - (NSArray*)redundantUrls;
+- (void)setRedundantUrls:(NSArray*)urls;
 - (NSArray*)urlsForType:(NSString*)type;
 - (NSArray*)unviewedLinks;
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc

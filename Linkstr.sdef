@@ -307,8 +307,17 @@
 				<cocoa key="created"/>
 			</property>
 		</class>
-		<class name="redundant feed" code="tRur" plural="redundant feeds" inherits="url">
+		<class name="redundant feed" code="tRur" plural="redundant feeds" inherits="item">
 			<cocoa class="urlList"/>
+			<property name="link" code="rUrl" description="The URL of the redundant feed" type="text">
+				<cocoa key="url"/>
+			</property>
+			<property name="created" code="rCre" description="The date the feed was added" type="date">
+				<cocoa key="created"/>
+			</property>
+			<property name="kind" code="rTyp" description="R for redundant" type="text">
+				<cocoa key="type"/>
+			</property>
 		</class>
 		<command name="refresh" code="LnkTrefr" description="Refresh the list, reading the current database contents">
 			<cocoa class="RefreshCommand"/>

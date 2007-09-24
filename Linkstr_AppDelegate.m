@@ -446,8 +446,9 @@ static NSArray *s_SupportedTypes;
     
     [m_progress stopAnimation:self];    
     
+    int count = [urls count];
     [GrowlApplicationBridge notifyWithTitle:@"Links Opened" 
-                                description:[NSString stringWithFormat:@"%d Links", [urls count]] 
+                                description:[NSString stringWithFormat:@"%d %@", count, (count==1) ? @"Link" : @"Links"] 
                            notificationName:LINKS_PENDING
                                    iconData:nil
                                    priority:0
@@ -890,13 +891,19 @@ static NSArray *s_SupportedTypes;
 }
 - (NSArray*)redundantUrls;
 {
-    return [self urlsForType:@"R"];
+    NSArray *red = [self urlsForType:@"R"];
+    return [red retain];
+}
+
+- (void)setRedundantUrls:(NSArray*)urls;
+{
+    
 }
 
 - (NSArray*)urlsForType:(NSString*)type;
 {
     NSFetchRequest *fetch = 
-    [[self managedObjectModel] fetchRequestFromTemplateWithName:@"urlByType"
+    [[self managedObjectModel] fetchRequestFromTemplateWithName:@"sourceByType"
                                           substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:type, @"TYPE", nil]];
     [fetch setSortDescriptors:[self createdSortOrder]];
     NSAssert(fetch, @"Fetch not found");
@@ -961,7 +968,10 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
             (c > 566)) // arbitrary
             funny++;
         if (funny > 3) // that's pretty funny
-            return YES;            
+        {
+            NSLog(@"Funny, isn't it: '%@'", str);
+            return YES;                        
+        }
     }
     
     return NO;
@@ -990,6 +1000,7 @@ withDescription:(NSString*)desc
     PendingLink *p = [self pendingForUrl:url];
     if (!p)
     {
+        NSLog(@"Create: %@", url);
         p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
                                           inManagedObjectContext:[self managedObjectContext]];
         [p setUrl:url];
@@ -998,8 +1009,9 @@ withDescription:(NSString*)desc
         [p setCreated:created];
     }
     [p setViewed:viewed];
+    if (!viewed)
+        [m_nagler scheduleAdd:p];
     
-    [m_nagler scheduleAdd:p];
     [self setUnread:self];
     [m_table scrollRowToVisible:0];
     return [[p retain] autorelease];
@@ -1508,6 +1520,7 @@ withDescription:(NSString*)desc
     if ([implemented containsObject:key])
         return YES;
     
+    NSLog(@"Not handled");
     return NO;
 }
 
