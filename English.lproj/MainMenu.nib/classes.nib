@@ -6,6 +6,7 @@
             ACTIONS = {
                 copy = id; 
                 cut = id; 
+                exportAction = id; 
                 fade = id; 
                 feedsPopup = id; 
                 genericPopup = id; 
