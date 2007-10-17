@@ -28,7 +28,7 @@ int compareSites(id one, id two, void *context)
 
     NSMutableString *keyString = [NSMutableString stringWithCapacity:10];
     if (mask & NSControlKeyMask)
-        [keyString appendString:@"^"];
+        [keyString appendFormat:@"%C", 0x2303];
     if (mask & NSAlternateKeyMask)
         [keyString appendFormat:@"%C", 0x2325];
     if (mask & NSShiftKeyMask)
