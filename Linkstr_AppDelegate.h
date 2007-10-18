@@ -21,6 +21,8 @@
     IBOutlet NSSearchField *m_search;
     IBOutlet ImageTextSheet *m_sheet;
     IBOutlet NSMenuItem *m_action;
+    IBOutlet NSView *m_fileTypeView;
+    IBOutlet NSComboBox *m_fileType;
         
     NSWindowController *m_prefs;
     NSWindowController *m_feeds;
@@ -112,5 +114,8 @@
 
 - (IBAction)saveAction:sender;
 - (IBAction)exportAction:sender;
+- (void)saveSelectedAsOPML:(NSString*)file;
+- (void)saveSelectedAsAtom:(NSString*)file;
 
 @end
+

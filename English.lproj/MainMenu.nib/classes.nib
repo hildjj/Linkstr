@@ -34,6 +34,8 @@
                 "m_action" = NSMenuItem; 
                 "m_controller" = NSArrayController; 
                 "m_drawer" = NSDrawer; 
+                "m_fileType" = NSComboBox; 
+                "m_fileTypeView" = NSView; 
                 "m_progress" = NSProgressIndicator; 
                 "m_search" = NSSearchField; 
                 "m_sheet" = ImageTextSheet; 

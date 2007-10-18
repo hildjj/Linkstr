@@ -44,5 +44,5 @@
 - (NSImage*)unviewedImage;
 
 - (void) awakeFromInsert;
-//- (BOOL)validateForInsert:(NSError **)error;
+- (NSXMLElement*)asHTML;
 @end

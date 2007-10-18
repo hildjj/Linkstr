@@ -202,4 +202,30 @@ NSString *WIKI = @"http://www.wikipedia.org/w/wiki.phtml?search=%@";
     return nil;
 }
 
+- (NSXMLElement*)asHTML;
+{
+    NSXMLElement *dv = [NSXMLNode elementWithName:@"div"];
+    [dv addNamespace:[NSXMLNode namespaceWithName:@"" stringValue:@"http://www.w3.org/1999/xhtml"]];
+    if ([self created])
+    {
+        NSXMLElement *p = [NSXMLNode elementWithName:@"div" stringValue:@"Created: "];
+        [p addChild:[NSXMLNode elementWithName:@"b" stringValue:[[self created] description]]];
+        [dv addChild:p];
+    }
+    if ([self viewed])
+    {
+        NSXMLElement *p = [NSXMLNode elementWithName:@"div" stringValue:@"Viewed: "];
+        [p addChild:[NSXMLNode elementWithName:@"b" stringValue:[[self viewed] description]]];
+        [dv addChild:p];
+    }
+    if ([self source])
+    {
+        NSXMLElement *p = [NSXMLNode elementWithName:@"div" stringValue:@"Source: "];
+        [dv addChild:p];        
+        NSXMLElement *a = [NSXMLNode elementWithName:@"a" stringValue:[self source]];
+        [p addChild:a];
+        [a addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:[self source]]];
+    }
+    return dv;
+}
 @end
