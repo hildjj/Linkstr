@@ -68,10 +68,7 @@ static NSArray *s_SupportedTypes;
     return [[[m_controller content] retain] autorelease];
 }
 
-- (NSWindow*)window;
-{
-    return [[m_win retain] autorelease];
-}
+@synthesize window = m_win;
 
 + (void)initialize;
 {
@@ -476,6 +473,7 @@ static NSArray *s_SupportedTypes;
     // TODO: if clickContext is not @"", search for that URL, 
     // select it, and scroll it visible.
 }
+
 #pragma mark -
 #pragma mark Window methods
 
@@ -532,24 +530,27 @@ static NSArray *s_SupportedTypes;
         m_closing = YES;
 }
 
--(void)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
+-(BOOL)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
 {
     unichar ch = [[theEvent characters] characterAtIndex:0];
     switch (ch)
     {
         case ' ':
             [self toggleViewed:[theEvent window]];
+            return YES;
             break;
         case NSBackspaceCharacter:
         case NSDeleteCharacter:
         case NSDeleteCharFunctionKey:
         case NSDeleteFunctionKey:
             [self removeSelected:[theEvent window]];
+            return YES;
             break;
         default:
             //NSLog(@"%x", ch);
             ;
     }
+    return NO;
 }
 
 #pragma mark -
@@ -1429,6 +1430,7 @@ withDescription:(NSString*)desc
  
 - (IBAction) saveAction:(id)sender 
 {
+    NSLog(@"Saving...");
     [m_progress startAnimation:self];
     NSError *error = nil;
     if (![[self managedObjectContext] save:&error]) 
@@ -1436,6 +1438,7 @@ withDescription:(NSString*)desc
         [[NSApplication sharedApplication] presentError:error];
     }
     [m_progress stopAnimation:self];
+    NSLog(@"Saved");
 }
 
 - (void)saveSelectedAsOPML:(NSString*)file;

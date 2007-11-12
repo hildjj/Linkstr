@@ -43,9 +43,9 @@
 - (IBAction)unfade:(id)sender;
 - (IBAction)setTopLevel:(id)sender;
 
+@property (readonly) NSWindow *window;
 - (NSMutableArray*)content;
-- (NSWindow*)window;
-- (void)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
+- (BOOL)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
 
 #pragma mark -
 #pragma mark Toolbar methods

@@ -41,8 +41,10 @@ static NSArray *s_backgroundColors = nil;
     id del = [self delegate];
     if ([del respondsToSelector:@selector(keyPressOnTableView:event:)])
     {
-		[(id <KeyPressTableViewDelegate>)del keyPressOnTableView:self event:theEvent];
+		if ([(id <KeyPressTableViewDelegate>)del keyPressOnTableView:self event:theEvent])
+            return;
 	}    
+    
     [super keyDown:theEvent];
 }
 
