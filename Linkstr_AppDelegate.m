@@ -357,9 +357,7 @@ static NSArray *s_SupportedTypes;
         if ([selected count] == 0)
             return NO;
         
-        NSEnumerator *en = [selected objectEnumerator];
-        PendingLink *p;
-        while ((p = [en nextObject]))
+        for (PendingLink *p in selected)
         {
             if ([p viewed])
             {
@@ -389,11 +387,9 @@ static NSArray *s_SupportedTypes;
     NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
     [undo beginUndoGrouping];
     
-    NSEnumerator *en = [[m_controller selectedObjects] objectEnumerator];
-    PendingLink *p;
     NSCalendarDate *date = [NSCalendarDate calendarDate];
-    while ((p = [en nextObject]))
-    {        
+    for (PendingLink *p in [m_controller selectedObjects])
+    {
         NSURL *url = [NSURL URLWithString:[p url]];
         if (!url)
         {
@@ -434,14 +430,12 @@ static NSArray *s_SupportedTypes;
         return;
     }
     
-    NSEnumerator *en = [unviewed objectEnumerator];
-    PendingLink *p;
     NSMutableArray *urls = [NSMutableArray array];
     
     NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
     [undo beginUndoGrouping];
     NSCalendarDate *date = [NSCalendarDate calendarDate];
-    while ((p = [en nextObject]))
+    for (PendingLink *p in unviewed)
     {
         NSURL *url = [NSURL URLWithString:[p url]];
         if (url)
@@ -618,13 +612,12 @@ static NSArray *s_SupportedTypes;
             return NO;
         
         NSArray *pendings = [NSUnarchiver unarchiveObjectWithData:data];
-        unsigned i, count = [pendings count];
         PendingLink *p;
-        for (i = 0; i < count; i++) 
+        for (id loopItem in pendings) 
         {
             p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
                                               inManagedObjectContext:[self managedObjectContext]];
-            [p setValuesForKeysWithDictionary:[pendings objectAtIndex:i]];
+            [p setValuesForKeysWithDictionary:loopItem];
         }
         [self setUnread:self];
         return YES;
@@ -654,9 +647,7 @@ static NSArray *s_SupportedTypes;
         if (!plist)
             return NO;        
         
-        NSEnumerator *en = [plist objectEnumerator];
-        NSString *fil;
-        while ((fil = [en nextObject]))
+        for (NSString *fil in plist)
         {
             NSURL *url = [NSURL fileURLWithPath:fil];
             [self insertURL:[url relativeString]
@@ -1103,15 +1094,13 @@ withDescription:(NSString*)desc
         last = [NSCalendarDate distantPast];
     
     NSArray *h = (NSArray*)[plist objectForKey:@"WebHistoryDates"];
-    NSEnumerator *en = [h objectEnumerator];
-    NSDictionary *entry;
     int changes = 0;
     NSCalendarDate *first = nil;
     
     NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
     [undo beginUndoGrouping];
     PendingLink *p;
-    while ((entry = [en nextObject]))
+    for (NSDictionary *entry in h)
     {
         NSString *dates = [entry objectForKey:@"lastVisitedDate"];
         NSCalendarDate *date = [NSCalendarDate dateWithTimeIntervalSinceReferenceDate:[dates doubleValue]];
@@ -1512,9 +1501,9 @@ withDescription:(NSString*)desc
     [feed addNamespace:[NSXMLNode namespaceWithName:@"" stringValue:@"http://www.w3.org/2005/Atom"]];
     [doc setRootElement:feed];
     [feed addChild:[NSXMLNode elementWithName:@"title" stringValue:@"Linkstr Links"]];
-    NSXMLElement *link = [NSXMLNode elementWithName:@"link"];
-    [feed addChild:link];
-    [link setAttributesAsDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+    NSXMLElement *lnk = [NSXMLNode elementWithName:@"link"];
+    [feed addChild:lnk];
+    [lnk setAttributesAsDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
         @"http://linkstr.net/", @"href",
         @"related", @"rel",
         nil]];
@@ -1544,9 +1533,9 @@ withDescription:(NSString*)desc
                                        stringValue:[[p created] descriptionWithCalendarFormat:ATOM_DATE_FMT 
                                                                                      timeZone:nil 
                                                                                        locale:nil]]];
-        link = [NSXMLNode elementWithName:@"link"];
-        [entry addChild:link];
-        [link addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:[p url]]];
+        lnk = [NSXMLNode elementWithName:@"link"];
+        [entry addChild:lnk];
+        [lnk addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:[p url]]];
         
         NSXMLElement *content = [NSXMLNode elementWithName:@"content"];
         [entry addChild:content];

@@ -1,56 +1,154 @@
-{
-    IBClasses = (
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
-        {CLASS = KeyPressTableView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }, 
-        {
-            ACTIONS = {
-                copy = id; 
-                cut = id; 
-                exportAction = id; 
-                fade = id; 
-                feedsPopup = id; 
-                genericPopup = id; 
-                historyPopup = id; 
-                importDeliciousHistory = id; 
-                importSafariHistory = id; 
-                launchAll = id; 
-                openSelected = id; 
-                paste = id; 
-                postDeliciously = id; 
-                prefsPopup = id; 
-                refresh = id; 
-                removeSelected = id; 
-                saveAction = id; 
-                scriptsMenu = id; 
-                setTopLevel = id; 
-                setUnread = id; 
-                toggleDrawer = id; 
-                toggleViewed = id; 
-                unfade = id; 
-            }; 
-            CLASS = "Linkstr_AppDelegate"; 
-            LANGUAGE = ObjC; 
-            OUTLETS = {
-                "m_action" = NSMenuItem; 
-                "m_controller" = NSArrayController; 
-                "m_drawer" = NSDrawer; 
-                "m_fileType" = NSComboBox; 
-                "m_fileTypeView" = NSView; 
-                "m_progress" = NSProgressIndicator; 
-                "m_search" = NSSearchField; 
-                "m_sheet" = ImageTextSheet; 
-                "m_table" = NSTableView; 
-                "m_win" = NSWindow; 
-                persistentStore = id; 
-            }; 
-            SUPERCLASS = NSObject; 
-        }, 
-        {
-            ACTIONS = {checkForUpdates = id; }; 
-            CLASS = SUUpdater; 
-            LANGUAGE = ObjC; 
-            SUPERCLASS = NSObject; 
-        }
-    ); 
-    IBVersion = 1; 
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IBClasses</key>
+	<array>
+		<dict>
+			<key>ACTIONS</key>
+			<dict>
+				<key>copy</key>
+				<string>id</string>
+				<key>cut</key>
+				<string>id</string>
+				<key>exportAction</key>
+				<string>id</string>
+				<key>fade</key>
+				<string>id</string>
+				<key>feedsPopup</key>
+				<string>id</string>
+				<key>genericPopup</key>
+				<string>id</string>
+				<key>historyPopup</key>
+				<string>id</string>
+				<key>importDeliciousHistory</key>
+				<string>id</string>
+				<key>importSafariHistory</key>
+				<string>id</string>
+				<key>launchAll</key>
+				<string>id</string>
+				<key>openSelected</key>
+				<string>id</string>
+				<key>paste</key>
+				<string>id</string>
+				<key>postDeliciously</key>
+				<string>id</string>
+				<key>prefsPopup</key>
+				<string>id</string>
+				<key>refresh</key>
+				<string>id</string>
+				<key>removeSelected</key>
+				<string>id</string>
+				<key>saveAction</key>
+				<string>id</string>
+				<key>scriptsMenu</key>
+				<string>id</string>
+				<key>setTopLevel</key>
+				<string>id</string>
+				<key>setUnread</key>
+				<string>id</string>
+				<key>toggleDrawer</key>
+				<string>id</string>
+				<key>toggleViewed</key>
+				<string>id</string>
+				<key>unfade</key>
+				<string>id</string>
+			</dict>
+			<key>CLASS</key>
+			<string>Linkstr_AppDelegate</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>OUTLETS</key>
+			<dict>
+				<key>m_action</key>
+				<string>NSMenuItem</string>
+				<key>m_controller</key>
+				<string>NSArrayController</string>
+				<key>m_drawer</key>
+				<string>NSDrawer</string>
+				<key>m_fileType</key>
+				<string>NSComboBox</string>
+				<key>m_fileTypeView</key>
+				<string>NSView</string>
+				<key>m_progress</key>
+				<string>NSProgressIndicator</string>
+				<key>m_search</key>
+				<string>NSSearchField</string>
+				<key>m_sheet</key>
+				<string>ImageTextSheet</string>
+				<key>m_table</key>
+				<string>NSTableView</string>
+				<key>m_win</key>
+				<string>NSWindow</string>
+				<key>persistentStore</key>
+				<string>id</string>
+			</dict>
+			<key>SUPERCLASS</key>
+			<string>NSObject</string>
+		</dict>
+		<dict>
+			<key>ACTIONS</key>
+			<dict>
+				<key>done</key>
+				<string>id</string>
+			</dict>
+			<key>CLASS</key>
+			<string>ImageTextSheet</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>OUTLETS</key>
+			<dict>
+				<key>m_delegate</key>
+				<string>id</string>
+				<key>m_image</key>
+				<string>NSImageView</string>
+				<key>m_text</key>
+				<string>NSTextField</string>
+				<key>m_title</key>
+				<string>NSTextField</string>
+				<key>m_win</key>
+				<string>NSWindow</string>
+			</dict>
+			<key>SUPERCLASS</key>
+			<string>NSObject</string>
+		</dict>
+		<dict>
+			<key>CLASS</key>
+			<string>KeyPressTableView</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>SUPERCLASS</key>
+			<string>NSTableView</string>
+		</dict>
+		<dict>
+			<key>CLASS</key>
+			<string>FirstResponder</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>SUPERCLASS</key>
+			<string>NSObject</string>
+		</dict>
+		<dict>
+			<key>CLASS</key>
+			<string>NSObject</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+		</dict>
+		<dict>
+			<key>ACTIONS</key>
+			<dict>
+				<key>checkForUpdates</key>
+				<string>id</string>
+			</dict>
+			<key>CLASS</key>
+			<string>SUUpdater</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>SUPERCLASS</key>
+			<string>NSObject</string>
+		</dict>
+	</array>
+	<key>IBVersion</key>
+	<string>1</string>
+</dict>
+</plist>

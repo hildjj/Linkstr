@@ -8,11 +8,26 @@
 
 #import <Cocoa/Cocoa.h>
 
-id SUInfoValueForKey(NSString *key);
-NSString *SUHostAppName();
-NSString *SUHostAppDisplayName();
-NSString *SUHostAppVersion();
-NSString *SUHostAppVersionString();
+@class SUUpdater, SUBundleDefaults;
+@interface SUUtilities : NSObject {
+	SUUpdater *updater;
+	SUBundleDefaults *defaults;
+}
+
++ (NSString *)localizedStringForKey:(NSString *)key withComment:(NSString *)comment;
+
+- (id)initWithUpdater:(SUUpdater *)aUpdater;
+- (id)unlocalizedInfoValueForKey:(NSString *)key;
+- (id)infoValueForKey:(NSString *)key;
+- (NSString *)hostAppName;
+- (NSString *)hostAppDisplayName;
+- (NSString *)hostAppVersion;
+- (NSString *)hostAppVersionString;
+- (NSString *)hostAppID;
+- (NSImage *)hostAppIcon;
+- (NSString *)hostAppExtension;
+- (SUBundleDefaults *)standardBundleDefaults;
+@end
 
 NSComparisonResult SUStandardVersionComparison(NSString * versionA, NSString * versionB);
 
