@@ -23,19 +23,11 @@
     return self;
 }
 
-- (void) dealloc 
-{    
-    [m_pending release], m_pending = nil;
-    [super dealloc];
-}
-
 - (NSMutableDictionary*)contextForConnection:(NSURLConnection*)connection
 {
     // well, of course I wish this wasn't a linear search.
     // But NSURLConnection can't be used as a hash key.
-    NSEnumerator *en = [m_pending objectEnumerator];
-    NSMutableDictionary *dict;
-    while ((dict = [en nextObject]))
+    for (NSMutableDictionary *dict in [m_pending objectEnumerator])
     {
         if ([[dict objectForKey:@"connection"] isEqual:connection])
         {

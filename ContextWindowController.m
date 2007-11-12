@@ -29,15 +29,6 @@
     return self;
 }
 
-- (void)dealloc;
-{
-    [managedObjectContext release], managedObjectContext = nil;
-    [controller release], controller = nil;
-    [entity release], entity = nil;
-    
-    [super dealloc];
-}
-
 - (void)windowDidLoad;
 {
     [controller setEntityName:entity];

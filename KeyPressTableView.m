@@ -21,12 +21,12 @@ static NSArray *s_backgroundColors = nil;
                                                object:nil];
 }
 
-- (void) dealloc 
+- (void)finalize; 
 {    
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:NSUserDefaultsDidChangeNotification
                                                   object:nil];
-    [super dealloc];
+    [super finalize];
 }
 
 - (void)defaultsDidChange:(NSNotification *)note

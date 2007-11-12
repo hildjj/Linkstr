@@ -14,7 +14,6 @@
 -(id)initWithContext:(NSManagedObjectContext *)context 
                 name:(NSString*)name
               entity:(NSString*)entityName;
-- (void)dealloc;
 - (void)windowDidLoad;
 
 #pragma mark -

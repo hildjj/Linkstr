@@ -184,19 +184,6 @@ static NSArray *s_SupportedTypes;
     }
 }
 
-- (void) dealloc 
-{    
-    [managedObjectContext release], managedObjectContext = nil;
-    [persistentStoreCoordinator release], persistentStoreCoordinator = nil;
-    [managedObjectModel release], managedObjectModel = nil;
-    [m_nagler release], m_nagler = nil;
-    [m_prefs release], m_prefs = nil;
-    [m_feeds release], m_feeds = nil;
-    [m_history release], m_history = nil;
-    
-    [super dealloc];
-}
-
 - (NSString *)applicationSupportFolder;
 {
     
@@ -1158,9 +1145,7 @@ withDescription:(NSString*)desc
     
     [m_progress startAnimation:self];
     Poster *k = [[[Poster alloc] initWithDelegate:self] retain];
-    NSEnumerator *en = [all objectEnumerator];
-    PendingLink *p;
-    while ((p = [en nextObject]))
+    for (PendingLink *p in all)
     {
         [k getURL:@"https://api.del.icio.us/v1/posts/add"
        withParams:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -1248,10 +1233,8 @@ withDescription:(NSString*)desc
     if (!last)
         last = [NSCalendarDate distantPast];
     
-    NSEnumerator *en = [[posts elementsForName:@"post"] objectEnumerator];
-    NSXMLElement *post;
     int changes = 0;
-    while ((post = [en nextObject]))
+    for (NSXMLElement *post in [posts elementsForName:@"post"])
     {
         NSString *t = [[post attributeForName:@"time"] stringValue];
         NSCalendarDate *d = [self parseDeliciousDate:t];
@@ -1329,10 +1312,8 @@ withDescription:(NSString*)desc
     NSAssert(undo, @"Invalid undo");
     [undo beginUndoGrouping];
     
-    NSEnumerator *en = [all objectEnumerator];
-    PendingLink *p;
     NSCalendarDate *date = [NSCalendarDate calendarDate];
-    while ((p = [en nextObject]))
+    for (PendingLink *p in all)
     {
         if ([p viewed])
             [p setViewed:nil];
@@ -1474,9 +1455,7 @@ withDescription:(NSString*)desc
     NSXMLElement *body = [NSXMLNode elementWithName:@"body"];
     [opml addChild:body];
     
-    NSEnumerator *en = [[m_controller selectedObjects] objectEnumerator];
-    PendingLink *p;
-    while ((p = [en nextObject]))
+    for (PendingLink *p in [m_controller selectedObjects])
     {        
         NSXMLElement *outl = [NSXMLNode elementWithName:@"outline" ];
         [outl setAttributesAsDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -1519,9 +1498,7 @@ withDescription:(NSString*)desc
     [feed addChild:[NSXMLNode elementWithName:@"id" 
                                   stringValue:uurn]];
     
-    NSEnumerator *en = [[m_controller selectedObjects] objectEnumerator];
-    PendingLink *p;
-    while ((p = [en nextObject]))
+    for (PendingLink *p in [m_controller selectedObjects])
     {        
         NSXMLElement *entry = [NSXMLNode elementWithName:@"entry" ];
         [feed addChild:entry];

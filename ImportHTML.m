@@ -11,14 +11,6 @@
     return self;
 }
 
-- (void) dealloc 
-{
-    [m_html release], m_html = nil;
-    [m_source release], m_source = nil;
-    [m_delegate release], m_delegate = nil;
-    [super dealloc];
-}
-
 - (id)initWithHtmlString:(NSString*)html
                   source:(NSString*)source 
                  linkstr:(Linkstr_AppDelegate*)delegate;
@@ -51,9 +43,7 @@
         }
     }
     
-    NSEnumerator *en = [[e children] objectEnumerator];
-    NSXMLNode *child;
-    while ((child = [en nextObject]))
+    for (NSXMLNode *child in [e children])
     {
         if ([child kind] == NSXMLElementKind)
             [self searchElement:(NSXMLElement*)child];
@@ -120,11 +110,9 @@
 
 - (void)insertCheckedLinks;
 {
-    NSEnumerator *en = [[m_controller content] objectEnumerator];
-    NSDictionary *lnk;
     NSCalendarDate *now = [NSCalendarDate calendarDate];
     
-    while ((lnk = [en nextObject]))
+    for (NSDictionary *lnk in [m_controller content])
     {
         if (![[lnk objectForKey:@"checked"] boolValue])
             continue;

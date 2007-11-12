@@ -19,13 +19,6 @@
     return self;
 }
 
-- (void)dealloc;
-{
-    [m_sites release], m_sites = nil;
-    
-    [super dealloc];
-}
-
 - (void)showWindow:(id)sender;
 {
     [super showWindow:sender];
