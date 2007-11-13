@@ -8,6 +8,13 @@ ${AGV} tag -baseurlfortag file:///var/svn/Linkstr/tags
 xcodebuild -configuration Release clean
 xcodebuild -configuration Release
 
+mv "${PROJECT_NAME}.app" "${HOME}/Applications/Util"
+
+if [ $1 = "local" ]; then
+	echo "Local only."
+	exit 0;
+fi
+
 #!/bin/sh
 VERSION=`defaults read "$PWD/build/Release/${PROJECT_NAME}.app/Contents/Info" CFBundleShortVersionString`
 SHORT_VERSION=`defaults read "$PWD/build/Release/${PROJECT_NAME}.app/Contents/Info" CFBundleVersion`
@@ -51,7 +58,6 @@ EOF
 
 mv $TMP ${PUB_DIR}/changes.xml
 rm -rf "${HOME}/Applications/Util/${PROJECT_NAME}.app"
-mv "${PROJECT_NAME}.app" "${HOME}/Applications/Util"
 
 cd "${PUB_DIR}"
 scp ${ZIP_FILE} changes.xml linkstr.net:linkstr.net
