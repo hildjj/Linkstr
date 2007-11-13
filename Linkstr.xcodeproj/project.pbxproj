@@ -36,6 +36,7 @@
 		29B2244D0C99930600A4CF8C /* Prefs.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B2244B0C99930600A4CF8C /* Prefs.m */; };
 		29B60E7A0C53124F00ECF6AE /* KeyPressTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B60E780C53124F00ECF6AE /* KeyPressTableView.m */; };
 		29D125D50C80120F00757E28 /* Scripts in Resources */ = {isa = PBXBuildFile; fileRef = 29D125C50C80120F00757E28 /* Scripts */; };
+		29D5102E0CEA4D4A003A286B /* Version.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 29D5102D0CEA4D4A003A286B /* Version.xcconfig */; };
 		29F599910C99A62000812A9D /* Prefs.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29F5998B0C99A62000812A9D /* Prefs.nib */; };
 		29F6D0020C5132AA001833E4 /* ContextWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29F6D0000C5132AA001833E4 /* ContextWindowController.m */; };
 		29F6D07C0C514CA8001833E4 /* Clear.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 29F6D0710C514CA8001833E4 /* Clear.tiff */; };
@@ -121,6 +122,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		29D125C50C80120F00757E28 /* Scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Scripts; sourceTree = "<group>"; };
+		29D5102D0CEA4D4A003A286B /* Version.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		29F5998C0C99A62000812A9D /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/Prefs.nib; sourceTree = "<group>"; };
 		29F6CFFF0C5132AA001833E4 /* ContextWindowController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ContextWindowController.h; sourceTree = "<group>"; };
 		29F6D0000C5132AA001833E4 /* ContextWindowController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ContextWindowController.m; sourceTree = "<group>"; };
@@ -266,6 +268,7 @@
 		29B97314FDCFA39411CA2CEA /* Linkstr */ = {
 			isa = PBXGroup;
 			children = (
+				29D5102D0CEA4D4A003A286B /* Version.xcconfig */,
 				290E1E170C7FD4CD00742667 /* ScriptCommands */,
 				7756732906782D8800D1FEB8 /* Models */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -392,6 +395,7 @@
 				290E1DF90C7FD3A700742667 /* UrlList.nib in Resources */,
 				29D125D50C80120F00757E28 /* Scripts in Resources */,
 				29F599910C99A62000812A9D /* Prefs.nib in Resources */,
+				29D5102E0CEA4D4A003A286B /* Version.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -552,6 +556,7 @@
 		};
 		26FC0A890875C7B200E6366F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 29D5102D0CEA4D4A003A286B /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -594,6 +599,7 @@
 		};
 		26FC0A8A0875C7B200E6366F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 29D5102D0CEA4D4A003A286B /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = (
