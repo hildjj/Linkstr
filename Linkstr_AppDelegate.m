@@ -406,6 +406,9 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)launchAll:(id)sender;
 {
+    // save.  there may be pending changes that haven't been saved.
+    [self saveAction:nil];
+    
     [m_progress startAnimation:self];
     NSArray *unviewed = [self unviewedLinks];
     if ([unviewed count] == 0)
@@ -428,7 +431,6 @@ static NSArray *s_SupportedTypes;
             NSLog(@"Invalid URL: '%@'", [p url]);
         [p setViewed:date];
     }
-    [self saveAction:self];
     [undo endUndoGrouping];
     
     // TODO: batch in groups of 5 and sleep for a second between.
@@ -441,6 +443,8 @@ static NSArray *s_SupportedTypes;
     [self setUnread:self];
     
     [m_progress stopAnimation:self];    
+    
+    [self saveAction:self];
     
     int count = [urls count];
     [GrowlApplicationBridge notifyWithTitle:@"Links Opened" 
@@ -1021,7 +1025,6 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
         NSLog(@"Fetch error: %@", error);
         return 0;
     }
-    NSLog(@"already exist: %@", exist);
     
     PendingLink *p;
     for (p in exist)
