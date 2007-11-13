@@ -1,5 +1,5 @@
 #!/bin/sh
-AGV=/Developer/Tools/agvtool
+AGV=/usr/bin/agvtool
 PUB_DIR="${HOME}/Sites/Linkstr"
 PROJECT_NAME=Linkstr
 
