@@ -8,7 +8,7 @@ ${AGV} tag -baseurlfortag file:///var/svn/Linkstr/tags
 xcodebuild -configuration Release clean
 xcodebuild -configuration Release
 
-mv "${PROJECT_NAME}.app" "${HOME}/Applications/Util"
+mv "build/Release/${PROJECT_NAME}.app" "${HOME}/Applications/Util"
 
 if [ $1 = "local" ]; then
 	echo "Local only."
