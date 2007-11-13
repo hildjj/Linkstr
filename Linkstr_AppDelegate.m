@@ -982,6 +982,75 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
                withCreated:[NSCalendarDate calendarDate]];
 }
 
+- (PendingLink *)createLink:(NSString*)url 
+            withDescription:(NSString*)desc
+                withCreated:(NSCalendarDate*)created
+{
+    NSLog(@"Create: %@", url);
+    PendingLink *p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
+                                                   inManagedObjectContext:[self managedObjectContext]];
+    [p setUrl:url];
+    if (desc && [desc length])
+        [p setText:[self DeHTML:desc]];
+    [p setCreated:created];
+    return p;
+}
+
+- (int) createLinksFromDictionary:(NSMutableDictionary*)possible
+                          onDates:(NSDictionary*)dates
+{
+    // check the list of possible links to see what needs to be created.
+    NSArray *keys = [[possible allKeys] sortedArrayUsingSelector:@selector(compare:)];
+     
+    // create the fetch request to get all links matching the IDs
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    [fetchRequest setEntity:[NSEntityDescription entityForName:@"PendingLink"
+                                        inManagedObjectContext:[self managedObjectContext]]];
+    [fetchRequest setPredicate:[NSPredicate predicateWithFormat: @"(url IN %@)", keys]];
+
+    // make sure the results are sorted as well
+    [fetchRequest setSortDescriptors:
+     [NSArray arrayWithObject:[[NSSortDescriptor alloc] initWithKey: @"url"
+                                                          ascending:YES]]];
+    // Execute the fetch
+    NSError *error;
+    NSArray *exist = [[self managedObjectContext] executeFetchRequest:fetchRequest 
+                                                        error:&error];    
+    if (!exist)
+    {
+        NSLog(@"Fetch error: %@", error);
+        return 0;
+    }
+    NSLog(@"already exist: %@", exist);
+    
+    PendingLink *p;
+    for (p in exist)
+    {
+        [possible removeObjectForKey:[p url]];
+    }
+    if ([possible count] == 0)
+        return 0;
+    
+    NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
+    [undo beginUndoGrouping];
+
+    int changes = 0;
+    NSCalendarDate *date;
+    for (NSString *url in possible)
+    {
+        date = [dates objectForKey:url];
+        p = [self insertURL:url 
+            withDescription:[possible objectForKey:url]
+                 withViewed:date
+                withCreated:date];
+        changes++;            
+    }
+
+    [undo endUndoGrouping];
+     
+    return changes;
+}
+
 - (id)insertURL:(NSString*)url 
 withDescription:(NSString*)desc
      withViewed:(NSCalendarDate*)viewed
@@ -996,22 +1065,15 @@ withDescription:(NSString*)desc
     
     PendingLink *p = [self pendingForUrl:url];
     if (!p)
-    {
-        NSLog(@"Create: %@", url);
-        p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
-                                          inManagedObjectContext:[self managedObjectContext]];
-        [p setUrl:url];
-        if (desc && [desc length])
-            [p setText:[self DeHTML:desc]];
-        [p setCreated:created];
-    }
+        p = [self createLink:url withDescription:desc withCreated:created];
+    
     [p setViewed:viewed];
     if (!viewed)
         [m_nagler scheduleAdd:p];
     
     [self setUnread:self];
     [m_table scrollRowToVisible:0];
-    return [[p retain] autorelease];
+    return p;
 }
 
 - (BOOL)checkRedundant:(NSString*)url 
@@ -1081,17 +1143,17 @@ withDescription:(NSString*)desc
     if (!last)
         last = [NSCalendarDate distantPast];
     
-    NSArray *h = (NSArray*)[plist objectForKey:@"WebHistoryDates"];
     int changes = 0;
     NSCalendarDate *first = nil;
+    NSString *url;
+    NSMutableDictionary *possible = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *dates = [[NSMutableDictionary alloc] init];
     
-    NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
-    [undo beginUndoGrouping];
-    PendingLink *p;
+    NSArray *h = (NSArray*)[plist objectForKey:@"WebHistoryDates"];
     for (NSDictionary *entry in h)
     {
-        NSString *dates = [entry objectForKey:@"lastVisitedDate"];
-        NSCalendarDate *date = [NSCalendarDate dateWithTimeIntervalSinceReferenceDate:[dates doubleValue]];
+        NSString *d = [entry objectForKey:@"lastVisitedDate"];
+        NSCalendarDate *date = [NSCalendarDate dateWithTimeIntervalSinceReferenceDate:[d doubleValue]];
 
         if (!first)
             first = date;
@@ -1099,29 +1161,23 @@ withDescription:(NSString*)desc
         if ([date earlierDate:last] == date)
             break;
         
-        NSString *url = [entry objectForKey:@""];
+        url = [entry objectForKey:@""];
         if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
             ([url hasPrefix:@"https"]))
             continue;
-        
-        p = [self insertURL:url 
-            withDescription:[entry objectForKey:@"title"]
-                 withViewed:date
-                withCreated:date];
-        if ([[p created] isEqual:date])
-            changes++;
-        [p release];
+
+        [possible setObject:[entry objectForKey:@"title"] forKey:url];
+        [dates setObject:date forKey:url];
     }
 
     if (first)
-    {
         [[NSUserDefaults standardUserDefaults] setObject:first forKey:@"LastSafariLinkDate"];
-    }
     
-    [undo endUndoGrouping];
-    [self refresh:self];
+    if ([possible count] > 0)
+        changes = [self createLinksFromDictionary:possible onDates:dates];
     [m_progress stopAnimation:self];
-    
+      
+      
     [GrowlApplicationBridge notifyWithTitle:@"History Links" 
                                 description:[NSString stringWithFormat:@"%d Links Added", changes] 
                            notificationName:LINKS_HISTORY
