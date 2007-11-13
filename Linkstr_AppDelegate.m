@@ -1038,14 +1038,23 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     [undo beginUndoGrouping];
 
     int changes = 0;
-    NSCalendarDate *date;
+    NSCalendarDate *now = [NSCalendarDate calendarDate];
+    id date;
+    id title;
     for (NSString *url in possible)
     {
         date = [dates objectForKey:url];
-        p = [self insertURL:url 
-            withDescription:[possible objectForKey:url]
-                 withViewed:date
-                withCreated:date];
+        // can't be nil
+        if (date == [NSNull null])
+            date = now;
+        // can't be nil
+        title = [possible objectForKey:url];
+        if (title == [NSNull null])
+            title = nil;
+        p = [self createLink:url
+             withDescription:title
+                 withCreated:date];
+        p.viewed = date;
         changes++;            
     }
 
@@ -1169,15 +1178,24 @@ withDescription:(NSString*)desc
             ([url hasPrefix:@"https"]))
             continue;
 
-        [possible setObject:[entry objectForKey:@"title"] forKey:url];
+        NSAssert(url, @"Bad URL");
+        NSAssert([url length], @"Bad URL");
+        NSAssert(d, @"Bad date");
+        NSAssert([d length], @"Bad date");
+        NSAssert(date, @"Bad date");
+        
+        id title = [entry objectForKey:@"title"];
+        if (!title)
+            title = [NSNull null];
+        [possible setObject:title forKey:url];
         [dates setObject:date forKey:url];
     }
 
-    if (first)
-        [[NSUserDefaults standardUserDefaults] setObject:first forKey:@"LastSafariLinkDate"];
-    
     if ([possible count] > 0)
         changes = [self createLinksFromDictionary:possible onDates:dates];
+    
+    if (first)
+        [[NSUserDefaults standardUserDefaults] setObject:first forKey:@"LastSafariLinkDate"];
     [m_progress stopAnimation:self];
       
       
