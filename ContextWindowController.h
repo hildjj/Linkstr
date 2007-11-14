@@ -1,11 +1,12 @@
 /* FeedsWindowController */
 
 #import <Cocoa/Cocoa.h>
+#import "KeyPressTableView.h"
 
 @interface ContextWindowController : NSWindowController
 {
     IBOutlet NSArrayController *controller;
-    
+    IBOutlet KeyPressTableView *tableView;
     NSManagedObjectContext *managedObjectContext;
     NSString *entity;
 }
@@ -13,7 +14,6 @@
 -(id)initWithContext:(NSManagedObjectContext *)context 
                 name:(NSString*)name
               entity:(NSString*)entityName;
-- (void)dealloc;
 - (void)windowDidLoad;
 
 #pragma mark -

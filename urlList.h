@@ -13,13 +13,8 @@
 {
 }
 
-- (NSString *)type;
-- (void)setType:(NSString *)value;
-
-- (NSString *)url;
-- (void)setUrl:(NSString *)value;
-
-- (NSCalendarDate *)created;
-- (void)setCreated:(NSCalendarDate *)value;
+@property (retain) NSString *type;
+@property (retain) NSString *url;
+@property (retain) NSCalendarDate *created;
 
 @end

@@ -18,8 +18,6 @@
     if (classCode == 'pLnk')
     {
         NSDictionary *props = [self resolvedKeyDictionary];
-        NSLog(@"create pending link: %@", props);
-        NSLog(@"desc: %@", [props objectForKey:@"descr"]);
         
         Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
         NSString *site = [props objectForKey:@"site"];

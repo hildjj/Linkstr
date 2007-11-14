@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @protocol KeyPressTableViewDelegate
--(void)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
+-(BOOL)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
 @end
 
 @interface KeyPressTableView : NSTableView
