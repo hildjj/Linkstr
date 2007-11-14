@@ -17,7 +17,7 @@
     if (!url)
         return nil;
     Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
-    BOOL ret = [l checkRedundant:url forType:@"H" withDate:nil];
+    BOOL ret = [l checkRedundant:url forType:@"H" withDate:nil withDescription:nil];
     return [NSNumber numberWithBool:ret];
 }
 @end

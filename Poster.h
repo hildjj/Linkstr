@@ -17,6 +17,7 @@
     int m_outstanding;
     int m_total;
     id m_delegate;
+    NSMutableArray *m_pending;
 }
 
 - (id)initWithDelegate:(id)delegate;
@@ -29,5 +30,6 @@
 
 @interface NSObject(PosterDelegateMethods)
 - (void)poster:(Poster*)poster finishedOutstanding:(int)total;
+- (void)poster:(Poster*)poster finishedLoading:(NSDictionary*)context;
 @end
 
