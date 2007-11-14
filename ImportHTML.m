@@ -11,14 +11,6 @@
     return self;
 }
 
-- (void) dealloc 
-{
-    [m_html release], m_html = nil;
-    [m_source release], m_source = nil;
-    [m_delegate release], m_delegate = nil;
-    [super dealloc];
-}
-
 - (id)initWithHtmlString:(NSString*)html
                   source:(NSString*)source 
                  linkstr:(Linkstr_AppDelegate*)delegate;
@@ -51,9 +43,7 @@
         }
     }
     
-    NSEnumerator *en = [[e children] objectEnumerator];
-    NSXMLNode *child;
-    while ((child = [en nextObject]))
+    for (NSXMLNode *child in [e children])
     {
         if ([child kind] == NSXMLElementKind)
             [self searchElement:(NSXMLElement*)child];
@@ -120,15 +110,18 @@
 
 - (void)insertCheckedLinks;
 {
-    NSEnumerator *en = [[m_controller content] objectEnumerator];
-    NSDictionary *link;
-    while ((link = [en nextObject]))
+    NSCalendarDate *now = [NSCalendarDate calendarDate];
+    
+    for (NSDictionary *lnk in [m_controller content])
     {
-        if (![[link objectForKey:@"checked"] boolValue])
+        if (![[lnk objectForKey:@"checked"] boolValue])
             continue;
-        PendingLink *p = [m_delegate insertURL:[link objectForKey:@"url"]
-                               withDescription:[link objectForKey:@"desc"]];
+        PendingLink *p = [m_delegate insertURL:[lnk objectForKey:@"url"]
+                               withDescription:[lnk objectForKey:@"desc"]
+                                    withViewed:nil
+                                   withCreated:now];
         [p setSource:m_source];
+        [p release];
     }    
     [m_delegate setUnread:self];
 }
