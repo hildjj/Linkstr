@@ -29,18 +29,14 @@
     return self;
 }
 
-- (void)dealloc;
-{
-    [managedObjectContext release], managedObjectContext = nil;
-    [controller release], controller = nil;
-    [entity release], entity = nil;
-    
-    [super dealloc];
-}
-
 - (void)windowDidLoad;
 {
     [controller setEntityName:entity];
+}
+
+- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
+{
+    [(KeyPressTableView*)aTableView willDisplayCell:aCell forTableColumn:aTableColumn row:rowIndex];
 }
 
 #pragma mark -

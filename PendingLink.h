@@ -15,32 +15,20 @@
 
 + (void)initialize;
 + (NSArray *)copyKeys;
-+ (NSString*)googleUrl:(NSString*)terms;
-+ (NSString*)wikipediaUrl:(NSString*)terms;
 
 - (NSDictionary *)dictionaryRepresentation;
 - (NSScriptObjectSpecifier *)objectSpecifier;
 
-- (NSString *)source;
-- (void)setSource:(NSString *)value;
-
-- (NSString *)url;
-- (void)setUrl:(NSString *)value;
-
-- (NSCalendarDate *)viewed;
-- (void)setViewed:(NSCalendarDate *)value;
+@property (retain) NSCalendarDate *created;
+@property (retain) NSCalendarDate *viewed;
+@property (retain) NSString *source;
+@property (retain) NSString *url;
+@property (retain) NSString *text;
 
 - (NSString *)descr;
 - (BOOL)isViewed;
-
-- (NSCalendarDate *)created;
-- (void)setCreated:(NSCalendarDate *)value;
-
-- (NSString *)text;
-- (void)setText:(NSString *)value;
-
 - (NSImage*)unviewedImage;
 
 - (void) awakeFromInsert;
-//- (BOOL)validateForInsert:(NSError **)error;
+- (NSXMLElement*)asHTML;
 @end

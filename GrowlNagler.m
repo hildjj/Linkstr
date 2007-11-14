@@ -25,13 +25,6 @@
     return self;
 }
 
-- (void)dealloc 
-{
-    [m_queue release], m_queue = nil;
-    [m_timer invalidate], [m_timer release], m_timer = nil;
-    [super dealloc];
-}
-
 - (void)timerFired:(NSTimer*)theTimer;
 {
     [m_timer setFireDate:[NSDate dateWithTimeIntervalSinceNow:1000.0]];

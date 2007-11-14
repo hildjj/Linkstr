@@ -13,19 +13,24 @@
 #import "KeyPressTableView.h"
 #import "ImportHTML.h"
 #import "Poster.h"
+#import "Prefs.h"
+#import "Sites.h"
 
 NSString *PendingLinkPBoardType = @"PendingLinkPBoardType";
 
-NSString *DRAWER = @"showDrawer";
-NSString *ALPHA = @"alpha";
-NSString *SQL_DEBUG = @"sqlDebug";
-NSString *FLOAT = @"floatOnTop";
-NSString *SITES = @"sites";
-NSString *TABLE_TEXT_FG = @"tableTextForeground";
-NSString *TABLE_ODD_BG = @"tableOddBackground";
-NSString *TABLE_EVEN_BG = @"tableEvenBackground";
 NSString *AGRESSIVE_CLOSE = @"agressiveClose";
+NSString *ALPHA = @"alpha";
+NSString *AVOID_FUNNY = @"avoidFunnyLinks";
+NSString *DRAWER = @"showDrawer";
 NSString *FIRST_TIME = @"firstTime";
+NSString *FLOAT = @"floatOnTop";
+NSString *IMPORT_HTTPS = @"importHTTPS";
+NSString *LAST_DELICIOUS = @"LastDeliciousDate";
+NSString *SITES = @"sites";
+NSString *SQL_DEBUG = @"sqlDebug";
+NSString *TABLE_EVEN_BG = @"tableEvenBackground";
+NSString *TABLE_ODD_BG = @"tableOddBackground";
+NSString *TABLE_TEXT_FG = @"tableTextForeground";
 
 NSString *LINK_NEW = @"New Link";
 NSString *LINK_DEL = @"Link Deleted";
@@ -33,7 +38,28 @@ NSString *LINKS_PENDING = @"Pending Links";
 NSString *LINKS_REDUNDANT = @"Redundant Links";
 NSString *LINKS_HISTORY = @"History Links";
 
+NSString *DEL_UPDATE = @"https://api.del.icio.us/v1/posts/update";
+NSString *DEL_ALL = @"https://api.del.icio.us/v1/posts/all";
+
+NSString *ATOM_DATE_FMT = @"%Y-%m-%dT%H:%M:%SZ";
+
 static NSArray *s_SupportedTypes;
+
+@interface NSString (LSGUIDString)
++ (NSString*) stringWithNewUUID;
+@end
+
+@implementation NSString (LSGUIDString)
++ (NSString*) stringWithNewUUID;
+{
+    //create a new UUID
+    CFUUIDRef	uuidObj = CFUUIDCreate(nil);
+    //get the string representation of the UUID
+    NSString	*newUUID = (NSString*)CFUUIDCreateString(nil, uuidObj);
+    CFRelease(uuidObj);
+    return [newUUID autorelease];
+}
+@end
 
 @implementation Linkstr_AppDelegate
 
@@ -42,10 +68,7 @@ static NSArray *s_SupportedTypes;
     return [[[m_controller content] retain] autorelease];
 }
 
-- (NSWindow*)window;
-{
-    return [[m_win retain] autorelease];
-}
+@synthesize window = m_win;
 
 + (void)initialize;
 {
@@ -92,9 +115,11 @@ static NSArray *s_SupportedTypes;
     [[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
         @"YES", DRAWER,
         @"NO", SQL_DEBUG,
-        @"YES", FLOAT,
+        @"NO", FLOAT,
         @"YES", AGRESSIVE_CLOSE,
         @"YES", FIRST_TIME,
+        @"NO", IMPORT_HTTPS,
+        @"YES", AVOID_FUNNY,
         [NSNumber numberWithFloat:0.55], ALPHA,
         @"http://linkstr.net/changes.xml", @"SUFeedURL",
         sites, SITES,
@@ -112,15 +137,6 @@ static NSArray *s_SupportedTypes;
         NSStringPboardType, nil] retain];    
 }
 
-// order the keys of the array by the text that will be shown
-int compareSites(id one, id two, void *context)
-{
-    NSDictionary *sites = (NSDictionary *)context;
-    NSDictionary *od = [sites objectForKey:one];
-    NSDictionary *td = [sites objectForKey:two];
-    return [[od objectForKey:@"name"] compare:[td objectForKey:@"name"]];
-}
-
 - (void)awakeFromNib;
 {
     m_closing = NO;
@@ -136,31 +152,14 @@ int compareSites(id one, id two, void *context)
     [GrowlApplicationBridge setGrowlDelegate:self];
     
     NSMenu *menu = [m_action submenu];
-    id anon_sites = [[NSUserDefaults standardUserDefaults] objectForKey:SITES];
+    Sites *s = [[Sites alloc] init];
+    NSEnumerator *en = [s objectEnumerator];
     NSDictionary *site;
-    NSEnumerator *en;
-    if ([anon_sites isKindOfClass:[NSArray class]])
+    while ((site = [en nextObject]))
     {
-        // convert old.
-        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-        en = [anon_sites objectEnumerator];
-        while ((site = [en nextObject]))
-            [dict setObject:site forKey:[site objectForKey:@"name"]];
-        [[NSUserDefaults standardUserDefaults] setObject:dict forKey:SITES];
-        anon_sites = dict;
-    }
-    NSDictionary *sites = anon_sites;
-    NSArray *keys = [sites allKeys];
-    keys = [keys sortedArrayUsingFunction:compareSites context:sites];
-    
-    en = [keys objectEnumerator];
-    NSString *key;
-    while ((key = [en nextObject]))
-    {
-        site = [sites objectForKey:key];
         NSMenuItem *item = [[NSMenuItem alloc] init];
         [item setTitle:[site objectForKey:@"name"]];
-        key = [site objectForKey:@"key"];
+        NSString *key = [site objectForKey:@"key"];
         if (key)
             [item setKeyEquivalent:key];
         NSNumber *mask = [site objectForKey:@"mask"];
@@ -169,8 +168,8 @@ int compareSites(id one, id two, void *context)
         [item setAction:@selector(genericPopup:)];
         [item setRepresentedObject:site];
         [menu addItem:item];
-        [m_sites addObject:site];
     }        
+    [s release];
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey:FIRST_TIME])
     {
@@ -180,15 +179,6 @@ int compareSites(id one, id two, void *context)
             [self insertURL:@"http://linkstr.net/GettingStarted.html" withDescription:@"Double-click here to start"];
         }
     }
-}
-
-- (void) dealloc 
-{    
-    [managedObjectContext release], managedObjectContext = nil;
-    [persistentStoreCoordinator release], persistentStoreCoordinator = nil;
-    [managedObjectModel release], managedObjectModel = nil;
-    [m_nagler release], m_nagler = nil;
-    [super dealloc];
 }
 
 - (NSString *)applicationSupportFolder;
@@ -204,6 +194,7 @@ int compareSites(id one, id two, void *context)
 // Set the undread count in the icon
 - (IBAction)setUnread:(id)sender;
 {
+    [self saveAction:nil];
     NSArray *unviewed = [self unviewedLinks];
     unsigned count = [unviewed count];
     
@@ -351,9 +342,7 @@ int compareSites(id one, id two, void *context)
         if ([selected count] == 0)
             return NO;
         
-        NSEnumerator *en = [selected objectEnumerator];
-        PendingLink *p;
-        while ((p = [en nextObject]))
+        for (PendingLink *p in selected)
         {
             if ([p viewed])
             {
@@ -383,11 +372,9 @@ int compareSites(id one, id two, void *context)
     NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
     [undo beginUndoGrouping];
     
-    NSEnumerator *en = [[m_controller selectedObjects] objectEnumerator];
-    PendingLink *p;
     NSCalendarDate *date = [NSCalendarDate calendarDate];
-    while ((p = [en nextObject]))
-    {        
+    for (PendingLink *p in [m_controller selectedObjects])
+    {
         NSURL *url = [NSURL URLWithString:[p url]];
         if (!url)
         {
@@ -420,6 +407,9 @@ int compareSites(id one, id two, void *context)
 
 - (IBAction)launchAll:(id)sender;
 {
+    // save.  there may be pending changes that haven't been saved.
+    [self saveAction:nil];
+    
     [m_progress startAnimation:self];
     NSArray *unviewed = [self unviewedLinks];
     if ([unviewed count] == 0)
@@ -428,14 +418,12 @@ int compareSites(id one, id two, void *context)
         return;
     }
     
-    NSEnumerator *en = [unviewed objectEnumerator];
-    PendingLink *p;
     NSMutableArray *urls = [NSMutableArray array];
     
     NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
     [undo beginUndoGrouping];
     NSCalendarDate *date = [NSCalendarDate calendarDate];
-    while ((p = [en nextObject]))
+    for (PendingLink *p in unviewed)
     {
         NSURL *url = [NSURL URLWithString:[p url]];
         if (url)
@@ -444,7 +432,6 @@ int compareSites(id one, id two, void *context)
             NSLog(@"Invalid URL: '%@'", [p url]);
         [p setViewed:date];
     }
-    [self saveAction:self];
     [undo endUndoGrouping];
     
     // TODO: batch in groups of 5 and sleep for a second between.
@@ -453,13 +440,13 @@ int compareSites(id one, id two, void *context)
                                     options:NSWorkspaceLaunchAsync | NSWorkspaceLaunchWithoutActivation
              additionalEventParamDescriptor:nil
                           launchIdentifiers:nil];
-    
+        
+    [m_progress stopAnimation:self];    
     [self setUnread:self];
     
-    [m_progress stopAnimation:self];    
-    
+    int count = [urls count];
     [GrowlApplicationBridge notifyWithTitle:@"Links Opened" 
-                                description:[NSString stringWithFormat:@"%d Links", [urls count]] 
+                                description:[NSString stringWithFormat:@"%d %@", count, (count==1) ? @"Link" : @"Links"] 
                            notificationName:LINKS_PENDING
                                    iconData:nil
                                    priority:0
@@ -488,6 +475,7 @@ int compareSites(id one, id two, void *context)
     // TODO: if clickContext is not @"", search for that URL, 
     // select it, and scroll it visible.
 }
+
 #pragma mark -
 #pragma mark Window methods
 
@@ -544,24 +532,27 @@ int compareSites(id one, id two, void *context)
         m_closing = YES;
 }
 
--(void)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
+-(BOOL)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
 {
     unichar ch = [[theEvent characters] characterAtIndex:0];
     switch (ch)
     {
         case ' ':
             [self toggleViewed:[theEvent window]];
+            return YES;
             break;
         case NSBackspaceCharacter:
         case NSDeleteCharacter:
         case NSDeleteCharFunctionKey:
         case NSDeleteFunctionKey:
             [self removeSelected:[theEvent window]];
+            return YES;
             break;
         default:
             //NSLog(@"%x", ch);
             ;
     }
+    return NO;
 }
 
 #pragma mark -
@@ -602,9 +593,7 @@ int compareSites(id one, id two, void *context)
     NSString *typ = [pb availableTypeFromArray:s_SupportedTypes];
     if (!typ)
         return NO;
-    
-    // NSLog(@"Drag type: %@", typ);
-    
+        
     [m_controller setFilterPredicate:nil];
     if ([typ isEqual:PendingLinkPBoardType])
     {
@@ -613,13 +602,12 @@ int compareSites(id one, id two, void *context)
             return NO;
         
         NSArray *pendings = [NSUnarchiver unarchiveObjectWithData:data];
-        unsigned i, count = [pendings count];
         PendingLink *p;
-        for (i = 0; i < count; i++) 
+        for (id loopItem in pendings) 
         {
             p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
                                               inManagedObjectContext:[self managedObjectContext]];
-            [p setValuesForKeysWithDictionary:[pendings objectAtIndex:i]];
+            [p setValuesForKeysWithDictionary:loopItem];
         }
         [self setUnread:self];
         return YES;
@@ -649,9 +637,7 @@ int compareSites(id one, id two, void *context)
         if (!plist)
             return NO;        
         
-        NSEnumerator *en = [plist objectEnumerator];
-        NSString *fil;
-        while ((fil = [en nextObject]))
+        for (NSString *fil in plist)
         {
             NSURL *url = [NSURL fileURLWithPath:fil];
             [self insertURL:[url relativeString]
@@ -711,7 +697,6 @@ int compareSites(id one, id two, void *context)
         }
 
         [self insertTerms:str forSite:@"Google"];
-        [self saveAction:self];
         [self setUnread:self];
         return YES;
     }
@@ -850,6 +835,13 @@ int compareSites(id one, id two, void *context)
     [[NSWorkspace sharedWorkspace] openURL:url];
 }
 
+- (IBAction)prefsPopup:(id)sender;
+{
+    if (!m_prefs)
+        m_prefs = [[Prefs alloc] init];
+    [m_prefs showWindow:self];
+}
+
 - (IBAction)feedsPopup:(id)sender;
 {
     if (!m_feeds)
@@ -897,13 +889,19 @@ int compareSites(id one, id two, void *context)
 }
 - (NSArray*)redundantUrls;
 {
-    return [self urlsForType:@"R"];
+    NSArray *red = [self urlsForType:@"R"];
+    return [red retain];
+}
+
+- (void)setRedundantUrls:(NSArray*)urls;
+{
+    
 }
 
 - (NSArray*)urlsForType:(NSString*)type;
 {
     NSFetchRequest *fetch = 
-    [[self managedObjectModel] fetchRequestFromTemplateWithName:@"urlByType"
+    [[self managedObjectModel] fetchRequestFromTemplateWithName:@"sourceByType"
                                           substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:type, @"TYPE", nil]];
     [fetch setSortDescriptors:[self createdSortOrder]];
     NSAssert(fetch, @"Fetch not found");
@@ -927,7 +925,9 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     NSFetchRequest *fetch = [[[self managedObjectModel] fetchRequestTemplateForName:@"unviewed"] copy];
     NSAssert(fetch, @"Fetch not found");
     [fetch setSortDescriptors:[self createdSortOrder]];
-    return [[self managedObjectContext] executeFetchRequest:fetch error:nil];
+    NSArray *ret = [[self managedObjectContext] executeFetchRequest:fetch error:nil];
+    [fetch release];
+    return ret;
 }
 
 - (NSString*)DeHTML:(NSString*)html;
@@ -949,35 +949,154 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
         */
 }
 
-- (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
+- (BOOL)isFunny:(NSString*)str
 {
-    PendingLink *p = [self pendingForUrl:url];
-    if (p)
+    if (!str)
+        return NO;
+    
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:AVOID_FUNNY])
+        return NO;
+    
+    int funny = 0;
+    uint i;
+    for (i=0; i<[str length]; i++)
     {
-        [p setViewed:nil];
-        [p setCreated:[NSCalendarDate calendarDate]];
-        NSLog(@"clearing");
+        unichar c = [str characterAtIndex:i];
+        if ((c == '&') ||
+            (c > 566)) // arbitrary
+            funny++;
+        if (funny > 3) // that's pretty funny
+        {
+            NSLog(@"Funny, isn't it: '%@'", str);
+            return YES;                        
+        }
     }
-    else    
-    {
-        p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
-                                          inManagedObjectContext:[self managedObjectContext]];
-        [p setUrl:url];
-        if (desc && [desc length])
-            [p setText:[self DeHTML:desc]];
-    }
-    [m_nagler scheduleAdd:p];
-    [self setUnread:self];
-    [m_table scrollRowToVisible:0];
-    return [[p retain] autorelease];
+    
+    return NO;
 }
 
-- (BOOL)checkRedundant:(NSString*)url forType:(NSString*)type withDate:(NSCalendarDate*)date;
+- (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
+{
+    return [self insertURL:url 
+           withDescription:desc 
+                withViewed:nil 
+               withCreated:[NSCalendarDate calendarDate]];
+}
+
+- (PendingLink *)createLink:(NSString*)url 
+            withDescription:(NSString*)desc
+                withCreated:(NSCalendarDate*)created
+{
+    NSLog(@"Create: %@", url);
+    PendingLink *p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
+                                                   inManagedObjectContext:[self managedObjectContext]];
+    [p setUrl:url];
+    if (desc && [desc length])
+        [p setText:[self DeHTML:desc]];
+    [p setCreated:created];
+    return p;
+}
+
+- (int) createLinksFromDictionary:(NSMutableDictionary*)possible
+                          onDates:(NSDictionary*)dates
+{
+    // check the list of possible links to see what needs to be created.
+    NSArray *keys = [[possible allKeys] sortedArrayUsingSelector:@selector(compare:)];
+     
+    // create the fetch request to get all links matching the IDs
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    [fetchRequest setEntity:[NSEntityDescription entityForName:@"PendingLink"
+                                        inManagedObjectContext:[self managedObjectContext]]];
+    [fetchRequest setPredicate:[NSPredicate predicateWithFormat: @"(url IN %@)", keys]];
+
+    // make sure the results are sorted as well
+    [fetchRequest setSortDescriptors:
+     [NSArray arrayWithObject:[[NSSortDescriptor alloc] initWithKey: @"url"
+                                                          ascending:YES]]];
+    // Execute the fetch
+    NSError *error;
+    NSArray *exist = [[self managedObjectContext] executeFetchRequest:fetchRequest 
+                                                        error:&error];    
+    if (!exist)
+    {
+        NSLog(@"Fetch error: %@", error);
+        return 0;
+    }
+    
+    PendingLink *p;
+    for (p in exist)
+    {
+        [possible removeObjectForKey:[p url]];
+    }
+    if ([possible count] == 0)
+        return 0;
+    
+    NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
+    [undo beginUndoGrouping];
+
+    int changes = 0;
+    NSCalendarDate *now = [NSCalendarDate calendarDate];
+    id date;
+    id title;
+    for (NSString *url in possible)
+    {
+        date = [dates objectForKey:url];
+        // can't be nil
+        if (date == [NSNull null])
+            date = now;
+        // can't be nil
+        title = [possible objectForKey:url];
+        if (title == [NSNull null])
+            title = nil;
+        p = [self createLink:url
+             withDescription:title
+                 withCreated:date];
+        p.viewed = date;
+        changes++;            
+    }
+
+    [undo endUndoGrouping];
+     
+    return changes;
+}
+
+- (id)insertURL:(NSString*)url 
+withDescription:(NSString*)desc
+     withViewed:(NSCalendarDate*)viewed
+    withCreated:(NSCalendarDate*)created;
+{
+    if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
+        ([url hasPrefix:@"https"]))
+        return nil;
+    
+    if ([self isFunny:desc])
+        return nil;
+    
+    PendingLink *p = [self pendingForUrl:url];
+    if (!p)
+        p = [self createLink:url withDescription:desc withCreated:created];
+    
+    [p setViewed:viewed];
+    if (!viewed)
+        [m_nagler scheduleAdd:p];
+    
+    [self setUnread:self];
+    [m_table scrollRowToVisible:0];
+    return p;
+}
+
+- (BOOL)checkRedundant:(NSString*)url 
+               forType:(NSString*)type 
+              withDate:(NSCalendarDate*)date
+       withDescription:(NSString*)desc;
 {
     PendingLink *p = [self pendingForUrl:url];
     if (p)
         return YES;
 
+    if ([self isFunny:desc])
+        return YES;
+    
     NSFetchRequest *fetch = 
     [[self managedObjectModel] fetchRequestFromTemplateWithName:@"checkRedundant"
                                           substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", nil]];
@@ -1033,19 +1152,17 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     if (!last)
         last = [NSCalendarDate distantPast];
     
-    NSArray *h = (NSArray*)[plist objectForKey:@"WebHistoryDates"];
-    NSEnumerator *en = [h objectEnumerator];
-    NSDictionary *entry;
     int changes = 0;
     NSCalendarDate *first = nil;
+    NSString *url;
+    NSMutableDictionary *possible = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *dates = [[NSMutableDictionary alloc] init];
     
-    NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
-    [undo beginUndoGrouping];
-    PendingLink *p;
-    while ((entry = [en nextObject]))
+    NSArray *h = (NSArray*)[plist objectForKey:@"WebHistoryDates"];
+    for (NSDictionary *entry in h)
     {
-        NSString *dates = [entry objectForKey:@"lastVisitedDate"];
-        NSCalendarDate *date = [NSCalendarDate dateWithTimeIntervalSinceReferenceDate:[dates doubleValue]];
+        NSString *d = [entry objectForKey:@"lastVisitedDate"];
+        NSCalendarDate *date = [NSCalendarDate dateWithTimeIntervalSinceReferenceDate:[d doubleValue]];
 
         if (!first)
             first = date;
@@ -1053,30 +1170,32 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
         if ([date earlierDate:last] == date)
             break;
         
-        NSString *url = [entry objectForKey:@""];
-        p = [self pendingForUrl:url];
-        if (!p)
-        {
-            p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
-                                              inManagedObjectContext:[self managedObjectContext]];
-            [p setUrl:url];
-            [p setText:[entry objectForKey:@"title"]];
-            [p setCreated:date];
-            changes++;
-        }
-        [p setViewed:date];
-        [p release];
+        url = [entry objectForKey:@""];
+        if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
+            ([url hasPrefix:@"https"]))
+            continue;
+
+        NSAssert(url, @"Bad URL");
+        NSAssert([url length], @"Bad URL");
+        NSAssert(d, @"Bad date");
+        NSAssert([d length], @"Bad date");
+        NSAssert(date, @"Bad date");
+        
+        id title = [entry objectForKey:@"title"];
+        if (!title)
+            title = [NSNull null];
+        [possible setObject:title forKey:url];
+        [dates setObject:date forKey:url];
     }
 
+    if ([possible count] > 0)
+        changes = [self createLinksFromDictionary:possible onDates:dates];
+    
     if (first)
-    {
         [[NSUserDefaults standardUserDefaults] setObject:first forKey:@"LastSafariLinkDate"];
-    }
-    
-    [undo endUndoGrouping];
-    [self refresh:self];
     [m_progress stopAnimation:self];
-    
+      
+      
     [GrowlApplicationBridge notifyWithTitle:@"History Links" 
                                 description:[NSString stringWithFormat:@"%d Links Added", changes] 
                            notificationName:LINKS_HISTORY
@@ -1084,6 +1203,13 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
                                    priority:0
                                    isSticky:NO
                                clickContext:@""];
+}
+
+- (IBAction)importDeliciousHistory:(id)sender;
+{
+    Poster *post = [[Poster alloc] initWithDelegate:self];
+    [m_progress startAnimation:self];
+    [post getURL:DEL_UPDATE];
 }
 
 - (IBAction)postDeliciously:(id)sender;
@@ -1094,15 +1220,14 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     
     [m_progress startAnimation:self];
     Poster *k = [[[Poster alloc] initWithDelegate:self] retain];
-    NSEnumerator *en = [all objectEnumerator];
-    PendingLink *p;
-    while ((p = [en nextObject]))
+    for (PendingLink *p in all)
     {
         [k getURL:@"https://api.del.icio.us/v1/posts/add"
        withParams:[NSDictionary dictionaryWithObjectsAndKeys:
            [p url], @"url",
            [p text], @"description", 
            @"linkstr", @"tags",
+           @"no", @"shared",
            nil]];
     }
 }
@@ -1110,6 +1235,130 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
 - (void)poster:(Poster*)poster finishedOutstanding:(int)total;
 {
     [m_progress stopAnimation:self];
+}
+
+- (NSCalendarDate*)parseDeliciousDate:(NSString*)str;
+{
+    return [NSCalendarDate dateWithString:[str stringByAppendingString:@"UTC"] 
+                           calendarFormat:@"%Y-%m-%dT%H:%M:%SZ%Z"];
+}
+
+- (void)poster:(Poster*)poster finishedLoadingUpdate:(NSDictionary*)context
+{
+    NSData *data = [context objectForKey:@"data"];
+    NSError *err;
+    NSXMLDocument *doc = [[NSXMLDocument alloc] initWithData:data
+                                                     options:0 
+                                                       error:&err];
+    if (!doc)
+    {
+        NSLog(@"Error parsing XML doc: %@", err);
+        NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"XML: %@", str);
+        [str release];
+        return;
+    }
+    NSXMLElement *posts = [doc rootElement];
+    // <update time="2007-09-04T04:43:06Z" />
+    NSString *t = [[posts attributeForName:@"time"] stringValue];
+    NSCalendarDate *date = [self parseDeliciousDate:t];
+        
+    NSCalendarDate *last = [[NSUserDefaults standardUserDefaults] objectForKey:LAST_DELICIOUS];
+    if (!last)
+        last = [NSCalendarDate distantPast];
+    
+     if (![date isGreaterThan:last])
+     {
+         [GrowlApplicationBridge notifyWithTitle:@"Del.icio.us Links" 
+                                     description:@"No new links"
+                                notificationName:LINKS_HISTORY
+                                        iconData:nil
+                                        priority:0
+                                        isSticky:NO
+                                    clickContext:@""];    
+         
+         return;
+     }
+
+     [poster getURL:DEL_ALL];
+}
+
+- (void)poster:(Poster*)poster finishedLoadingAll:(NSDictionary*)context
+{
+    NSData *data = [context objectForKey:@"data"];
+    NSError *err;
+    NSXMLDocument *doc = [[NSXMLDocument alloc] initWithData:data
+                                                     options:0 
+                                                       error:&err];
+    if (!doc)
+    {
+        NSLog(@"Error parsing XML doc: %@", err);
+        NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"XML: %@", str);
+        [str release];
+        return;
+    }
+    NSXMLElement *posts = [doc rootElement];
+    // <posts update="2007-08-24T16:20:40Z">
+    NSString *update = [[posts attributeForName:@"update"] stringValue];
+    NSCalendarDate *update_date = [self parseDeliciousDate:update];
+    NSLog(@"update: %@", update_date);
+
+    NSCalendarDate *last = [[NSUserDefaults standardUserDefaults] objectForKey:LAST_DELICIOUS];
+    if (!last)
+        last = [NSCalendarDate distantPast];
+    
+    int changes = 0;
+    for (NSXMLElement *post in [posts elementsForName:@"post"])
+    {
+        NSString *t = [[post attributeForName:@"time"] stringValue];
+        NSCalendarDate *d = [self parseDeliciousDate:t];
+
+        // hope they're in order.
+        if ([d isLessThanOrEqualTo:last])
+            break;
+        
+        NSString *u = [[post attributeForName:@"href"] stringValue];
+        if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
+            ([u hasPrefix:@"https"]))
+            continue;
+        
+        PendingLink *p = [self insertURL:u 
+                         withDescription:[[post attributeForName:@"description"] stringValue]
+                              withViewed:d
+                             withCreated:d];
+        if ([[p created] isEqual:d])
+            changes++;
+        [p release];
+    }
+    [doc release];  
+    
+    [[NSUserDefaults standardUserDefaults] setObject:update_date forKey:LAST_DELICIOUS];
+    [self refresh:self];
+    
+    [GrowlApplicationBridge notifyWithTitle:@"Del.icio.us Links" 
+                                description:[NSString stringWithFormat:@"%d Links Added", changes] 
+                           notificationName:LINKS_HISTORY
+                                   iconData:nil
+                                   priority:0
+                                   isSticky:NO
+                               clickContext:@""];    
+}
+
+- (void)poster:(Poster*)poster finishedLoading:(NSDictionary*)context;
+{
+    int code = [[context objectForKey:@"code"] intValue];
+    if (code != 200)
+    {
+        NSLog(@"Error code: %d", code);
+        return;
+    }
+    
+    NSString *url = [context objectForKey:@"url"];
+    if ([url isEqual:DEL_UPDATE])
+        [self poster:poster finishedLoadingUpdate:context];
+    else if ([url isEqual:DEL_ALL])
+        [self poster:poster finishedLoadingAll:context];
 }
 
 - (IBAction)removeSelected:(id)sender;
@@ -1138,10 +1387,8 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     NSAssert(undo, @"Invalid undo");
     [undo beginUndoGrouping];
     
-    NSEnumerator *en = [all objectEnumerator];
-    PendingLink *p;
     NSCalendarDate *date = [NSCalendarDate calendarDate];
-    while ((p = [en nextObject]))
+    for (PendingLink *p in all)
     {
         if ([p viewed])
             [p setViewed:nil];
@@ -1257,6 +1504,7 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
  
 - (IBAction) saveAction:(id)sender 
 {
+    NSLog(@"Saving...");
     [m_progress startAnimation:self];
     NSError *error = nil;
     if (![[self managedObjectContext] save:&error]) 
@@ -1264,8 +1512,130 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
         [[NSApplication sharedApplication] presentError:error];
     }
     [m_progress stopAnimation:self];
+    NSLog(@"Saved");
 }
 
+- (void)saveSelectedAsOPML:(NSString*)file;
+{
+    NSXMLDocument *doc = [NSXMLNode document];
+    [doc setCharacterEncoding:@"UTF-8"];
+    [doc addChild:[NSXMLNode commentWithStringValue:@"OPML generated by Linkstr"]];
+    NSXMLElement *opml = [NSXMLElement elementWithName:@"opml"];
+    [doc setRootElement:opml];
+    [opml addAttribute:[NSXMLNode attributeWithName:@"version" stringValue:@"1.1"]];
+    NSXMLElement *head = [NSXMLNode elementWithName:@"head"];
+    [opml addChild:head];
+    [head addChild:[NSXMLNode elementWithName:@"title" stringValue:@"Linkstr Links"]];
+    NSCalendarDate *now = [NSCalendarDate calendarDate];
+    [head addChild:[NSXMLNode elementWithName:@"dateCreated" 
+                                  stringValue:[now descriptionWithCalendarFormat:@"%d %b %Y %H:%M:%S Z"]]];
+    NSXMLElement *body = [NSXMLNode elementWithName:@"body"];
+    [opml addChild:body];
+    
+    for (PendingLink *p in [m_controller selectedObjects])
+    {        
+        NSXMLElement *outl = [NSXMLNode elementWithName:@"outline" ];
+        [outl setAttributesAsDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+            [p descr], @"text",
+            @"link", @"type",
+            [p url], @"url",
+            nil]];
+        [body addChild:outl];
+    }
+    NSData *data = [doc XMLDataWithOptions:
+        NSXMLDocumentIncludeContentTypeDeclaration |
+        NSXMLNodePrettyPrint | 
+        NSXMLNodeUseSingleQuotes];
+    [data writeToFile:file atomically:NO];
+}
+
+- (void)saveSelectedAsAtom:(NSString*)file;
+{
+    NSXMLDocument *doc = [NSXMLNode document];
+    [doc setCharacterEncoding:@"UTF-8"];
+    NSXMLElement *feed = [NSXMLNode elementWithName:@"feed"];
+    [feed addNamespace:[NSXMLNode namespaceWithName:@"" stringValue:@"http://www.w3.org/2005/Atom"]];
+    [doc setRootElement:feed];
+    [feed addChild:[NSXMLNode elementWithName:@"title" stringValue:@"Linkstr Links"]];
+    NSXMLElement *lnk = [NSXMLNode elementWithName:@"link"];
+    [feed addChild:lnk];
+    [lnk setAttributesAsDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+        @"http://linkstr.net/", @"href",
+        @"related", @"rel",
+        nil]];
+    NSCalendarDate *now = [NSCalendarDate calendarDate];
+    NSString *nows = [now descriptionWithCalendarFormat:ATOM_DATE_FMT];
+    [feed addChild:[NSXMLNode elementWithName:@"updated"
+                                  stringValue:nows]];
+    NSXMLElement *author = [NSXMLNode elementWithName:@"author"];
+    [feed addChild:author];
+    [author addChild:[NSXMLNode elementWithName:@"name"
+                                    stringValue:NSFullUserName()]];
+    NSString *uurn = [NSString stringWithFormat:@"urn:uuid:%@", [NSString stringWithNewUUID]];
+    [feed addChild:[NSXMLNode elementWithName:@"id" 
+                                  stringValue:uurn]];
+    
+    for (PendingLink *p in [m_controller selectedObjects])
+    {        
+        NSXMLElement *entry = [NSXMLNode elementWithName:@"entry" ];
+        [feed addChild:entry];
+        [entry addChild:[NSXMLNode elementWithName:@"id"
+                                       stringValue:[p url]]];
+        [entry addChild:[NSXMLNode elementWithName:@"title"
+                                       stringValue:[p descr]]];
+        [entry addChild:[NSXMLNode elementWithName:@"updated"
+                                       stringValue:[[p created] descriptionWithCalendarFormat:ATOM_DATE_FMT 
+                                                                                     timeZone:nil 
+                                                                                       locale:nil]]];
+        lnk = [NSXMLNode elementWithName:@"link"];
+        [entry addChild:lnk];
+        [lnk addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:[p url]]];
+        
+        NSXMLElement *content = [NSXMLNode elementWithName:@"content"];
+        [entry addChild:content];
+        [content addAttribute:[NSXMLNode attributeWithName:@"type" stringValue:@"xhtml"]];
+        [content addChild:[p asHTML]];
+    }
+    
+    NSData *data = [doc XMLDataWithOptions:
+        NSXMLDocumentIncludeContentTypeDeclaration |
+        NSXMLNodePrettyPrint | 
+        NSXMLNodeCompactEmptyElement |
+        NSXMLNodeUseSingleQuotes];
+    [data writeToFile:file atomically:NO];  // heh.  writeToAtomAtomically
+}
+
+- (NSString*)replaceExtension:(NSString*)extension inPath:(NSString*)path;
+{
+    if ([path hasSuffix:extension])
+        return path;
+    return [[path stringByDeletingPathExtension] stringByAppendingPathExtension:extension];
+}
+
+- (void)savePanelDidEnd:(NSSavePanel *)sheet returnCode:(int)returnCode contextInfo:(void  *)contextInfo;
+{
+    if (returnCode == NSFileHandlingPanelCancelButton)
+        return;
+    NSString *type = [m_fileType stringValue];
+    NSString *fn = [sheet filename];
+    
+    if ([type isEqualToString:@"OPML"])
+        [self saveSelectedAsOPML:[self replaceExtension:@"opml" inPath:fn]];        
+    else if ([type isEqualToString:@"Atom"])
+        [self saveSelectedAsAtom:[self replaceExtension:@"atom" inPath:fn]];        
+}
+
+- (IBAction) exportAction:(id)sender 
+{
+    NSSavePanel *panel = [NSSavePanel savePanel];
+    [panel setTitle:@"Export Selected"];
+    [panel setPrompt:@"Export"];
+    [panel setAllowsOtherFileTypes:NO];
+    [panel setAccessoryView:m_fileTypeView];
+    [panel setExtensionHidden:NO];
+    [panel setAllowedFileTypes:[NSArray arrayWithObjects:@"atom", @"opml", nil]];
+    [panel beginSheetForDirectory:nil file:@"Linkstr_Links.atom" modalForWindow:m_win modalDelegate:self didEndSelector:@selector(savePanelDidEnd:returnCode:contextInfo:) contextInfo:nil];
+}
 
 /**
     Implementation of the applicationShouldTerminate: method, used here to
@@ -1336,6 +1706,7 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     if ([implemented containsObject:key])
         return YES;
     
+    NSLog(@"Not handled");
     return NO;
 }
 
