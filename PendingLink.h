@@ -16,6 +16,7 @@
 + (void)initialize;
 + (NSArray *)copyKeys;
 + (BOOL)isFunny:(NSString*)str;
++ (NSString*)DeHTML:(NSString*)html;
 
 - (NSString*) identifier;
 - (NSDictionary *)dictionaryRepresentation;
@@ -33,4 +34,7 @@
 
 - (void) awakeFromInsert;
 - (NSXMLElement*)asHTML;
+- (NSXMLElement*)asOPML;
+- (NSXMLElement*)asAtom;
+
 @end

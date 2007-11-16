@@ -11,6 +11,8 @@
 #import "ImageTextSheet.h"
 #import "GrowlNagler.h"
 
+NSString *ATOM_DATE_FMT;
+
 @interface Linkstr_AppDelegate : NSObject <GrowlApplicationBridgeDelegate>
 {
     IBOutlet NSWindow *m_win;
@@ -87,9 +89,9 @@
 - (NSArray*)createdSortOrder;
 - (NSArray*)createdDescendingSortOrder;
 
-- (NSArray*)fullContentUrls;
+- (NSArray*)incompletes;
 - (NSArray*)redundants;
-//- (void)setRedundants:(NSArray*)urls;
+
 - (NSArray*)urlsForType:(NSString*)type;
 - (NSArray*)unviewedLinks;
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc

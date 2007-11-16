@@ -11,6 +11,7 @@
 #import "urlList.h"
 #import "Linkstr_AppDelegate.h"
 #import "LSRedundantCategory.h"
+#import "LSIncompleteCategory.h"
 
 @implementation LSCreateCommand
 
@@ -32,7 +33,7 @@
 
         return [p objectSpecifier];
     }
-    else if (classCode == 'tRur')
+    else if (classCode == 'tRur')  // redundant
     {
         NSDictionary *props = [self resolvedKeyDictionary];
         
@@ -40,7 +41,15 @@
         urlList *u = [l createRedundantUrl:[props  objectForKey:@"url"]];
         
         return [u objectSpecifier];
+    }
+    else if (classCode == 'tIur') // incomplete
+    {
+        NSDictionary *props = [self resolvedKeyDictionary];
         
+        Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
+        urlList *u = [l createIncompleteUrl:[props  objectForKey:@"url"]];
+        
+        return [u objectSpecifier];
     }
     return [super performDefaultImplementation];
 }

@@ -877,9 +877,9 @@ static NSArray *s_SupportedTypes;
     return [NSArray arrayWithObject:sort];
 }
 
-- (NSArray*)fullContentUrls;
+- (NSArray*)incompletes;
 {
-    return [self urlsForType:@"F"];
+    return [self urlsForType:@"I"];
 }
 
 - (NSArray*)redundants;
@@ -919,17 +919,6 @@ static NSArray *s_SupportedTypes;
     return [[self managedObjectContext] executeFetchRequest:fetch error:nil];
 }
 
-- (NSString*)DeHTML:(NSString*)html;
-{
-    NSRange r = [html rangeOfString:@"&"];
-    if (r.location == NSNotFound)
-        return html;
-    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
-    NSAttributedString *as = [[NSAttributedString alloc] initWithHTML:data
-                                                   documentAttributes:nil];
-    return [as string];
-}
-
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
 {
     return [self insertURL:url 
@@ -947,7 +936,7 @@ static NSArray *s_SupportedTypes;
                                                    inManagedObjectContext:[self managedObjectContext]];
     [p setUrl:url];
     if (desc && [desc length])
-        [p setText:[self DeHTML:desc]];
+        [p setText:[PendingLink DeHTML:desc]];
     [p setCreated:created];
     return p;
 }
@@ -1484,14 +1473,9 @@ withDescription:(NSString*)desc
     
     for (PendingLink *p in [m_controller selectedObjects])
     {        
-        NSXMLElement *outl = [NSXMLNode elementWithName:@"outline" ];
-        [outl setAttributesAsDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-            [p descr], @"text",
-            @"link", @"type",
-            [p url], @"url",
-            nil]];
-        [body addChild:outl];
+        [body addChild:[p asOPML]];
     }
+    
     NSData *data = [doc XMLDataWithOptions:
         NSXMLDocumentIncludeContentTypeDeclaration |
         NSXMLNodePrettyPrint | 
@@ -1526,26 +1510,7 @@ withDescription:(NSString*)desc
                                   stringValue:uurn]];
     
     for (PendingLink *p in [m_controller selectedObjects])
-    {        
-        NSXMLElement *entry = [NSXMLNode elementWithName:@"entry" ];
-        [feed addChild:entry];
-        [entry addChild:[NSXMLNode elementWithName:@"id"
-                                       stringValue:[p url]]];
-        [entry addChild:[NSXMLNode elementWithName:@"title"
-                                       stringValue:[p descr]]];
-        [entry addChild:[NSXMLNode elementWithName:@"updated"
-                                       stringValue:[[p created] descriptionWithCalendarFormat:ATOM_DATE_FMT 
-                                                                                     timeZone:nil 
-                                                                                       locale:nil]]];
-        lnk = [NSXMLNode elementWithName:@"link"];
-        [entry addChild:lnk];
-        [lnk addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:[p url]]];
-        
-        NSXMLElement *content = [NSXMLNode elementWithName:@"content"];
-        [entry addChild:content];
-        [content addAttribute:[NSXMLNode attributeWithName:@"type" stringValue:@"xhtml"]];
-        [content addChild:[p asHTML]];
-    }
+        [feed addChild:[p asAtom]];
     
     NSData *data = [doc XMLDataWithOptions:
         NSXMLDocumentIncludeContentTypeDeclaration |
@@ -1648,7 +1613,7 @@ withDescription:(NSString*)desc
     static NSSet *implemented;
     if (!implemented)
         implemented = [NSSet setWithObjects:
-            @"links", @"redundants", @"insertInContent", nil];
+            @"links", @"redundants", @"incompletes", @"insertInContent", nil];
 
     if ([implemented containsObject:key])
         return YES;

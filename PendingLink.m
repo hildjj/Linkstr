@@ -11,6 +11,12 @@
 
 @implementation PendingLink 
 
+@dynamic created;
+@dynamic source;
+@dynamic url;
+@dynamic viewed;
+@dynamic text;
+
 static NSImage *UNREAD;
 
 + (void)initialize;
@@ -61,6 +67,17 @@ static NSImage *UNREAD;
     return NO;
 }
 
++ (NSString*)DeHTML:(NSString*)html;
+{
+    NSRange r = [html rangeOfString:@"&"];
+    if (r.location == NSNotFound)
+        return html;
+    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
+    NSAttributedString *as = [[NSAttributedString alloc] initWithHTML:data
+                                                   documentAttributes:nil];
+    return [as string];
+}
+
 - (NSDictionary *)dictionaryRepresentation;
 {
     return [self dictionaryWithValuesForKeys:[[self class] copyKeys]];
@@ -81,12 +98,6 @@ static NSImage *UNREAD;
                                         uniqueID:[self identifier]];
 	return specifier;
 }
-
-@dynamic created;
-@dynamic source;
-@dynamic url;
-@dynamic viewed;
-@dynamic text;
 
 - (NSString *)descr 
 {
@@ -159,6 +170,39 @@ static NSImage *UNREAD;
         [a addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:self.source]];
     }
     return dv;
+}
+
+- (NSXMLElement*)asOPML;
+{
+    NSXMLElement *outl = [NSXMLNode elementWithName:@"outline" ];
+    [outl setAttributesAsDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                     self.descr, @"text",
+                                     @"link", @"type",
+                                     self.url, @"url",
+                                     nil]];
+    return outl;
+}
+
+- (NSXMLElement*)asAtom;
+{
+    NSXMLElement *entry = [NSXMLNode elementWithName:@"entry" ];
+    [entry addChild:[NSXMLNode elementWithName:@"id"
+                                   stringValue:self.url]];
+    [entry addChild:[NSXMLNode elementWithName:@"title"
+                                   stringValue:self.descr]];
+    [entry addChild:[NSXMLNode elementWithName:@"updated"
+                                   stringValue:[self.created descriptionWithCalendarFormat:ATOM_DATE_FMT 
+                                                                                  timeZone:nil 
+                                                                                    locale:nil]]];
+    NSXMLElement *lnk = [NSXMLNode elementWithName:@"link"];
+    [entry addChild:lnk];
+    [lnk addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:self.url]];
+    
+    NSXMLElement *content = [NSXMLNode elementWithName:@"content"];
+    [entry addChild:content];
+    [content addAttribute:[NSXMLNode attributeWithName:@"type" stringValue:@"xhtml"]];
+    [content addChild:[self asHTML]]; 
+    return entry;
 }
 @end
 

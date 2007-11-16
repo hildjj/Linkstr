@@ -24,6 +24,7 @@
 		290E1E330C7FD4CD00742667 /* RefreshCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 290E1E250C7FD4CD00742667 /* RefreshCommand.m */; };
 		291D3F050CEE21C000D13ED7 /* LSRedundantCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 291D3F040CEE21C000D13ED7 /* LSRedundantCategory.m */; };
 		291D3F3C0CEE23F000D13ED7 /* LSPendingCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 291D3F3B0CEE23F000D13ED7 /* LSPendingCategory.m */; };
+		291D3FE00CEE30D100D13ED7 /* LSIncompleteCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 291D3FDF0CEE30D100D13ED7 /* LSIncompleteCategory.m */; };
 		291EA68A0C9C2D170038DF11 /* Sites.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 291EA6880C9C2D170038DF11 /* Sites.h */; };
 		291EA68B0C9C2D170038DF11 /* Sites.m in Sources */ = {isa = PBXBuildFile; fileRef = 291EA6890C9C2D170038DF11 /* Sites.m */; };
 		2936725E0C733B5A009EDA42 /* GrowlNagler.m in Sources */ = {isa = PBXBuildFile; fileRef = 2936725C0C733B5A009EDA42 /* GrowlNagler.m */; };
@@ -105,6 +106,8 @@
 		291D3F040CEE21C000D13ED7 /* LSRedundantCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LSRedundantCategory.m; sourceTree = "<group>"; };
 		291D3F3A0CEE23F000D13ED7 /* LSPendingCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LSPendingCategory.h; sourceTree = "<group>"; };
 		291D3F3B0CEE23F000D13ED7 /* LSPendingCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LSPendingCategory.m; sourceTree = "<group>"; };
+		291D3FDE0CEE30D100D13ED7 /* LSIncompleteCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LSIncompleteCategory.h; sourceTree = "<group>"; };
+		291D3FDF0CEE30D100D13ED7 /* LSIncompleteCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LSIncompleteCategory.m; sourceTree = "<group>"; };
 		291EA6880C9C2D170038DF11 /* Sites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sites.h; sourceTree = "<group>"; };
 		291EA6890C9C2D170038DF11 /* Sites.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Sites.m; sourceTree = "<group>"; };
 		2936725B0C733B5A009EDA42 /* GrowlNagler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrowlNagler.h; sourceTree = "<group>"; };
@@ -236,10 +239,12 @@
 				290E1E230C7FD4CD00742667 /* OpenAllCommand.m */,
 				290E1E240C7FD4CD00742667 /* RefreshCommand.h */,
 				290E1E250C7FD4CD00742667 /* RefreshCommand.m */,
-				291D3F030CEE21C000D13ED7 /* LSRedundantCategory.h */,
-				291D3F040CEE21C000D13ED7 /* LSRedundantCategory.m */,
 				291D3F3A0CEE23F000D13ED7 /* LSPendingCategory.h */,
 				291D3F3B0CEE23F000D13ED7 /* LSPendingCategory.m */,
+				291D3F030CEE21C000D13ED7 /* LSRedundantCategory.h */,
+				291D3F040CEE21C000D13ED7 /* LSRedundantCategory.m */,
+				291D3FDE0CEE30D100D13ED7 /* LSIncompleteCategory.h */,
+				291D3FDF0CEE30D100D13ED7 /* LSIncompleteCategory.m */,
 			);
 			path = ScriptCommands;
 			sourceTree = "<group>";
@@ -439,6 +444,7 @@
 				291EA68B0C9C2D170038DF11 /* Sites.m in Sources */,
 				291D3F050CEE21C000D13ED7 /* LSRedundantCategory.m in Sources */,
 				291D3F3C0CEE23F000D13ED7 /* LSPendingCategory.m in Sources */,
+				291D3FE00CEE30D100D13ED7 /* LSIncompleteCategory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -56,6 +56,9 @@
 			<element description="Feeds that have a large amount of redundancy." type="redundant feed">
 				<cocoa key="redundants"/>
 			</element>
+			<element description="Feeds that should always be downloaded." type="incomplete feed">
+				<cocoa key="incompletes"/>
+			</element>
 			<property name="name" code="pnam" description="The name of the application." type="text" access="r"/>
 			<property name="frontmost" code="pisf" description="Is this the frontmost (active) application?" type="boolean" access="r">
 				<cocoa key="isActive"/>
@@ -291,7 +294,7 @@
 			<property name="isPending" code="tPen" description="Is the link pending?" type="boolean" access="r">
 				<cocoa key="isPending"/>
 			</property>
-			<property name="site" code="tSit" description="Site to add url with terms.  If specified, link is ignored." type="text" access="w" in-properties="no">
+			<property name="site" code="tSte" description="Site to add url with terms.  If specified, link is ignored." type="text" access="w" in-properties="no">
 				<cocoa key="site"/>
 			</property>
 			<property name="terms" code="tTrm" description="Terms for site.  Only used if site is provided." type="text" access="w" in-properties="no">
@@ -299,6 +302,21 @@
 			</property>
 		</class>
 		<class name="redundant feed" code="tRur" plural="redundant feeds">
+			<cocoa class="urlList"/>
+			<property name="link" code="tUrl" description="The URL of the redundant feed" type="text">
+				<cocoa key="url"/>
+			</property>
+			<property name="created" code="tCre" description="The date the feed was added" type="date" access="r">
+				<cocoa key="created"/>
+			</property>
+			<property name="kind" code="rTyp" description="R for redundant" type="text">
+				<cocoa key="type"/>
+			</property>
+			<property name="id" code="ID  " description="ID of link" type="text" access="r">
+				<cocoa key="identifier"/>
+			</property>
+		</class>
+		<class name="incomplete feed" code="tIur" plural="incomplete feeds">
 			<cocoa class="urlList"/>
 			<property name="link" code="tUrl" description="The URL of the redundant feed" type="text">
 				<cocoa key="url"/>
