@@ -86,7 +86,6 @@
 
 - (NSArray*)createdSortOrder;
 - (NSArray*)createdDescendingSortOrder;
-- (void)setCreatedDescendingSortOrder:(NSArray*)array;
 
 - (NSArray*)fullContentUrls;
 - (NSArray*)redundants;
@@ -116,9 +115,6 @@
 - (IBAction)exportAction:sender;
 - (void)saveSelectedAsOPML:(NSString*)file;
 - (void)saveSelectedAsAtom:(NSString*)file;
-
-- (id)valueInLinksWithUniqueID:(NSString *)string;
-- (id)createRedundantUrl:(NSString*)url;
 
 @end
 

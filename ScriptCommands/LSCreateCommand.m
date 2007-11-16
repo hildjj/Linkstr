@@ -10,6 +10,7 @@
 #import "PendingLink.h"
 #import "urlList.h"
 #import "Linkstr_AppDelegate.h"
+#import "LSRedundantCategory.h"
 
 @implementation LSCreateCommand
 

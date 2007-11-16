@@ -16,12 +16,12 @@
     self = [super init];
     if (!self)
         return nil;
-    m_queue = [[[NSMutableArray alloc] init] retain];
-    m_timer = [[NSTimer scheduledTimerWithTimeInterval:1000.0
-                                                target:self
-                                              selector:@selector(timerFired:)
-                                              userInfo:nil
-                                               repeats:YES] retain];
+    m_queue = [[NSMutableArray alloc] init];
+    m_timer = [NSTimer scheduledTimerWithTimeInterval:1000.0
+                                               target:self
+                                             selector:@selector(timerFired:)
+                                             userInfo:nil
+                                              repeats:YES];
     return self;
 }
 

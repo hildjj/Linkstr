@@ -17,9 +17,9 @@
 {
     if (![self init])
         return nil;
-    [self setDelegate:delegate];
+    self.delegate = delegate;
     [self setHtml:html];
-    [self setSource:source];
+    self.source = source;
     
     return self;
 }
@@ -52,7 +52,7 @@
 
 - (void)setHtml:(NSString*)html;
 {
-    m_html = [html retain];
+    m_html = html;
     
     NSXMLDocument *doc = 
         [[NSXMLDocument alloc] initWithXMLString:m_html
@@ -63,28 +63,11 @@
 
 - (NSString*)html;
 {
-    return [[m_html retain] autorelease];
+    return m_html;
 }
 
-- (void)setSource:(NSString*)source;
-{
-    m_source = [source retain];
-}
-
-- (NSString*)source;
-{
-    return [[m_source retain] autorelease];
-}
-
-- (void)setDelegate:(Linkstr_AppDelegate*)delegate;
-{
-    m_delegate = [delegate retain];
-}
-
-- (Linkstr_AppDelegate*)delegate;
-{
-    return [[m_delegate retain] autorelease];
-}
+@synthesize source = m_source;
+@synthesize delegate = m_delegate;
 
 - (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
 {
@@ -116,14 +99,13 @@
     {
         if (![[lnk objectForKey:@"checked"] boolValue])
             continue;
-        PendingLink *p = [m_delegate insertURL:[lnk objectForKey:@"url"]
-                               withDescription:[lnk objectForKey:@"desc"]
-                                    withViewed:nil
-                                   withCreated:now];
-        [p setSource:m_source];
-        [p release];
+        PendingLink *p = [self.delegate insertURL:[lnk objectForKey:@"url"]
+                                  withDescription:[lnk objectForKey:@"desc"]
+                                       withViewed:nil
+                                      withCreated:now];
+        [p setSource:self.source];
     }    
-    [m_delegate setUnread:self];
+    [self.delegate setUnread:self];
 }
 
 - (IBAction)done:(id)sender;

@@ -291,10 +291,10 @@
 			<property name="isPending" code="tPen" description="Is the link pending?" type="boolean" access="r">
 				<cocoa key="isPending"/>
 			</property>
-			<property hidden="yes" name="site" code="tSit" description="Site to add url with terms.  If specified, link is ignored." type="text" access="w" in-properties="no">
+			<property name="site" code="tSit" description="Site to add url with terms.  If specified, link is ignored." type="text" access="w" in-properties="no">
 				<cocoa key="site"/>
 			</property>
-			<property hidden="yes" name="terms" code="tTrm" description="Terms for site.  Only used if site is provided." type="text" access="w" in-properties="no">
+			<property name="terms" code="tTrm" description="Terms for site.  Only used if site is provided." type="text" access="w" in-properties="no">
 				<cocoa key="terms"/>
 			</property>
 		</class>

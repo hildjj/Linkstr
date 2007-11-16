@@ -18,7 +18,7 @@ static NSImage *UNREAD;
     if (self != [PendingLink class])
         return;
     
-    UNREAD = [[NSImage imageNamed:@"unread"] retain];
+    UNREAD = [NSImage imageNamed:@"unread"];
         
     [PendingLink setKeys:[NSArray arrayWithObjects:@"text", @"url", nil]
         triggerChangeNotificationsForDependentKey:@"descr"];
@@ -35,22 +35,36 @@ static NSImage *UNREAD;
     return copyKeys;
 }
 
++ (BOOL)isFunny:(NSString*)str;
+{
+    if (!str)
+        return NO;
+    
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"avoidFunnyLinks"])
+        return NO;
+    
+    int funny = 0;
+    uint i;
+    for (i=0; i<[str length]; i++)
+    {
+        unichar c = [str characterAtIndex:i];
+        if ((c == '&') ||
+            (c > 566)) // arbitrary
+            funny++;
+        if (funny > 3) // yessir, that's pretty funny
+        {
+            NSLog(@"Funny, isn't it: '%@'", str);
+            return YES;                        
+        }
+    }
+    
+    return NO;
+}
+
 - (NSDictionary *)dictionaryRepresentation;
 {
     return [self dictionaryWithValuesForKeys:[[self class] copyKeys]];
 }
-
-/*
-- (NSScriptObjectSpecifier *)objectSpecifier;
-{ 
-    NSScriptClassDescription* appDesc = (NSScriptClassDescription*)[NSApp classDescription]; 
-    return [[[NSNameSpecifier alloc] 
-        initWithContainerClassDescription:appDesc 
-                       containerSpecifier:[NSApp objectSpecifier] 
-                                      key:@"contents" 
-                                     name:[self url]] autorelease]; 
-} 
-*/
 
 - (NSString*) identifier
 {

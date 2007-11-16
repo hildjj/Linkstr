@@ -125,7 +125,6 @@
     
     if ([m_delegate respondsToSelector:@selector(poster:finishedOutstanding:)])
         [m_delegate poster:self finishedOutstanding:m_total];
-    [self autorelease];
 }
 
 - (void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;

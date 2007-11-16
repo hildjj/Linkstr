@@ -57,7 +57,7 @@ static NSArray *s_SupportedTypes;
     //get the string representation of the UUID
     NSString	*newUUID = (NSString*)CFUUIDCreateString(nil, uuidObj);
     CFRelease(uuidObj);
-    return [newUUID autorelease];
+    return newUUID;
 }
 @end
 
@@ -128,13 +128,13 @@ static NSArray *s_SupportedTypes;
         [NSArchiver archivedDataWithRootObject:[NSColor blackColor]], TABLE_ODD_BG,
         nil]];
     
-    s_SupportedTypes = [[NSArray arrayWithObjects:
+    s_SupportedTypes = [NSArray arrayWithObjects:
         PendingLinkPBoardType,
         @"WebURLsWithTitlesPboardType",
         NSFilenamesPboardType,
         NSURLPboardType, 
         @"Apple Web Archive pasteboard type",
-        NSStringPboardType, nil] retain];    
+        NSStringPboardType, nil];    
 }
 
 - (void)awakeFromNib;
@@ -148,7 +148,7 @@ static NSArray *s_SupportedTypes;
 
     [m_table setDoubleAction:@selector(openSelected:)];
     [self setUnread:self];
-    m_nagler = [[[GrowlNagler alloc] init] retain];
+    m_nagler = [[GrowlNagler alloc] init];
     [GrowlApplicationBridge setGrowlDelegate:self];
     
     NSMenu *menu = [m_action submenu];
@@ -169,7 +169,6 @@ static NSArray *s_SupportedTypes;
         [item setRepresentedObject:site];
         [menu addItem:item];
     }        
-    [s release];
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey:FIRST_TIME])
     {
@@ -227,7 +226,6 @@ static NSArray *s_SupportedTypes;
     [cs drawInRect:rect withAttributes:attr];
     [red unlockFocus];
     [NSApp setApplicationIconImage:red];
-    [red release];
 }
 
 #pragma mark -
@@ -239,7 +237,7 @@ static NSArray *s_SupportedTypes;
     [toolbar setDelegate:self];
     [toolbar setAllowsUserCustomization:YES];
     [toolbar setAutosavesConfiguration:YES];
-    [m_win setToolbar:[toolbar autorelease]];      
+    [m_win setToolbar:toolbar];
 }
 
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar;
@@ -324,7 +322,7 @@ static NSArray *s_SupportedTypes;
         [item setAction:@selector(toggleViewed:)];
     } 
     
-    return [item autorelease];
+    return item;
 }
 
 - (BOOL)validateToolbarItem:(NSToolbarItem *)theItem;
@@ -652,8 +650,8 @@ static NSArray *s_SupportedTypes;
         NSDictionary *plist = [pb propertyListForType:typ];
         NSDictionary *resource = [plist objectForKey:@"WebMainResource"];
         NSData *data = [resource objectForKey:@"WebResourceData"];
-        NSString *html = [[[NSString alloc] initWithData:data
-                                                encoding:NSUTF8StringEncoding] autorelease];
+        NSString *html = [[NSString alloc] initWithData:data
+                                               encoding:NSUTF8StringEncoding];
         NSString *source = [resource objectForKey:@"WebResourceURL"];
         ImportHTML *importer = [[ImportHTML alloc] initWithHtmlString:html
                                                                source:source
@@ -753,7 +751,7 @@ static NSArray *s_SupportedTypes;
 {
     if (!m_sheet)
     {
-        m_sheet = [[[ImageTextSheet alloc] init] retain];
+        m_sheet = [[ImageTextSheet alloc] init];
         [m_sheet setDelegate:self];
     }    
 }
@@ -789,6 +787,7 @@ static NSArray *s_SupportedTypes;
     NSDictionary *site = (NSDictionary*)context;
     NSString *fmt = [site objectForKey:@"formatter"]; 
     NSString *pct = nil;
+ 
     if (fmt)
     {
         SEL sf = NSSelectorFromString(fmt);
@@ -796,7 +795,10 @@ static NSArray *s_SupportedTypes;
             pct = [self performSelector:sf withObject:text];
     }
     if (!pct)
-        pct = [text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    {
+        pct = [text stringByReplacingOccurrencesOfString:@" " withString:@"+"];
+        pct = [pct stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+    }
     NSString *url = [NSString stringWithFormat:[site objectForKey:@"url"], pct];        
     NSString *desc = [NSString stringWithFormat:[site objectForKey:@"description"], text]; 
     return [self insertURL:url withDescription:desc];
@@ -866,21 +868,13 @@ static NSArray *s_SupportedTypes;
 - (NSArray*)createdSortOrder;
 {
     NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"created" ascending:YES];
-    NSArray *as = [NSArray arrayWithObject:sort];
-    [sort release];
-    return as;
+    return [NSArray arrayWithObject:sort];
 }
+
 - (NSArray*)createdDescendingSortOrder;
 {
     NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"created" ascending:NO];
-    NSArray *as = [NSArray arrayWithObject:sort];
-    [sort release];
-    return as;
-}
-
-- (void)setCreatedDescendingSortOrder:(NSArray*)array;
-{
-    
+    return [NSArray arrayWithObject:sort];
 }
 
 - (NSArray*)fullContentUrls;
@@ -893,28 +887,23 @@ static NSArray *s_SupportedTypes;
     return [self urlsForType:@"R"];
 }
 
-/*
-- (void)setRedundants:(NSArray*)urls;
-{
-    NSLog(@"set");
-}
-*/
-
 - (NSArray*)urlsForType:(NSString*)type;
 {
     NSFetchRequest *fetch = 
     [[self managedObjectModel] fetchRequestFromTemplateWithName:@"sourceByType"
-                                          substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:type, @"TYPE", nil]];
+                                          substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:type, 
+                                                                 @"TYPE", nil]];
     [fetch setSortDescriptors:[self createdSortOrder]];
     NSAssert(fetch, @"Fetch not found");
-    return [[[[self managedObjectContext] executeFetchRequest:fetch error:nil] retain] autorelease];
+    return [[self managedObjectContext] executeFetchRequest:fetch error:nil];
 }
 
 - (PendingLink*)pendingForUrl:(NSString*)url;
 {
     NSFetchRequest *fetch = 
     [[self managedObjectModel] fetchRequestFromTemplateWithName:@"fetchURL"
-substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", nil]];
+                                          substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                                 url, @"URL", nil]];
     NSAssert(fetch, @"Fetch not found");
     NSArray *res = [[self managedObjectContext] executeFetchRequest:fetch error:nil];
     if ([res count] < 1)
@@ -927,9 +916,7 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     NSFetchRequest *fetch = [[[self managedObjectModel] fetchRequestTemplateForName:@"unviewed"] copy];
     NSAssert(fetch, @"Fetch not found");
     [fetch setSortDescriptors:[self createdSortOrder]];
-    NSArray *ret = [[self managedObjectContext] executeFetchRequest:fetch error:nil];
-    [fetch release];
-    return ret;
+    return [[self managedObjectContext] executeFetchRequest:fetch error:nil];
 }
 
 - (NSString*)DeHTML:(NSString*)html;
@@ -940,41 +927,7 @@ substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", ni
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     NSAttributedString *as = [[NSAttributedString alloc] initWithHTML:data
                                                    documentAttributes:nil];
-    return [[as string] autorelease];
-    /*
-    NSError *err;
-    NSXmlDocument *doc = [[NSXMLDocument alloc] initWithXMLString:html 
-                                                          options:NSXMLDocumentTidyHTML 
-                                                            error:&err];
-    
-    [doc release];
-        */
-}
-
-- (BOOL)isFunny:(NSString*)str
-{
-    if (!str)
-        return NO;
-    
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:AVOID_FUNNY])
-        return NO;
-    
-    int funny = 0;
-    uint i;
-    for (i=0; i<[str length]; i++)
-    {
-        unichar c = [str characterAtIndex:i];
-        if ((c == '&') ||
-            (c > 566)) // arbitrary
-            funny++;
-        if (funny > 3) // that's pretty funny
-        {
-            NSLog(@"Funny, isn't it: '%@'", str);
-            return YES;                        
-        }
-    }
-    
-    return NO;
+    return [as string];
 }
 
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
@@ -1071,7 +1024,7 @@ withDescription:(NSString*)desc
         ([url hasPrefix:@"https"]))
         return nil;
     
-    if ([self isFunny:desc])
+    if ([PendingLink isFunny:desc])
         return nil;
     
     PendingLink *p = [self pendingForUrl:url];
@@ -1096,7 +1049,7 @@ withDescription:(NSString*)desc
     if (p)
         return YES;
 
-    if ([self isFunny:desc])
+    if ([PendingLink isFunny:desc])
         return YES;
     
     NSFetchRequest *fetch = 
@@ -1221,7 +1174,7 @@ withDescription:(NSString*)desc
         return;
     
     [m_progress startAnimation:self];
-    Poster *k = [[[Poster alloc] initWithDelegate:self] retain];
+    Poster *k = [[Poster alloc] initWithDelegate:self];
     for (PendingLink *p in all)
     {
         [k getURL:@"https://api.del.icio.us/v1/posts/add"
@@ -1257,7 +1210,6 @@ withDescription:(NSString*)desc
         NSLog(@"Error parsing XML doc: %@", err);
         NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         NSLog(@"XML: %@", str);
-        [str release];
         return;
     }
     NSXMLElement *posts = [doc rootElement];
@@ -1297,7 +1249,6 @@ withDescription:(NSString*)desc
         NSLog(@"Error parsing XML doc: %@", err);
         NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         NSLog(@"XML: %@", str);
-        [str release];
         return;
     }
     NSXMLElement *posts = [doc rootElement];
@@ -1331,9 +1282,7 @@ withDescription:(NSString*)desc
                              withCreated:d];
         if ([[p created] isEqual:d])
             changes++;
-        [p release];
     }
-    [doc release];  
     
     [[NSUserDefaults standardUserDefaults] setObject:update_date forKey:LAST_DELICIOUS];
     [self refresh:self];
@@ -1413,7 +1362,7 @@ withDescription:(NSString*)desc
 }
 
 /**
-    Creates, retains, and returns the managed object model for the application 
+    Creates and returns the managed object model for the application 
     by merging all of the models found in the application bundle and all of the 
     framework bundles.
  */
@@ -1428,8 +1377,7 @@ withDescription:(NSString*)desc
     [allBundles addObject: [NSBundle mainBundle]];
     [allBundles addObjectsFromArray: [NSBundle allFrameworks]];
     
-    managedObjectModel = [[NSManagedObjectModel mergedModelFromBundles: [allBundles allObjects]] retain];
-    [allBundles release];
+    managedObjectModel = [NSManagedObjectModel mergedModelFromBundles: [allBundles allObjects]];
     
     return managedObjectModel;
 }
@@ -1693,12 +1641,6 @@ withDescription:(NSString*)desc
 #pragma mark -
 #pragma mark Scripting
 
-- (void)insertInContent:(PendingLink*)p
-{
-    NSLog(@"insert: %@", [p url]);
-    [[self managedObjectContext] insertObject:p];    
-}
-
 - (BOOL)application:(NSApplication *)sender delegateHandlesKey:(NSString *)key
 { 
     NSLog(@"key: %@", key);
@@ -1721,64 +1663,5 @@ withDescription:(NSString*)desc
     return nil;
 }
 
-- (id)valueInLinksWithUniqueID:(NSString *)string;
-{
-	NSURL *URIRepresentation = [NSURL URLWithString:string];
-	NSManagedObjectID *objectID = [[[self managedObjectContext] persistentStoreCoordinator] managedObjectIDForURIRepresentation:URIRepresentation];
-	PendingLink *returnValue = (PendingLink *)[[self managedObjectContext] objectWithID:objectID];
-	return ([returnValue isDeleted] || [[[self managedObjectContext] deletedObjects] containsObject:returnValue]) ? nil: [[self managedObjectContext] objectWithID:objectID];
-}
 
-- (id)valueInRedundantsWithUniqueID:(NSString *)string;
-{
-	NSURL *URIRepresentation = [NSURL URLWithString:string];
-	NSManagedObjectID *objectID = [[[self managedObjectContext] persistentStoreCoordinator] managedObjectIDForURIRepresentation:URIRepresentation];
-	urlList *returnValue = (urlList *)[[self managedObjectContext] objectWithID:objectID];
-	return ([returnValue isDeleted] || [[[self managedObjectContext] deletedObjects] containsObject:returnValue]) ? nil: [[self managedObjectContext] objectWithID:objectID];
-}
-
-
-- (id)createRedundantUrl:(NSString*)url;
-{
-    NSLog(@"Create redundant: %@", url);
-    
-    NSFetchRequest *fetch = 
-    [[self managedObjectModel] fetchRequestFromTemplateWithName:@"sourceExists"
-                                          substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                                 url, @"URL", 
-                                                                 @"R", @"TYPE", nil]];
-    NSAssert(fetch, @"Fetch not found");
-    NSArray *res = [[self managedObjectContext] executeFetchRequest:fetch error:nil];
-    urlList *u;
-    if ([res count] > 0)
-        u = [res objectAtIndex:0];
-    else
-    {
-        u = [NSEntityDescription insertNewObjectForEntityForName:@"Sources" 
-                                               inManagedObjectContext:[self managedObjectContext]];
-        u.url = url;
-        u.type = @"R";
-    }
-    return u;
-}
-
-- (void)insertObject:(urlList *)u inRedundantsAtIndex:(unsigned int)i 
-{ 
-    NSLog(@"insert");
-} 
-
-- (void)insertInRedundants:(urlList *)u
-{ 
-    NSLog(@"insert object");
-} 
-
--(void)removeFromRedundantsAtIndex:(unsigned int)i 
-{ 
-    NSLog(@"TODO: remove object");
-    urlList *u = [[self redundants] objectAtIndex:i];
-    if (!u)
-        return;  // TODO: throw error
-    
-    [[self managedObjectContext] deleteObject:u];    
-} 
 @end

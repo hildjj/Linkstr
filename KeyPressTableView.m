@@ -31,8 +31,8 @@ static NSArray *s_backgroundColors = nil;
 
 - (void)defaultsDidChange:(NSNotification *)note
 {
-    [s_foreground release], s_foreground = nil;
-    [s_backgroundColors release], s_backgroundColors = nil;
+    s_foreground = nil;
+    s_backgroundColors = nil;
     [self setNeedsDisplay];
 }
 
@@ -58,7 +58,7 @@ static NSArray *s_backgroundColors = nil;
         NSData *d=[[NSUserDefaults standardUserDefaults] dataForKey:@"tableTextForeground"];
         if (!d)
             return;
-        s_foreground = [(NSColor *)[NSUnarchiver unarchiveObjectWithData:d] retain];
+        s_foreground = (NSColor *)[NSUnarchiver unarchiveObjectWithData:d];
     }
     [aCell setTextColor:s_foreground];
 }
@@ -81,8 +81,8 @@ static NSArray *s_backgroundColors = nil;
             return nil;
         NSColor *even = (NSColor *)[NSUnarchiver unarchiveObjectWithData:d];
             
-        s_backgroundColors = [[NSArray arrayWithObjects:odd, even, nil] retain];
+        s_backgroundColors = [NSArray arrayWithObjects:odd, even, nil];
     }
-    return [[s_backgroundColors retain] autorelease];
+    return s_backgroundColors;
 }
 @end

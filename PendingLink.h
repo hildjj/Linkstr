@@ -15,6 +15,7 @@
 
 + (void)initialize;
 + (NSArray *)copyKeys;
++ (BOOL)isFunny:(NSString*)str;
 
 - (NSString*) identifier;
 - (NSDictionary *)dictionaryRepresentation;
