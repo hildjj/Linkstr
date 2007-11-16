@@ -16,8 +16,9 @@
     NSString *url = [self directParameter];
     if (!url)
         return nil;
+    NSString *desc = [[self evaluatedArguments] objectForKey:@"desc"];
     Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
-    BOOL ret = [l checkRedundant:url forType:@"R" withDate:nil];
+    BOOL ret = [l checkRedundant:url forType:@"R" withDate:nil withDescription:desc];
     return [NSNumber numberWithBool:ret];
 }
 @end

@@ -19,6 +19,8 @@
 	NSString *DSASignature;
 	NSString *MD5Sum;
 	
+	NSString *minimumSystemVersion;
+	
 	NSURL *fileURL;
 	NSString *fileVersion;
 	NSString *versionString;
@@ -53,5 +55,8 @@
 
 - (NSString *)versionString;
 - (void)setVersionString:(NSString *)versionString;
+
+- (NSString *)minimumSystemVersion;
+- (void)setMinimumSystemVersion:(NSString *)systemVersionString;
 
 @end

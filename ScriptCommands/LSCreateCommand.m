@@ -8,7 +8,10 @@
 
 #import "LSCreateCommand.h"
 #import "PendingLink.h"
+#import "urlList.h"
 #import "Linkstr_AppDelegate.h"
+#import "LSRedundantCategory.h"
+#import "LSIncompleteCategory.h"
 
 @implementation LSCreateCommand
 
@@ -18,8 +21,6 @@
     if (classCode == 'pLnk')
     {
         NSDictionary *props = [self resolvedKeyDictionary];
-        NSLog(@"create pending link: %@", props);
-        NSLog(@"desc: %@", [props objectForKey:@"descr"]);
         
         Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
         NSString *site = [props objectForKey:@"site"];
@@ -30,12 +31,26 @@
             p = [l insertURL:[props objectForKey:@"url"]
              withDescription:[props objectForKey:@"descr"]];                
 
-//        NSString *uniqueID = [[[p objectID] URIRepresentation] absoluteString];
-//        NSLog(@"Done (uid=%@)", uniqueID);
         return [p objectSpecifier];
-        //return [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:[documentSpecifier keyClassDescription] containerSpecifier:documentSpecifier key:@"persons" uniqueID:uniqueID];
     }
-    
+    else if (classCode == 'tRur')  // redundant
+    {
+        NSDictionary *props = [self resolvedKeyDictionary];
+        
+        Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
+        urlList *u = [l createRedundantUrl:[props  objectForKey:@"url"]];
+        
+        return [u objectSpecifier];
+    }
+    else if (classCode == 'tIur') // incomplete
+    {
+        NSDictionary *props = [self resolvedKeyDictionary];
+        
+        Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
+        urlList *u = [l createIncompleteUrl:[props  objectForKey:@"url"]];
+        
+        return [u objectSpecifier];
+    }
     return [super performDefaultImplementation];
 }
 @end

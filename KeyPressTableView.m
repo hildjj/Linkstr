@@ -11,7 +11,6 @@
 static NSColor *s_foreground = nil;
 static NSArray *s_backgroundColors = nil;
 
-
 @implementation KeyPressTableView
 
 - (void)awakeFromNib;
@@ -22,18 +21,18 @@ static NSArray *s_backgroundColors = nil;
                                                object:nil];
 }
 
-- (void) dealloc 
+- (void)finalize; 
 {    
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:NSUserDefaultsDidChangeNotification
                                                   object:nil];
-    [super dealloc];
+    [super finalize];
 }
 
 - (void)defaultsDidChange:(NSNotification *)note
 {
-    [s_foreground release], s_foreground = nil;
-    [s_backgroundColors release], s_backgroundColors = nil;
+    s_foreground = nil;
+    s_backgroundColors = nil;
     [self setNeedsDisplay];
 }
 
@@ -42,8 +41,10 @@ static NSArray *s_backgroundColors = nil;
     id del = [self delegate];
     if ([del respondsToSelector:@selector(keyPressOnTableView:event:)])
     {
-		[(id <KeyPressTableViewDelegate>)del keyPressOnTableView:self event:theEvent];
+		if ([(id <KeyPressTableViewDelegate>)del keyPressOnTableView:self event:theEvent])
+            return;
 	}    
+    
     [super keyDown:theEvent];
 }
 
@@ -57,9 +58,8 @@ static NSArray *s_backgroundColors = nil;
         NSData *d=[[NSUserDefaults standardUserDefaults] dataForKey:@"tableTextForeground"];
         if (!d)
             return;
-        s_foreground = [(NSColor *)[NSUnarchiver unarchiveObjectWithData:d] retain];
+        s_foreground = (NSColor *)[NSUnarchiver unarchiveObjectWithData:d];
     }
-    
     [aCell setTextColor:s_foreground];
 }
 
@@ -81,8 +81,8 @@ static NSArray *s_backgroundColors = nil;
             return nil;
         NSColor *even = (NSColor *)[NSUnarchiver unarchiveObjectWithData:d];
             
-        s_backgroundColors = [[NSArray arrayWithObjects:odd, even, nil] retain];
+        s_backgroundColors = [NSArray arrayWithObjects:odd, even, nil];
     }
-    return [[s_backgroundColors retain] autorelease];
+    return s_backgroundColors;
 }
 @end

@@ -11,18 +11,22 @@
 #import "ImageTextSheet.h"
 #import "GrowlNagler.h"
 
+NSString *ATOM_DATE_FMT;
+
 @interface Linkstr_AppDelegate : NSObject <GrowlApplicationBridgeDelegate>
 {
     IBOutlet NSWindow *m_win;
     IBOutlet NSArrayController *m_controller;  
-    IBOutlet NSArrayController *m_sites;
     IBOutlet NSProgressIndicator *m_progress;
     IBOutlet NSDrawer *m_drawer;
     IBOutlet NSTableView *m_table;
     IBOutlet NSSearchField *m_search;
     IBOutlet ImageTextSheet *m_sheet;
     IBOutlet NSMenuItem *m_action;
+    IBOutlet NSView *m_fileTypeView;
+    IBOutlet NSComboBox *m_fileType;
         
+    NSWindowController *m_prefs;
     NSWindowController *m_feeds;
     NSWindowController *m_history;
     GrowlNagler *m_nagler;
@@ -41,9 +45,9 @@
 - (IBAction)unfade:(id)sender;
 - (IBAction)setTopLevel:(id)sender;
 
-- (NSMutableArray*)content;
-- (NSWindow*)window;
-- (void)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
+@property (readonly) NSWindow *window;
+- (NSMutableArray*)links;
+- (BOOL)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
 
 #pragma mark -
 #pragma mark Toolbar methods
@@ -75,6 +79,7 @@
 - (PendingLink*)insertTerms:(NSString*)terms forSite:(NSString*)site;
 - (IBAction)scriptsMenu:(id)sender;
 
+- (IBAction)prefsPopup:(id)sender;
 - (IBAction)feedsPopup:(id)sender;
 - (IBAction)historyPopup:(id)sender;
 
@@ -83,15 +88,22 @@
 
 - (NSArray*)createdSortOrder;
 - (NSArray*)createdDescendingSortOrder;
-- (void)setCreatedDescendingSortOrder:(NSArray*)array;
 
-- (NSArray*)fullContentUrls;
-- (NSArray*)redundantUrls;
+- (NSArray*)incompletes;
+- (NSArray*)redundants;
+
 - (NSArray*)urlsForType:(NSString*)type;
 - (NSArray*)unviewedLinks;
+- (id)insertURL:(NSString*)url withDescription:(NSString*)desc
+     withViewed:(NSCalendarDate*)viewed
+    withCreated:(NSCalendarDate*)created;
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
-- (BOOL)checkRedundant:(NSString*)url forType:(NSString*)type withDate:(NSCalendarDate*)date;
+- (BOOL)checkRedundant:(NSString*)url 
+               forType:(NSString*)type 
+              withDate:(NSCalendarDate*)date
+       withDescription:(NSString*)desc;
 - (IBAction)importSafariHistory:(id)sender;
+- (IBAction)importDeliciousHistory:(id)sender;
 - (IBAction)postDeliciously:(id)sender;
 - (IBAction)removeSelected:(id)sender;
 - (IBAction)toggleViewed:(id)sender;
@@ -102,5 +114,9 @@
 - (NSManagedObjectContext *)managedObjectContext;
 
 - (IBAction)saveAction:sender;
+- (IBAction)exportAction:sender;
+- (void)saveSelectedAsOPML:(NSString*)file;
+- (void)saveSelectedAsAtom:(NSString*)file;
 
 @end
+

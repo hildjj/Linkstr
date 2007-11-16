@@ -11,21 +11,26 @@
 
 @implementation PendingLink 
 
+@dynamic created;
+@dynamic source;
+@dynamic url;
+@dynamic viewed;
+@dynamic text;
+
 static NSImage *UNREAD;
-NSString *GOOG = @"http://www.google.com/search?q=%@&ie=UTF-8&oe=UTF-8";
-NSString *WIKI = @"http://www.wikipedia.org/w/wiki.phtml?search=%@";
 
 + (void)initialize;
 {
     if (self != [PendingLink class])
         return;
     
-    UNREAD = [[NSImage imageNamed:@"unread"] retain];
-//    [UNREAD setScalesWhenResized:YES];
-//    [UNREAD setSize:NSMakeSize(10, 10)];
+    UNREAD = [NSImage imageNamed:@"unread"];
         
-    [self setKeys:[NSArray arrayWithObjects:@"text", @"url", nil]
-          triggerChangeNotificationsForDependentKey:@"descr"];
+    [PendingLink setKeys:[NSArray arrayWithObjects:@"text", @"url", nil]
+        triggerChangeNotificationsForDependentKey:@"descr"];
+    [PendingLink setKeys:[NSArray arrayWithObjects:@"viewed", nil]
+        triggerChangeNotificationsForDependentKey:@"unviewedImage"];
+    
 }
 
 + (NSArray *)copyKeys;
@@ -36,16 +41,41 @@ NSString *WIKI = @"http://www.wikipedia.org/w/wiki.phtml?search=%@";
     return copyKeys;
 }
 
-+ (NSString*)googleUrl:(NSString*)terms;
++ (BOOL)isFunny:(NSString*)str;
 {
-    NSString *pct = [terms stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    return [NSString stringWithFormat:GOOG, pct];
+    if (!str)
+        return NO;
+    
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"avoidFunnyLinks"])
+        return NO;
+    
+    int funny = 0;
+    uint i;
+    for (i=0; i<[str length]; i++)
+    {
+        unichar c = [str characterAtIndex:i];
+        if ((c == '&') ||
+            (c > 566)) // arbitrary
+            funny++;
+        if (funny > 3) // yessir, that's pretty funny
+        {
+            NSLog(@"Funny, isn't it: '%@'", str);
+            return YES;                        
+        }
+    }
+    
+    return NO;
 }
 
-+ (NSString*)wikipediaUrl:(NSString*)terms;
++ (NSString*)DeHTML:(NSString*)html;
 {
-    NSString *pct = [terms stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    return [NSString stringWithFormat:WIKI, pct];
+    NSRange r = [html rangeOfString:@"&"];
+    if (r.location == NSNotFound)
+        return html;
+    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
+    NSAttributedString *as = [[NSAttributedString alloc] initWithHTML:data
+                                                   documentAttributes:nil];
+    return [as string];
 }
 
 - (NSDictionary *)dictionaryRepresentation;
@@ -53,79 +83,20 @@ NSString *WIKI = @"http://www.wikipedia.org/w/wiki.phtml?search=%@";
     return [self dictionaryWithValuesForKeys:[[self class] copyKeys]];
 }
 
+- (NSString*) identifier
+{
+	return [[[self objectID] URIRepresentation] absoluteString];
+}
+
 - (NSScriptObjectSpecifier *)objectSpecifier;
-{ 
+{
     NSScriptClassDescription* appDesc = (NSScriptClassDescription*)[NSApp classDescription]; 
-    return [[[NSNameSpecifier alloc] 
-        initWithContainerClassDescription:appDesc 
-                       containerSpecifier:[NSApp objectSpecifier] 
-                                      key:@"contents" 
-                                     name:[self url]] autorelease]; 
-} 
-
-
-- (NSString *)source 
-{
-    NSString * tmpValue;
-    
-    [self willAccessValueForKey: @"source"];
-    tmpValue = [self primitiveValueForKey: @"source"];
-    [self didAccessValueForKey: @"source"];
-    
-    return tmpValue;
-}
-
-- (void)setSource:(NSString *)value 
-{
-    [self willChangeValueForKey: @"source"];
-    [self setPrimitiveValue: value forKey: @"source"];
-    [self didChangeValueForKey: @"source"];
-}
-
-- (NSString *)url 
-{
-    NSString * tmpValue;
-    
-    [self willAccessValueForKey: @"url"];
-    tmpValue = [self primitiveValueForKey: @"url"];
-    [self didAccessValueForKey: @"url"];
-    
-    return tmpValue;
-}
-
-- (void)setUrl:(NSString *)value 
-{
-    [self willChangeValueForKey: @"url"];
-    [self setPrimitiveValue: value forKey: @"url"];
-    [self didChangeValueForKey: @"url"];
-}
-
-- (NSCalendarDate *)viewed 
-{
-    NSCalendarDate * tmpValue;
-    
-    [self willAccessValueForKey: @"viewed"];
-    tmpValue = [self primitiveValueForKey: @"viewed"];
-    [self didAccessValueForKey: @"viewed"];
-    
-    return tmpValue;
-}
-
-- (void)setViewed:(NSCalendarDate *)value 
-{
-    [self willChangeValueForKey: @"viewed"];
-    [self willChangeValueForKey: @"isViewed"];
-    [self willChangeValueForKey: @"unviewedImage"];
-    [self setPrimitiveValue: value forKey: @"viewed"];
-    [self didChangeValueForKey: @"unviewedImage"];
-    [self didChangeValueForKey: @"isViewed"];
-    [self didChangeValueForKey: @"viewed"];
-}
-
-- (BOOL)isViewed;
-{
-    NSCalendarDate * tmpValue = [self viewed];
-    return (tmpValue != nil);
+	NSUniqueIDSpecifier *specifier = [NSUniqueIDSpecifier alloc];
+	[specifier initWithContainerClassDescription:appDesc
+                              containerSpecifier:[NSApp objectSpecifier] 
+                                             key:@"links"
+                                        uniqueID:[self identifier]];
+	return specifier;
 }
 
 - (NSString *)descr 
@@ -133,54 +104,18 @@ NSString *WIKI = @"http://www.wikipedia.org/w/wiki.phtml?search=%@";
     NSString * tmpValue;
     
     [self willAccessValueForKey: @"descr"];
-    tmpValue = [self text];
+    tmpValue = self.text;
     if (!tmpValue)
-        tmpValue = [self url];
+        tmpValue = self.url;
     [self didAccessValueForKey: @"descr"];
     
     return tmpValue;
 }
 
-- (NSCalendarDate *)created 
-{
-    NSCalendarDate * tmpValue;
-    
-    [self willAccessValueForKey: @"created"];
-    tmpValue = [self primitiveValueForKey: @"created"];
-    [self didAccessValueForKey: @"created"];
-    
-    return tmpValue;
-}
-
-- (void)setCreated:(NSCalendarDate *)value 
-{
-    [self willChangeValueForKey: @"created"];
-    [self setPrimitiveValue: value forKey: @"created"];
-    [self didChangeValueForKey: @"created"];
-}
-
-- (NSString *)text 
-{
-    NSString * tmpValue;
-    
-    [self willAccessValueForKey: @"text"];
-    tmpValue = [self primitiveValueForKey: @"text"];
-    [self didAccessValueForKey: @"text"];
-    
-    return tmpValue;
-}
-
-- (void)setText:(NSString *)value 
-{
-    [self willChangeValueForKey: @"text"];
-    [self setPrimitiveValue: value forKey: @"text"];
-    [self didChangeValueForKey: @"text"];
-}
-
 - (NSImage*)unviewedImage
 {
     [self willAccessValueForKey: @"unviewedImage"];
-    if ([self viewed])
+    if (self.viewed)
     {
         [self didAccessValueForKey: @"unviewedImage"];
         return nil;        
@@ -189,11 +124,19 @@ NSString *WIKI = @"http://www.wikipedia.org/w/wiki.phtml?search=%@";
     return UNREAD;
 }
 
+- (BOOL)isPending;
+{
+    [self willAccessValueForKey: @"isPending"];
+    BOOL ret = (self.viewed == nil);
+    [self didAccessValueForKey: @"isPending"];
+    return ret;
+}
+
 - (void) awakeFromInsert;
 {
     [super awakeFromInsert];
-    if (![self created])
-        [self setCreated:[NSCalendarDate calendarDate]];
+    if (!self.created)
+        self.created = [NSCalendarDate calendarDate];
 }
 
 - (id)valueForUndefinedKey:(NSString *)key
@@ -202,4 +145,64 @@ NSString *WIKI = @"http://www.wikipedia.org/w/wiki.phtml?search=%@";
     return nil;
 }
 
+- (NSXMLElement*)asHTML;
+{
+    NSXMLElement *dv = [NSXMLNode elementWithName:@"div"];
+    [dv addNamespace:[NSXMLNode namespaceWithName:@"" stringValue:@"http://www.w3.org/1999/xhtml"]];
+    if (self.created)
+    {
+        NSXMLElement *p = [NSXMLNode elementWithName:@"div" stringValue:@"Created: "];
+        [p addChild:[NSXMLNode elementWithName:@"b" stringValue:[self.created description]]];
+        [dv addChild:p];
+    }
+    if (self.viewed)
+    {
+        NSXMLElement *p = [NSXMLNode elementWithName:@"div" stringValue:@"Viewed: "];
+        [p addChild:[NSXMLNode elementWithName:@"b" stringValue:[self.viewed description]]];
+        [dv addChild:p];
+    }
+    if (self.source)
+    {
+        NSXMLElement *p = [NSXMLNode elementWithName:@"div" stringValue:@"Source: "];
+        [dv addChild:p];        
+        NSXMLElement *a = [NSXMLNode elementWithName:@"a" stringValue:self.source];
+        [p addChild:a];
+        [a addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:self.source]];
+    }
+    return dv;
+}
+
+- (NSXMLElement*)asOPML;
+{
+    NSXMLElement *outl = [NSXMLNode elementWithName:@"outline" ];
+    [outl setAttributesAsDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+                                     self.descr, @"text",
+                                     @"link", @"type",
+                                     self.url, @"url",
+                                     nil]];
+    return outl;
+}
+
+- (NSXMLElement*)asAtom;
+{
+    NSXMLElement *entry = [NSXMLNode elementWithName:@"entry" ];
+    [entry addChild:[NSXMLNode elementWithName:@"id"
+                                   stringValue:self.url]];
+    [entry addChild:[NSXMLNode elementWithName:@"title"
+                                   stringValue:self.descr]];
+    [entry addChild:[NSXMLNode elementWithName:@"updated"
+                                   stringValue:[self.created descriptionWithCalendarFormat:ATOM_DATE_FMT 
+                                                                                  timeZone:nil 
+                                                                                    locale:nil]]];
+    NSXMLElement *lnk = [NSXMLNode elementWithName:@"link"];
+    [entry addChild:lnk];
+    [lnk addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:self.url]];
+    
+    NSXMLElement *content = [NSXMLNode elementWithName:@"content"];
+    [entry addChild:content];
+    [content addAttribute:[NSXMLNode attributeWithName:@"type" stringValue:@"xhtml"]];
+    [content addChild:[self asHTML]]; 
+    return entry;
+}
 @end
+

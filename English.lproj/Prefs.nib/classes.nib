@@ -1,0 +1,14 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = KeyPressTableView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }, 
+        {
+            CLASS = Prefs; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"m_sites" = NSArrayController; }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {CLASS = Sites; LANGUAGE = ObjC; SUPERCLASS = NSArrayController; }
+    ); 
+    IBVersion = 1; 
+}

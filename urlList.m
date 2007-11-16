@@ -8,7 +8,6 @@
 
 #import "urlList.h"
 
-
 @implementation urlList 
 
 + (NSArray *)copyKeys;
@@ -24,59 +23,9 @@
     return [self dictionaryWithValuesForKeys:[[self class] copyKeys]];
 }
 
-- (NSString *)type 
-{
-    NSString * tmpValue;
-    
-    [self willAccessValueForKey: @"type"];
-    tmpValue = [self primitiveValueForKey: @"type"];
-    [self didAccessValueForKey: @"type"];
-    
-    return tmpValue;
-}
-
-- (void)setType:(NSString *)value 
-{
-    [self willChangeValueForKey: @"type"];
-    [self setPrimitiveValue: value forKey: @"type"];
-    [self didChangeValueForKey: @"type"];
-}
-
-- (NSString *)url 
-{
-    NSString * tmpValue;
-    
-    [self willAccessValueForKey: @"url"];
-    tmpValue = [self primitiveValueForKey: @"url"];
-    [self didAccessValueForKey: @"url"];
-    
-    return tmpValue;
-}
-
-- (void)setUrl:(NSString *)value 
-{
-    [self willChangeValueForKey: @"url"];
-    [self setPrimitiveValue: value forKey: @"url"];
-    [self didChangeValueForKey: @"url"];
-}
-
-- (NSCalendarDate *)created 
-{
-    NSCalendarDate * tmpValue;
-    
-    [self willAccessValueForKey: @"created"];
-    tmpValue = [self primitiveValueForKey: @"created"];
-    [self didAccessValueForKey: @"created"];
-    
-    return tmpValue;
-}
-
-- (void)setCreated:(NSCalendarDate *)value 
-{
-    [self willChangeValueForKey: @"created"];
-    [self setPrimitiveValue: value forKey: @"created"];
-    [self didChangeValueForKey: @"created"];
-}
+@dynamic type;
+@dynamic url;
+@dynamic created;
 
 - (void) awakeFromInsert;
 {
@@ -85,13 +34,25 @@
         [self setCreated:[NSCalendarDate calendarDate]];
 }
 
+- (id)valueForUndefinedKey:(NSString *)key
+{
+    NSLog(@"undefined key(%@): %@", [self class], key);
+    return nil;
+}
+
+- (NSString*) identifier
+{
+	return [[[self objectID] URIRepresentation] absoluteString];
+}
+
 - (NSScriptObjectSpecifier *)objectSpecifier;
-{ 
+{
     NSScriptClassDescription* appDesc = (NSScriptClassDescription*)[NSApp classDescription]; 
-    return [[[NSNameSpecifier alloc] 
-        initWithContainerClassDescription:appDesc 
-                       containerSpecifier:nil 
-                                      key:@"redundantUrls" 
-                                     name:@"urlList"] autorelease]; 
-} 
+	NSUniqueIDSpecifier *specifier = [NSUniqueIDSpecifier alloc];
+	[specifier initWithContainerClassDescription:appDesc
+                              containerSpecifier:[NSApp objectSpecifier] 
+                                             key:@"redundants"
+                                        uniqueID:[self identifier]];
+	return specifier;
+}
 @end
