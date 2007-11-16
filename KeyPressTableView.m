@@ -11,7 +11,6 @@
 static NSColor *s_foreground = nil;
 static NSArray *s_backgroundColors = nil;
 
-
 @implementation KeyPressTableView
 
 - (void)awakeFromNib;
@@ -22,12 +21,12 @@ static NSArray *s_backgroundColors = nil;
                                                object:nil];
 }
 
-- (void) dealloc 
+- (void)finalize; 
 {    
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:NSUserDefaultsDidChangeNotification
                                                   object:nil];
-    [super dealloc];
+    [super finalize];
 }
 
 - (void)defaultsDidChange:(NSNotification *)note
@@ -42,8 +41,10 @@ static NSArray *s_backgroundColors = nil;
     id del = [self delegate];
     if ([del respondsToSelector:@selector(keyPressOnTableView:event:)])
     {
-		[(id <KeyPressTableViewDelegate>)del keyPressOnTableView:self event:theEvent];
+		if ([(id <KeyPressTableViewDelegate>)del keyPressOnTableView:self event:theEvent])
+            return;
 	}    
+    
     [super keyDown:theEvent];
 }
 
@@ -59,7 +60,6 @@ static NSArray *s_backgroundColors = nil;
             return;
         s_foreground = [(NSColor *)[NSUnarchiver unarchiveObjectWithData:d] retain];
     }
-    
     [aCell setTextColor:s_foreground];
 }
 
