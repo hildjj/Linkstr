@@ -23,8 +23,6 @@ static NSImage *UNREAD;
     [PendingLink setKeys:[NSArray arrayWithObjects:@"text", @"url", nil]
         triggerChangeNotificationsForDependentKey:@"descr"];
     [PendingLink setKeys:[NSArray arrayWithObjects:@"viewed", nil]
-        triggerChangeNotificationsForDependentKey:@"isViewed"];
-    [PendingLink setKeys:[NSArray arrayWithObjects:@"viewed", nil]
         triggerChangeNotificationsForDependentKey:@"unviewedImage"];
     
 }
@@ -42,6 +40,7 @@ static NSImage *UNREAD;
     return [self dictionaryWithValuesForKeys:[[self class] copyKeys]];
 }
 
+/*
 - (NSScriptObjectSpecifier *)objectSpecifier;
 { 
     NSScriptClassDescription* appDesc = (NSScriptClassDescription*)[NSApp classDescription]; 
@@ -51,17 +50,29 @@ static NSImage *UNREAD;
                                       key:@"contents" 
                                      name:[self url]] autorelease]; 
 } 
+*/
+
+- (NSString*) identifier
+{
+	return [[[self objectID] URIRepresentation] absoluteString];
+}
+
+- (NSScriptObjectSpecifier *)objectSpecifier;
+{
+    NSScriptClassDescription* appDesc = (NSScriptClassDescription*)[NSApp classDescription]; 
+	NSUniqueIDSpecifier *specifier = [NSUniqueIDSpecifier alloc];
+	[specifier initWithContainerClassDescription:appDesc
+                              containerSpecifier:[NSApp objectSpecifier] 
+                                             key:@"links"
+                                        uniqueID:[self identifier]];
+	return specifier;
+}
 
 @dynamic created;
 @dynamic source;
 @dynamic url;
 @dynamic viewed;
 @dynamic text;
-
-- (BOOL)isViewed;
-{
-    return (self.viewed != nil);
-}
 
 - (NSString *)descr 
 {
@@ -86,6 +97,14 @@ static NSImage *UNREAD;
     }
     [self didAccessValueForKey: @"unviewedImage"];
     return UNREAD;
+}
+
+- (BOOL)isPending;
+{
+    [self willAccessValueForKey: @"isPending"];
+    BOOL ret = (self.viewed == nil);
+    [self didAccessValueForKey: @"isPending"];
+    return ret;
 }
 
 - (void) awakeFromInsert;
@@ -128,3 +147,4 @@ static NSImage *UNREAD;
     return dv;
 }
 @end
+

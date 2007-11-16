@@ -63,9 +63,9 @@ static NSArray *s_SupportedTypes;
 
 @implementation Linkstr_AppDelegate
 
-- (NSMutableArray*)content;
+- (NSMutableArray*)links;
 {
-    return [[[m_controller content] retain] autorelease];
+    return [m_controller content];
 }
 
 @synthesize window = m_win;
@@ -174,7 +174,7 @@ static NSArray *s_SupportedTypes;
     if ([[NSUserDefaults standardUserDefaults] boolForKey:FIRST_TIME])
     {
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:FIRST_TIME];
-        if ([[self content] count] == 0)
+        if ([[self links] count] == 0)
         {
             [self insertURL:@"http://linkstr.net/GettingStarted.html" withDescription:@"Double-click here to start"];
         }
@@ -194,6 +194,7 @@ static NSArray *s_SupportedTypes;
 // Set the undread count in the icon
 - (IBAction)setUnread:(id)sender;
 {
+    [self saveAction:nil];
     NSArray *unviewed = [self unviewedLinks];
     unsigned count = [unviewed count];
     
@@ -439,12 +440,9 @@ static NSArray *s_SupportedTypes;
                                     options:NSWorkspaceLaunchAsync | NSWorkspaceLaunchWithoutActivation
              additionalEventParamDescriptor:nil
                           launchIdentifiers:nil];
-    
-    [self setUnread:self];
-    
+        
     [m_progress stopAnimation:self];    
-    
-    [self saveAction:self];
+    [self setUnread:self];
     
     int count = [urls count];
     [GrowlApplicationBridge notifyWithTitle:@"Links Opened" 
@@ -699,7 +697,6 @@ static NSArray *s_SupportedTypes;
         }
 
         [self insertTerms:str forSite:@"Google"];
-        [self saveAction:self];
         [self setUnread:self];
         return YES;
     }
@@ -890,16 +887,18 @@ static NSArray *s_SupportedTypes;
 {
     return [self urlsForType:@"F"];
 }
-- (NSArray*)redundantUrls;
+
+- (NSArray*)redundants;
 {
-    NSArray *red = [self urlsForType:@"R"];
-    return [red retain];
+    return [self urlsForType:@"R"];
 }
 
-- (void)setRedundantUrls:(NSArray*)urls;
+/*
+- (void)setRedundants:(NSArray*)urls;
 {
-    
+    NSLog(@"set");
 }
+*/
 
 - (NSArray*)urlsForType:(NSString*)type;
 {
@@ -1691,6 +1690,9 @@ withDescription:(NSString*)desc
     return reply;
 }
 
+#pragma mark -
+#pragma mark Scripting
+
 - (void)insertInContent:(PendingLink*)p
 {
     NSLog(@"insert: %@", [p url]);
@@ -1704,7 +1706,7 @@ withDescription:(NSString*)desc
     static NSSet *implemented;
     if (!implemented)
         implemented = [NSSet setWithObjects:
-            @"content", @"redundantUrls", @"insertInContent", nil];
+            @"links", @"redundants", @"insertInContent", nil];
 
     if ([implemented containsObject:key])
         return YES;
@@ -1718,4 +1720,65 @@ withDescription:(NSString*)desc
     NSLog(@"undefined key(%@): %@", [self class], key);
     return nil;
 }
+
+- (id)valueInLinksWithUniqueID:(NSString *)string;
+{
+	NSURL *URIRepresentation = [NSURL URLWithString:string];
+	NSManagedObjectID *objectID = [[[self managedObjectContext] persistentStoreCoordinator] managedObjectIDForURIRepresentation:URIRepresentation];
+	PendingLink *returnValue = (PendingLink *)[[self managedObjectContext] objectWithID:objectID];
+	return ([returnValue isDeleted] || [[[self managedObjectContext] deletedObjects] containsObject:returnValue]) ? nil: [[self managedObjectContext] objectWithID:objectID];
+}
+
+- (id)valueInRedundantsWithUniqueID:(NSString *)string;
+{
+	NSURL *URIRepresentation = [NSURL URLWithString:string];
+	NSManagedObjectID *objectID = [[[self managedObjectContext] persistentStoreCoordinator] managedObjectIDForURIRepresentation:URIRepresentation];
+	urlList *returnValue = (urlList *)[[self managedObjectContext] objectWithID:objectID];
+	return ([returnValue isDeleted] || [[[self managedObjectContext] deletedObjects] containsObject:returnValue]) ? nil: [[self managedObjectContext] objectWithID:objectID];
+}
+
+
+- (id)createRedundantUrl:(NSString*)url;
+{
+    NSLog(@"Create redundant: %@", url);
+    
+    NSFetchRequest *fetch = 
+    [[self managedObjectModel] fetchRequestFromTemplateWithName:@"sourceExists"
+                                          substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                                 url, @"URL", 
+                                                                 @"R", @"TYPE", nil]];
+    NSAssert(fetch, @"Fetch not found");
+    NSArray *res = [[self managedObjectContext] executeFetchRequest:fetch error:nil];
+    urlList *u;
+    if ([res count] > 0)
+        u = [res objectAtIndex:0];
+    else
+    {
+        u = [NSEntityDescription insertNewObjectForEntityForName:@"Sources" 
+                                               inManagedObjectContext:[self managedObjectContext]];
+        u.url = url;
+        u.type = @"R";
+    }
+    return u;
+}
+
+- (void)insertObject:(urlList *)u inRedundantsAtIndex:(unsigned int)i 
+{ 
+    NSLog(@"insert");
+} 
+
+- (void)insertInRedundants:(urlList *)u
+{ 
+    NSLog(@"insert object");
+} 
+
+-(void)removeFromRedundantsAtIndex:(unsigned int)i 
+{ 
+    NSLog(@"TODO: remove object");
+    urlList *u = [[self redundants] objectAtIndex:i];
+    if (!u)
+        return;  // TODO: throw error
+    
+    [[self managedObjectContext] deleteObject:u];    
+} 
 @end

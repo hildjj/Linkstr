@@ -34,13 +34,25 @@
         [self setCreated:[NSCalendarDate calendarDate]];
 }
 
+- (id)valueForUndefinedKey:(NSString *)key
+{
+    NSLog(@"undefined key(%@): %@", [self class], key);
+    return nil;
+}
+
+- (NSString*) identifier
+{
+	return [[[self objectID] URIRepresentation] absoluteString];
+}
+
 - (NSScriptObjectSpecifier *)objectSpecifier;
-{ 
+{
     NSScriptClassDescription* appDesc = (NSScriptClassDescription*)[NSApp classDescription]; 
-    return [[[NSNameSpecifier alloc] 
-        initWithContainerClassDescription:appDesc 
-                       containerSpecifier:nil 
-                                      key:@"redundantUrls" 
-                                     name:@"urlList"] autorelease]; 
-} 
+	NSUniqueIDSpecifier *specifier = [NSUniqueIDSpecifier alloc];
+	[specifier initWithContainerClassDescription:appDesc
+                              containerSpecifier:[NSApp objectSpecifier] 
+                                             key:@"redundants"
+                                        uniqueID:[self identifier]];
+	return specifier;
+}
 @end

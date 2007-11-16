@@ -44,7 +44,7 @@
 - (IBAction)setTopLevel:(id)sender;
 
 @property (readonly) NSWindow *window;
-- (NSMutableArray*)content;
+- (NSMutableArray*)links;
 - (BOOL)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
 
 #pragma mark -
@@ -89,8 +89,8 @@
 - (void)setCreatedDescendingSortOrder:(NSArray*)array;
 
 - (NSArray*)fullContentUrls;
-- (NSArray*)redundantUrls;
-- (void)setRedundantUrls:(NSArray*)urls;
+- (NSArray*)redundants;
+//- (void)setRedundants:(NSArray*)urls;
 - (NSArray*)urlsForType:(NSString*)type;
 - (NSArray*)unviewedLinks;
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc
@@ -116,6 +116,9 @@
 - (IBAction)exportAction:sender;
 - (void)saveSelectedAsOPML:(NSString*)file;
 - (void)saveSelectedAsAtom:(NSString*)file;
+
+- (id)valueInLinksWithUniqueID:(NSString *)string;
+- (id)createRedundantUrl:(NSString*)url;
 
 @end
 

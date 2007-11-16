@@ -16,6 +16,7 @@
 + (void)initialize;
 + (NSArray *)copyKeys;
 
+- (NSString*) identifier;
 - (NSDictionary *)dictionaryRepresentation;
 - (NSScriptObjectSpecifier *)objectSpecifier;
 
@@ -26,8 +27,8 @@
 @property (retain) NSString *text;
 
 - (NSString *)descr;
-- (BOOL)isViewed;
 - (NSImage*)unviewedImage;
+- (BOOL)isPending;
 
 - (void) awakeFromInsert;
 - (NSXMLElement*)asHTML;
