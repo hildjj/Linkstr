@@ -49,9 +49,17 @@
 {
     NSScriptClassDescription* appDesc = (NSScriptClassDescription*)[NSApp classDescription]; 
 	NSUniqueIDSpecifier *specifier = [NSUniqueIDSpecifier alloc];
+    NSString *key;
+    if ([self.type isEqualToString:@"R"])
+        key = @"redundants";
+    else if ([self.type isEqualToString:@"I"])
+        key = @"incompletes";
+    else
+        NSAssert(NO, @"URL of type not R or I");
+    
 	[specifier initWithContainerClassDescription:appDesc
                               containerSpecifier:[NSApp objectSpecifier] 
-                                             key:@"redundants"
+                                             key:key
                                         uniqueID:[self identifier]];
 	return specifier;
 }
