@@ -14,15 +14,15 @@
     Linkstr_AppDelegate *m_delegate;
 }
 
+@property (retain) NSString *source;
+@property (retain) Linkstr_AppDelegate *delegate;
+
 - (id)initWithHtmlString:(NSString*)html 
                   source:(NSString*)source 
                  linkstr:(Linkstr_AppDelegate*)delegate;
 
 - (void)setHtml:(NSString*)html;
 - (NSString*)html;
-
-- (void)setSource:(NSString*)source;
-- (NSString*)source;
 
 - (void)setDelegate:(Linkstr_AppDelegate*)delegate;
 - (Linkstr_AppDelegate*)delegate;

@@ -1,12 +1,14 @@
 {
     IBClasses = (
         {
+            ACTIONS = {copy = id; cut = id; paste = id; }; 
             CLASS = ContextWindowController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {controller = NSArrayController; }; 
+            OUTLETS = {controller = NSArrayController; tableView = KeyPressTableView; }; 
             SUPERCLASS = NSWindowController; 
         }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = KeyPressTableView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }, 
         {
             ACTIONS = {
                 copy = id; 

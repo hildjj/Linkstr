@@ -11,23 +11,15 @@
     return self;
 }
 
-- (void) dealloc 
-{
-    [m_html release], m_html = nil;
-    [m_source release], m_source = nil;
-    [m_delegate release], m_delegate = nil;
-    [super dealloc];
-}
-
 - (id)initWithHtmlString:(NSString*)html
                   source:(NSString*)source 
                  linkstr:(Linkstr_AppDelegate*)delegate;
 {
     if (![self init])
         return nil;
-    [self setDelegate:delegate];
+    self.delegate = delegate;
     [self setHtml:html];
-    [self setSource:source];
+    self.source = source;
     
     return self;
 }
@@ -51,9 +43,7 @@
         }
     }
     
-    NSEnumerator *en = [[e children] objectEnumerator];
-    NSXMLNode *child;
-    while ((child = [en nextObject]))
+    for (NSXMLNode *child in [e children])
     {
         if ([child kind] == NSXMLElementKind)
             [self searchElement:(NSXMLElement*)child];
@@ -62,7 +52,7 @@
 
 - (void)setHtml:(NSString*)html;
 {
-    m_html = [html retain];
+    m_html = html;
     
     NSXMLDocument *doc = 
         [[NSXMLDocument alloc] initWithXMLString:m_html
@@ -73,28 +63,11 @@
 
 - (NSString*)html;
 {
-    return [[m_html retain] autorelease];
+    return m_html;
 }
 
-- (void)setSource:(NSString*)source;
-{
-    m_source = [source retain];
-}
-
-- (NSString*)source;
-{
-    return [[m_source retain] autorelease];
-}
-
-- (void)setDelegate:(Linkstr_AppDelegate*)delegate;
-{
-    m_delegate = [delegate retain];
-}
-
-- (Linkstr_AppDelegate*)delegate;
-{
-    return [[m_delegate retain] autorelease];
-}
+@synthesize source = m_source;
+@synthesize delegate = m_delegate;
 
 - (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
 {
@@ -120,17 +93,19 @@
 
 - (void)insertCheckedLinks;
 {
-    NSEnumerator *en = [[m_controller content] objectEnumerator];
-    NSDictionary *link;
-    while ((link = [en nextObject]))
+    NSCalendarDate *now = [NSCalendarDate calendarDate];
+    
+    for (NSDictionary *lnk in [m_controller content])
     {
-        if (![[link objectForKey:@"checked"] boolValue])
+        if (![[lnk objectForKey:@"checked"] boolValue])
             continue;
-        PendingLink *p = [m_delegate insertURL:[link objectForKey:@"url"]
-                               withDescription:[link objectForKey:@"desc"]];
-        [p setSource:m_source];
+        PendingLink *p = [self.delegate insertURL:[lnk objectForKey:@"url"]
+                                  withDescription:[lnk objectForKey:@"desc"]
+                                       withViewed:nil
+                                      withCreated:now];
+        [p setSource:self.source];
     }    
-    [m_delegate setUnread:self];
+    [self.delegate setUnread:self];
 }
 
 - (IBAction)done:(id)sender;

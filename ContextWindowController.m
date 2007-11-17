@@ -7,10 +7,10 @@
 {
     static NSArray *types;
     if (!types)
-        types = [[NSArray arrayWithObjects:
+        types = [NSArray arrayWithObjects:
             @"WebURLsWithTitlesPboardType",
             NSURLPboardType, 
-            NSStringPboardType, nil] retain];    
+            NSStringPboardType, nil];    
     return types;
 }
 
@@ -21,26 +21,22 @@
     if (!(self = [super initWithWindowNibName:@"UrlList" owner:self]))
         return nil;
     
-    managedObjectContext = [context retain];
-    entity = [entityName retain];
+    managedObjectContext = context;
+    entity = entityName;
     
     [[self window] setTitle:name];
     [[self window] setFrameAutosaveName:[name stringByAppendingString:@"Win"]];
     return self;
 }
 
-- (void)dealloc;
-{
-    [managedObjectContext release], managedObjectContext = nil;
-    [controller release], controller = nil;
-    [entity release], entity = nil;
-    
-    [super dealloc];
-}
-
 - (void)windowDidLoad;
 {
     [controller setEntityName:entity];
+}
+
+- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
+{
+    [(KeyPressTableView*)aTableView willDisplayCell:aCell forTableColumn:aTableColumn row:rowIndex];
 }
 
 #pragma mark -
