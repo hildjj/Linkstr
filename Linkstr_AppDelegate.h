@@ -10,6 +10,7 @@
 #import "Growl/Growl.h"
 #import "ImageTextSheet.h"
 #import "GrowlNagler.h"
+#import "Poster.h"
 
 NSString *ATOM_DATE_FMT;
 
@@ -30,6 +31,7 @@ NSString *ATOM_DATE_FMT;
     NSWindowController *m_feeds;
     NSWindowController *m_history;
     GrowlNagler *m_nagler;
+    Poster *m_poster;
     
     NSPersistentStoreCoordinator *persistentStoreCoordinator;
     id persistentStore;
@@ -94,6 +96,9 @@ NSString *ATOM_DATE_FMT;
 
 - (NSArray*)urlsForType:(NSString*)type;
 - (NSArray*)unviewedLinks;
+- (int) createLinksFromDictionary:(NSMutableDictionary*)possible
+                          onDates:(NSDictionary*)dates
+                       fromSource:(NSString*)sourceURL;
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc
      withViewed:(NSCalendarDate*)viewed
     withCreated:(NSCalendarDate*)created;

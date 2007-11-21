@@ -16,6 +16,7 @@
 
 @property (retain) NSString *source;
 @property (retain) Linkstr_AppDelegate *delegate;
+@property (retain) NSString* html;
 
 - (id)initWithHtmlString:(NSString*)html 
                   source:(NSString*)source 
@@ -23,9 +24,6 @@
 
 - (void)setHtml:(NSString*)html;
 - (NSString*)html;
-
-- (void)setDelegate:(Linkstr_AppDelegate*)delegate;
-- (Linkstr_AppDelegate*)delegate;
 
 - (void)insertCheckedLinks;
 - (int)popup;
