@@ -55,7 +55,10 @@
     else if ([self.type isEqualToString:@"I"])
         key = @"incompletes";
     else
+    {
         NSAssert(NO, @"URL of type not R or I");
+        return nil;
+    }
     
 	[specifier initWithContainerClassDescription:appDesc
                               containerSpecifier:[NSApp objectSpecifier] 

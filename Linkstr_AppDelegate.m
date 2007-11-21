@@ -150,6 +150,7 @@ static NSArray *s_SupportedTypes;
     [self setUnread:self];
     m_nagler = [[GrowlNagler alloc] init];
     [GrowlApplicationBridge setGrowlDelegate:self];
+    m_poster = [[Poster alloc] initWithDelegate:self];
     
     NSMenu *menu = [m_action submenu];
     Sites *s = [[Sites alloc] init];
@@ -943,6 +944,7 @@ static NSArray *s_SupportedTypes;
 
 - (int) createLinksFromDictionary:(NSMutableDictionary*)possible
                           onDates:(NSDictionary*)dates
+                       fromSource:(NSString*)sourceURL;
 {
     // check the list of possible links to see what needs to be created.
     NSArray *keys = [[possible allKeys] sortedArrayUsingSelector:@selector(compare:)];
@@ -984,10 +986,15 @@ static NSArray *s_SupportedTypes;
     id title;
     for (NSString *url in possible)
     {
-        date = [dates objectForKey:url];
-        // can't be nil
-        if (date == [NSNull null])
+        if (dates == nil)
             date = now;
+        else
+        {
+            date = [dates objectForKey:url];
+            // can't be nil
+            if (date == [NSNull null])
+                date = now;            
+        }
         // can't be nil
         title = [possible objectForKey:url];
         if (title == [NSNull null])
@@ -995,12 +1002,15 @@ static NSArray *s_SupportedTypes;
         p = [self createLink:url
              withDescription:title
                  withCreated:date];
-        p.viewed = date;
+        if (dates != nil)
+            p.viewed = date;
+        if (sourceURL != nil)
+            p.source = sourceURL;
         changes++;            
     }
 
     [undo endUndoGrouping];
-     
+    [self setUnread:nil];
     return changes;
 }
 
@@ -1133,7 +1143,7 @@ withDescription:(NSString*)desc
     }
 
     if ([possible count] > 0)
-        changes = [self createLinksFromDictionary:possible onDates:dates];
+        changes = [self createLinksFromDictionary:possible onDates:dates fromSource:nil];
     
     if (first)
         [[NSUserDefaults standardUserDefaults] setObject:first forKey:@"LastSafariLinkDate"];
@@ -1151,9 +1161,8 @@ withDescription:(NSString*)desc
 
 - (IBAction)importDeliciousHistory:(id)sender;
 {
-    Poster *post = [[Poster alloc] initWithDelegate:self];
     [m_progress startAnimation:self];
-    [post getURL:DEL_UPDATE];
+    [m_poster getURL:DEL_UPDATE];
 }
 
 - (IBAction)postDeliciously:(id)sender;
@@ -1163,10 +1172,9 @@ withDescription:(NSString*)desc
         return;
     
     [m_progress startAnimation:self];
-    Poster *k = [[Poster alloc] initWithDelegate:self];
     for (PendingLink *p in all)
     {
-        [k getURL:@"https://api.del.icio.us/v1/posts/add"
+        [m_poster getURL:@"https://api.del.icio.us/v1/posts/add"
        withParams:[NSDictionary dictionaryWithObjectsAndKeys:
            [p url], @"url",
            [p text], @"description", 
@@ -1241,7 +1249,9 @@ withDescription:(NSString*)desc
         return;
     }
     NSXMLElement *posts = [doc rootElement];
-    // <posts update="2007-08-24T16:20:40Z">
+    // <posts update="2007-08-24T16:20:40Z" user="hildjj">
+    NSString *userURL = [NSString stringWithFormat:@"http://del.icio.us/%@",
+                         [[posts attributeForName:@"user"] stringValue]];
     NSString *update = [[posts attributeForName:@"update"] stringValue];
     NSCalendarDate *update_date = [self parseDeliciousDate:update];
     NSLog(@"update: %@", update_date);
@@ -1250,7 +1260,9 @@ withDescription:(NSString*)desc
     if (!last)
         last = [NSCalendarDate distantPast];
     
-    int changes = 0;
+    NSMutableDictionary *possible = [NSMutableDictionary dictionary];
+    NSMutableDictionary *dates = [NSMutableDictionary dictionary];
+    
     for (NSXMLElement *post in [posts elementsForName:@"post"])
     {
         NSString *t = [[post attributeForName:@"time"] stringValue];
@@ -1265,16 +1277,13 @@ withDescription:(NSString*)desc
             ([u hasPrefix:@"https"]))
             continue;
         
-        PendingLink *p = [self insertURL:u 
-                         withDescription:[[post attributeForName:@"description"] stringValue]
-                              withViewed:d
-                             withCreated:d];
-        if ([[p created] isEqual:d])
-            changes++;
+        [possible setObject:[[post attributeForName:@"description"] stringValue]
+                     forKey:u];
+        [dates setObject:d forKey:u];
     }
+    int changes = [self createLinksFromDictionary:possible onDates:dates fromSource:userURL];
     
     [[NSUserDefaults standardUserDefaults] setObject:update_date forKey:LAST_DELICIOUS];
-    [self refresh:self];
     
     [GrowlApplicationBridge notifyWithTitle:@"Del.icio.us Links" 
                                 description:[NSString stringWithFormat:@"%d Links Added", changes] 
