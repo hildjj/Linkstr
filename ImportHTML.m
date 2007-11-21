@@ -93,19 +93,21 @@
 
 - (void)insertCheckedLinks;
 {
-    NSCalendarDate *now = [NSCalendarDate calendarDate];
-    
+    NSMutableDictionary *possible = [NSMutableDictionary dictionaryWithCapacity:[[m_controller content] count]];
     for (NSDictionary *lnk in [m_controller content])
     {
         if (![[lnk objectForKey:@"checked"] boolValue])
             continue;
-        PendingLink *p = [self.delegate insertURL:[lnk objectForKey:@"url"]
-                                  withDescription:[lnk objectForKey:@"desc"]
-                                       withViewed:nil
-                                      withCreated:now];
-        [p setSource:self.source];
+        [possible setObject:[lnk objectForKey:@"desc"] forKey:[lnk objectForKey:@"url"]];
     }    
-    [self.delegate setUnread:self];
+    int count = [self.delegate createLinksFromDictionary:possible onDates:nil fromSource:self.source];
+    [GrowlApplicationBridge notifyWithTitle:@"Pending Links"
+                                description:[NSString stringWithFormat:@"%d Links Added", count] 
+                           notificationName:@"New Link"
+                                   iconData:nil
+                                   priority:0
+                                   isSticky:NO
+                               clickContext:@""];    
 }
 
 - (IBAction)done:(id)sender;
