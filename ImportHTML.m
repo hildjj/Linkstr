@@ -3,6 +3,10 @@
 
 @implementation ImportHTML
 
+@synthesize source = m_source;
+@synthesize delegate = m_delegate;
+@synthesize html = m_html;
+
 - (id)init
 {
     if (![super init])
@@ -18,7 +22,7 @@
     if (![self init])
         return nil;
     self.delegate = delegate;
-    [self setHtml:html];
+    self.html = html;
     self.source = source;
     
     return self;
@@ -60,14 +64,6 @@
                                            error:nil];
     [self searchElement:[doc rootElement]];
 }
-
-- (NSString*)html;
-{
-    return m_html;
-}
-
-@synthesize source = m_source;
-@synthesize delegate = m_delegate;
 
 - (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
 {

@@ -10,6 +10,7 @@
 #import "Growl/Growl.h"
 #import "ImageTextSheet.h"
 #import "GrowlNagler.h"
+#import "Poster.h"
 
 NSString *ATOM_DATE_FMT;
 
@@ -30,6 +31,7 @@ NSString *ATOM_DATE_FMT;
     NSWindowController *m_feeds;
     NSWindowController *m_history;
     GrowlNagler *m_nagler;
+    Poster *m_poster;
     
     NSPersistentStoreCoordinator *persistentStoreCoordinator;
     id persistentStore;
