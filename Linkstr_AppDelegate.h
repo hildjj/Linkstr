@@ -94,6 +94,9 @@ NSString *ATOM_DATE_FMT;
 
 - (NSArray*)urlsForType:(NSString*)type;
 - (NSArray*)unviewedLinks;
+- (int) createLinksFromDictionary:(NSMutableDictionary*)possible
+                          onDates:(NSDictionary*)dates
+                       fromSource:(NSString*)sourceURL;
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc
      withViewed:(NSCalendarDate*)viewed
     withCreated:(NSCalendarDate*)created;

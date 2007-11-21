@@ -943,6 +943,7 @@ static NSArray *s_SupportedTypes;
 
 - (int) createLinksFromDictionary:(NSMutableDictionary*)possible
                           onDates:(NSDictionary*)dates
+                       fromSource:(NSString*)sourceURL;
 {
     // check the list of possible links to see what needs to be created.
     NSArray *keys = [[possible allKeys] sortedArrayUsingSelector:@selector(compare:)];
@@ -984,10 +985,15 @@ static NSArray *s_SupportedTypes;
     id title;
     for (NSString *url in possible)
     {
-        date = [dates objectForKey:url];
-        // can't be nil
-        if (date == [NSNull null])
+        if (dates == nil)
             date = now;
+        else
+        {
+            date = [dates objectForKey:url];
+            // can't be nil
+            if (date == [NSNull null])
+                date = now;            
+        }
         // can't be nil
         title = [possible objectForKey:url];
         if (title == [NSNull null])
@@ -995,12 +1001,15 @@ static NSArray *s_SupportedTypes;
         p = [self createLink:url
              withDescription:title
                  withCreated:date];
-        p.viewed = date;
+        if (dates != nil)
+            p.viewed = date;
+        if (sourceURL != nil)
+            p.source = sourceURL;
         changes++;            
     }
 
     [undo endUndoGrouping];
-     
+    [self setUnread:nil];
     return changes;
 }
 
@@ -1133,7 +1142,7 @@ withDescription:(NSString*)desc
     }
 
     if ([possible count] > 0)
-        changes = [self createLinksFromDictionary:possible onDates:dates];
+        changes = [self createLinksFromDictionary:possible onDates:dates fromSource:nil];
     
     if (first)
         [[NSUserDefaults standardUserDefaults] setObject:first forKey:@"LastSafariLinkDate"];

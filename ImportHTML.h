@@ -24,8 +24,8 @@
 - (void)setHtml:(NSString*)html;
 - (NSString*)html;
 
-- (void)setDelegate:(Linkstr_AppDelegate*)delegate;
-- (Linkstr_AppDelegate*)delegate;
+//- (void)setDelegate:(Linkstr_AppDelegate*)delegate;
+//- (Linkstr_AppDelegate*)delegate;
 
 - (void)insertCheckedLinks;
 - (int)popup;
