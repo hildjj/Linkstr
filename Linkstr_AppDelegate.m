@@ -1097,7 +1097,7 @@ withDescription:(NSString*)desc
                                                            errorDescription:&err];
     if (err)
     {
-        NSLog(err);
+        NSLog(@"Error: %@", err);
         [m_progress stopAnimation:self];
         return;
     }
