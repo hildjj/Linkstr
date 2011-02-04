@@ -1,0 +1,6 @@
+Linkstr is a Mac program that will store links.  It can act as your
+default browser, you can send links to it using AppleScript, or
+obviously, you can use the UI.
+
+You'll need a copy of the Growl and Sparkle frameworks to build.  Put
+them in the Frameworks directory.
