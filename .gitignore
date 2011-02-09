@@ -1,0 +1,4 @@
+.DS_Store
+build
+Linkstr.xcodeproj/*.mode1v3
+Linkstr.xcodeproj/*.pbxuser
