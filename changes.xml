@@ -1,0 +1,23 @@
+
+<?xml version='1.0' encoding='utf-8'?> 
+<rss version='2.0' 
+     xmlns:dc='http://purl.org/dc/elements/1.1/'
+     xmlns:sparkle='http://www.andymatuschak.org/xml-namespaces/sparkle'> 
+  <channel> 
+    <title>Linkstr Changelog</title> 
+    <link>http://linkstr.net/changes.xml</link> 
+    <description>Most recent changes with links to updates.</description> 
+    <language>en</language> 
+    <item> 
+      <title>Version 0.3.99</title> 
+      <description>http://linkstr.net/Last_Changes.html</description> 
+      <pubDate>Tue, 22 Jan 2008 04:56:25 +0000</pubDate> 
+      <enclosure url='http://linkstr.net/Linkstr_99.zip'
+                 sparkle:shortVersionString='0.3.99'
+                 sparkle:version='99'
+                 sparkle:md5Sum='f7c9bf2b0dbfe2ce7bdf7e4fe23a36e0'
+                 length='2814599'
+                 type='application/octet-stream'/>
+    </item>
+  </channel>
+</rss>
