@@ -16,7 +16,7 @@
 {    
 }
 
-- (void)willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex;
+- (NSCell *)preparedCellAtColumn:(NSInteger)column row:(NSInteger)row;
 @end
 
 @interface NSColor (LSAlternatingColor)

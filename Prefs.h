@@ -12,8 +12,8 @@
 @interface Prefs : NSWindowController
 {
     IBOutlet NSArrayController *m_sites;
+    IBOutlet NSArrayController *m_browsers;
 }
 
--(id)init;
-
+- (id)init;
 @end

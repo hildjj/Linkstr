@@ -13,7 +13,7 @@ extern NSString *SITES;
 @implementation Sites
 
 // order the keys of the array by the text that will be shown
-int compareSites(id one, id two, void *context)
+NSInteger compareSites(id one, id two, void *context)
 {
     NSDictionary *sites = (NSDictionary *)context;
     NSDictionary *od = [sites objectForKey:one];
@@ -58,9 +58,7 @@ int compareSites(id one, id two, void *context)
     NSArray *keys = [sites allKeys];
     keys = [keys sortedArrayUsingFunction:compareSites context:sites];
     
-    en = [keys objectEnumerator];
-    NSString *key;
-    while ((key = [en nextObject]))
+    for (NSString *key in keys)
     {
         site = [sites objectForKey:key];
         NSMutableDictionary *msite = [site mutableCopy];
@@ -88,8 +86,29 @@ int compareSites(id one, id two, void *context)
     return self;
 }
 
--(NSEnumerator*)objectEnumerator;
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackbuf count:(NSUInteger)len
 {
-    return [[self content] objectEnumerator];
+    return [[self content] countByEnumeratingWithState:state objects:stackbuf count:len];
 }
+
++ (void)addSitesToMenu:(NSMenu*)menu target:(id)target action:(SEL)action;
+{
+    Sites *s = [[Sites alloc] init];
+    for (NSDictionary *site in s)
+    {
+        NSMenuItem *item = [[NSMenuItem alloc] init];
+        [item setTitle:[site objectForKey:@"name"]];
+        NSString *key = [site objectForKey:@"key"];
+        if (key)
+            [item setKeyEquivalent:key];
+        NSNumber *mask = [site objectForKey:@"mask"];
+        if (mask)
+            [item setKeyEquivalentModifierMask:[mask unsignedIntValue]];
+        [item setTarget:target];
+        [item setAction:action];
+        [item setRepresentedObject:site];
+        [menu addItem:item];
+    }
+}
+
 @end

@@ -54,9 +54,11 @@
         key = @"redundants";
     else if ([self.type isEqualToString:@"I"])
         key = @"incompletes";
+    else if ([self.type isEqualToString:@"S"])
+        key = @"shorteners";
     else
     {
-        NSAssert(NO, @"URL of type not R or I");
+        NSAssert(NO, @"URL of type not R, I, S");
         return nil;
     }
     

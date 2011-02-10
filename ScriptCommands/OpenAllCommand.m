@@ -13,7 +13,7 @@
 
 - (id)performDefaultImplementation
 {
-    Linkstr_AppDelegate *l = [[NSApplication sharedApplication] delegate];
+    Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
     [l launchAll:self];
     return nil;
 }

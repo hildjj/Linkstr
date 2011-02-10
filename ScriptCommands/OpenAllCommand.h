@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface OpenAllCommand : NSScriptCommand 
+@interface OpenAllCommand : NSScriptCommand
 {
 }
 

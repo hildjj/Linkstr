@@ -34,11 +34,6 @@
     [controller setEntityName:entity];
 }
 
-- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
-{
-    [(KeyPressTableView*)aTableView willDisplayCell:aCell forTableColumn:aTableColumn row:rowIndex];
-}
-
 #pragma mark -
 #pragma mark Copy/Paste/Drag/Drop
 
@@ -75,10 +70,9 @@
 
 -(void)insertUrls:(NSArray*)list;
 {
-    int i, count = [list count];
-    for (i=0; i<count; i++)
+    for (id loopItem in list)
     {
-        [self insertUrl:[list objectAtIndex:i]];
+        [self insertUrl:loopItem];
     }
 }
 
@@ -131,4 +125,5 @@
 {
     
 }
+@synthesize entity;
 @end

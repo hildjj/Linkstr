@@ -14,6 +14,7 @@
 }
 
 + (void)initialize;
++ (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key;
 + (NSArray *)copyKeys;
 + (BOOL)isFunny:(NSString*)str;
 + (NSString*)DeHTML:(NSString*)html;
@@ -36,5 +37,6 @@
 - (NSXMLElement*)asHTML;
 - (NSXMLElement*)asOPML;
 - (NSXMLElement*)asAtom;
+- (NSXMLElement*)asXBEL;
 
 @end

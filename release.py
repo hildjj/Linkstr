@@ -12,6 +12,7 @@ DEST_DIR = os.environ["HOME"] + "/Applications/Util"
 BUILD_DIR = os.environ["PWD"] + "/build/Release"
 STAGE_DIR = os.environ["HOME"] + "/Sites/" + PROJECT
 SCP_TARGET = "linkstr.net:linkstr.net"
+SVN_REPO = "http://linkstr.net/svn/Linkstr"
 
 parser = OptionParser()
 parser.add_option("-l", "--local", action="store_true", dest="local")
@@ -65,8 +66,8 @@ ver.write("APP_VERSION_DISPLAY=%d.%d\n" % (MAJ, MIN))
 ver.close()
 
 run("svn ci -m 'Releasing build %d' %s", BUILD, VERFILE)
-run("svn copy . file:///var/svn/Linkstr/tags/%s-%d -m 'Releasing build %d'",
-    PROJECT, BUILD, BUILD)
+run("svn copy . %s/tags/%s-%d -m 'Releasing build %d'",
+    SVN_REPO, PROJECT, BUILD, BUILD)
 
 print "Building %d.%d.%d" % (MAJ, MIN, BUILD)
 run("xcodebuild -configuration Release clean")

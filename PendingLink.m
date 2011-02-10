@@ -8,6 +8,7 @@
 
 #import "PendingLink.h"
 #import "Linkstr_AppDelegate.h"
+#import "LSDefaults.h"
 
 @implementation PendingLink 
 
@@ -24,13 +25,20 @@ static NSImage *UNREAD;
     if (self != [PendingLink class])
         return;
     
-    UNREAD = [NSImage imageNamed:@"unread"];
-        
-    [PendingLink setKeys:[NSArray arrayWithObjects:@"text", @"url", nil]
-        triggerChangeNotificationsForDependentKey:@"descr"];
-    [PendingLink setKeys:[NSArray arrayWithObjects:@"viewed", nil]
-        triggerChangeNotificationsForDependentKey:@"unviewedImage"];
-    
+    UNREAD = [NSImage imageNamed:@"unread"];            
+}
+
++ (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
+{
+    if ([key isEqualToString:@"descr"])
+    {
+        return [NSArray arrayWithObjects:@"text", @"url", nil];
+    }
+    if ([key isEqualToString:@"unviewedImage"])
+    {
+        return [NSArray arrayWithObjects:@"viewed", nil];
+    }
+    return nil;
 }
 
 + (NSArray *)copyKeys;
@@ -46,7 +54,7 @@ static NSImage *UNREAD;
     if (!str)
         return NO;
     
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"avoidFunnyLinks"])
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:AVOID_FUNNY])
         return NO;
     
     int funny = 0;
@@ -183,6 +191,13 @@ static NSImage *UNREAD;
     return outl;
 }
 
+- (NSString*)dateAsString:(NSCalendarDate*)date;
+{
+    return [date descriptionWithCalendarFormat:ATOM_DATE_FMT 
+                                      timeZone:nil 
+                                        locale:nil];
+}
+
 - (NSXMLElement*)asAtom;
 {
     NSXMLElement *entry = [NSXMLNode elementWithName:@"entry" ];
@@ -191,9 +206,7 @@ static NSImage *UNREAD;
     [entry addChild:[NSXMLNode elementWithName:@"title"
                                    stringValue:self.descr]];
     [entry addChild:[NSXMLNode elementWithName:@"updated"
-                                   stringValue:[self.created descriptionWithCalendarFormat:ATOM_DATE_FMT 
-                                                                                  timeZone:nil 
-                                                                                    locale:nil]]];
+                                   stringValue:[self dateAsString:self.created]]];
     NSXMLElement *lnk = [NSXMLNode elementWithName:@"link"];
     [entry addChild:lnk];
     [lnk addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:self.url]];
@@ -204,5 +217,31 @@ static NSImage *UNREAD;
     [content addChild:[self asHTML]]; 
     return entry;
 }
+
+- (NSXMLElement*)asXBEL;
+{
+    /*
+    <bookmark href="http://www.oreilly.com/catalog/learnxml/">
+      <title>Learning XML</title>
+      <desc>Eric T. Ray, (O'Reilly)</desc>
+    </bookmark>
+    */
+    
+    NSXMLElement *bookmark = [NSXMLNode elementWithName:@"bookmark" ];
+    [bookmark addAttribute:[NSXMLNode attributeWithName:@"href" stringValue:self.url]];
+    // XBEL docs aren't terribly clear on date format.
+    [bookmark addAttribute:[NSXMLNode attributeWithName:@"added" 
+                                            stringValue:[self dateAsString:self.created]]];
+    if (self.viewed)
+        [bookmark addAttribute:[NSXMLNode attributeWithName:@"visited" 
+                                                stringValue:[self dateAsString:self.viewed]]];
+        
+    if (self.text)
+        [bookmark addChild:[NSXMLNode elementWithName:@"title"
+                                          stringValue:self.text]];
+    
+    return bookmark;
+}
+
 @end
 
