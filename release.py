@@ -47,9 +47,8 @@ MAJ = int(disp_m.group(1))
 MIN = int(disp_m.group(2))
 ver.close()
 
-if options.type == "build":
-    BUILD += 1
-elif options.type == "minor":
+BUILD += 1
+if options.type == "minor":
     MIN += 1
 elif options.type == "major":
     MAJ += 1
@@ -64,9 +63,14 @@ ver.write("APP_VERSION=%d\n" % (BUILD,))
 ver.write("APP_VERSION_DISPLAY=%d.%d\n" % (MAJ, MIN))
 ver.close()
 
-run("svn ci -m 'Releasing build %d' %s", BUILD, VERFILE)
-run("svn copy . file:///var/svn/Linkstr/tags/%s-%d -m 'Releasing build %d'",
-    PROJECT, BUILD, BUILD)
+#run("svn ci -m 'Releasing build %d' %s", BUILD, VERFILE)
+run("git add %s", VERFILE)
+run("git ci -m 'Releasing build %d' %s", BUILD, VERFILE)
+
+#run("svn copy . file:///var/svn/Linkstr/tags/%s-%d -m 'Releasing build %d'",
+#    PROJECT, BUILD, BUILD)
+run("git tag -a -m 'Releasing build %d' %s-%d", BUILD, PROJECT, BUILD)
+run("git push --tags origin master")
 
 print "Building %d.%d.%d" % (MAJ, MIN, BUILD)
 run("xcodebuild -configuration Release clean")
@@ -81,7 +85,7 @@ os.chdir(BUILD_DIR)
 date = run("date -Ru")
 run("zip -q -r %s %s", ZIP, PROJ_APP)
 md5 = run("md5sum %s | awk '{print $1}'", ZIP)
-size=run("du -b %s | awk '{print $1}'", ZIP)
+size = run("du -b %s | awk '{print $1}'", ZIP)
 
 changes = open("changes.xml", "w")
 changes.write("""
@@ -112,5 +116,5 @@ changes.close()
 run("mv changes.xml %s", options.stage)
 run("mv %s %s", ZIP, options.stage)
 os.chdir(options.stage)
-run("scp %s changes.xml %s", ZIP, options.scp)
-run("ssh linkstr.net 'cd linkstr.net; rm latest.zip; ln -s %s latest.zip'", ZIP)
+#run("scp %s changes.xml %s", ZIP, options.scp)
+#run("ssh linkstr.net 'cd linkstr.net; rm latest.zip; ln -s %s latest.zip'", ZIP)
