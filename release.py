@@ -12,6 +12,7 @@ DEST_DIR = os.environ["HOME"] + "/Applications/Util"
 BUILD_DIR = os.environ["PWD"] + "/build/Release"
 STAGE_DIR = os.environ["HOME"] + "/Sites/" + PROJECT
 SCP_TARGET = "linkstr.net:linkstr.net"
+SVN_REPO = "http://linkstr.net/svn/Linkstr"
 
 parser = OptionParser()
 parser.add_option("-l", "--local", action="store_true", dest="local")

@@ -7,6 +7,8 @@
 //
 
 #import "KeyPressTableView.h"
+#import "LSDefaults.h"
+#import <objc/runtime.h>
 
 static NSColor *s_foreground = nil;
 static NSArray *s_backgroundColors = nil;
@@ -29,6 +31,7 @@ static NSArray *s_backgroundColors = nil;
     [super finalize];
 }
 
+
 - (void)defaultsDidChange:(NSNotification *)note
 {
     s_foreground = nil;
@@ -48,21 +51,22 @@ static NSArray *s_backgroundColors = nil;
     [super keyDown:theEvent];
 }
 
-- (void)willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex;
+- (NSCell *)preparedCellAtColumn:(NSInteger)column row:(NSInteger)row;
 {
+    id aCell = [super preparedCellAtColumn:column row:row];
     if (![aCell respondsToSelector:@selector(setTextColor:)]) // we can change the text color
-        return;
+        return aCell;
     
     if (!s_foreground)
     {
-        NSData *d=[[NSUserDefaults standardUserDefaults] dataForKey:@"tableTextForeground"];
+        NSData *d=[[NSUserDefaults standardUserDefaults] dataForKey:TABLE_TEXT_FG];
         if (!d)
-            return;
+            return aCell;
         s_foreground = (NSColor *)[NSUnarchiver unarchiveObjectWithData:d];
     }
     [aCell setTextColor:s_foreground];
+    return aCell;
 }
-
 @end
 
 @implementation NSColor (LSAlternatingColor)
@@ -71,12 +75,12 @@ static NSArray *s_backgroundColors = nil;
 {
     if (!s_backgroundColors)
     {
-        NSData *d = [[NSUserDefaults standardUserDefaults] dataForKey:@"tableOddBackground"];
+        NSData *d = [[NSUserDefaults standardUserDefaults] dataForKey:TABLE_ODD_BG];
         if (!d)
             return nil;
         NSColor *odd = (NSColor *)[NSUnarchiver unarchiveObjectWithData:d];
 
-        d = [[NSUserDefaults standardUserDefaults] dataForKey:@"tableEvenBackground"];
+        d = [[NSUserDefaults standardUserDefaults] dataForKey:TABLE_EVEN_BG];
         if (!d)
             return nil;
         NSColor *even = (NSColor *)[NSUnarchiver unarchiveObjectWithData:d];

@@ -5,10 +5,11 @@
 
 @interface ContextWindowController : NSWindowController
 {
-    IBOutlet NSArrayController *controller;
-    IBOutlet KeyPressTableView *tableView;
-    NSManagedObjectContext *managedObjectContext;
     NSString *entity;
+@private
+    IBOutlet NSArrayController *controller;
+//    IBOutlet KeyPressTableView *tableView;
+    NSManagedObjectContext *managedObjectContext;
 }
 
 -(id)initWithContext:(NSManagedObjectContext *)context 
@@ -29,4 +30,5 @@
 - (IBAction)paste:(id)sender;
 - (IBAction)cut:(id)sender;
 
+@property (retain) NSString *entity;
 @end

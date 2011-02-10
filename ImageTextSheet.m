@@ -2,22 +2,15 @@
 
 @implementation ImageTextSheet
 
+@synthesize callback = m_callback;
+@synthesize delegate = m_delegate;
+
 - (id)init
 {
     if (![super init])
         return nil;
     [NSBundle loadNibNamed:@"ImageTextSheet" owner:self];
     return self;
-}
-
-- (void)setDelegate:(id)delegate
-{
-    m_delegate = delegate;
-}
-
-- (id)delegate
-{
-    return m_delegate;
 }
 
 - (void)popup:(NSWindow*)parent callback:(SEL)sel context:(void*)contextInfo;
@@ -112,6 +105,5 @@
     [m_win setMaxSize:min];
     
     [m_win display];
-}
-        
+}        
 @end

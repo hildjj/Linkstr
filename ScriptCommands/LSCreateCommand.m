@@ -12,6 +12,7 @@
 #import "Linkstr_AppDelegate.h"
 #import "LSRedundantCategory.h"
 #import "LSIncompleteCategory.h"
+#import "LSShortenerCategory.h"
 
 @implementation LSCreateCommand
 
@@ -29,7 +30,8 @@
             p = [l insertTerms:[props objectForKey:@"terms"] forSite:site];
         else
             p = [l insertURL:[props objectForKey:@"url"]
-             withDescription:[props objectForKey:@"descr"]];                
+             withDescription:[props objectForKey:@"text"] 
+                  fromSource:[props objectForKey:@"source"]];                
 
         return [p objectSpecifier];
     }
@@ -48,6 +50,15 @@
         
         Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
         urlList *u = [l createIncompleteUrl:[props  objectForKey:@"url"]];
+        
+        return [u objectSpecifier];
+    }
+    else if (classCode == 'tSur') // shortener
+    {
+        NSDictionary *props = [self resolvedKeyDictionary];
+        
+        Linkstr_AppDelegate *l = (Linkstr_AppDelegate*)[[NSApplication sharedApplication] delegate];
+        urlList *u = [l createShortenerUrl:[props  objectForKey:@"url"]];
         
         return [u objectSpecifier];
     }

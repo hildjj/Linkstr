@@ -8,13 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-
 @interface Sites : NSArrayController
 {
-
 }
 
--(id)init;
--(NSEnumerator*)objectEnumerator;
++ (void)addSitesToMenu:(NSMenu*)menu target:(id)target action:(SEL)action;
 
 @end

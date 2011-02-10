@@ -7,14 +7,20 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "PendingLink.h"
 
 @interface GrowlNagler : NSObject 
 {
+@private
     NSMutableArray *m_queue;
-    NSTimer *m_timer;
+    id m_delegate;
 }
 
-- (void)scheduleAdd:(PendingLink *)p;
+@property id delegate;
+- (id)initWithDelegate:(id)delegate;
+- (void)scheduleAddObject:(id)object;
 
+@end
+
+@interface NSObject(NaglerDelegateMethods)
+- (void)nagler:(GrowlNagler*)growlNagler firedForPending:(NSArray*)pending;
 @end

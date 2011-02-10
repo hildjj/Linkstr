@@ -331,6 +331,21 @@
 				<cocoa key="identifier"/>
 			</property>
 		</class>
+		<class name="shortener prefix" code="tSur" plural="shortener prefixes">
+			<cocoa class="urlList"/>
+			<property name="link" code="tUrl" description="The URL of the redundant feed" type="text">
+				<cocoa key="url"/>
+			</property>
+			<property name="created" code="tCre" description="The date the feed was added" type="date" access="r">
+				<cocoa key="created"/>
+			</property>
+			<property name="kind" code="rTyp" description="R for redundant" type="text">
+				<cocoa key="type"/>
+			</property>
+			<property name="id" code="ID  " description="ID of link" type="text" access="r">
+				<cocoa key="identifier"/>
+			</property>
+		</class>
 		<command name="refresh" code="LnkTrefr" description="Refresh the list, reading the current database contents">
 			<cocoa class="RefreshCommand"/>
 		</command>
@@ -359,6 +374,9 @@
 			<parameter name="from source" code="lFsu" description="The source URL" type="text" optional="yes">
 				<cocoa key="source"/>
 			</parameter>
+		</command>
+		<command name="add chrome history" code="LnkTadCs" description="Add all recent links from Google Chrome to the history list">
+			<cocoa class="LSAddChromeHistoryCommand"/>
 		</command>
 	</suite>
 </dictionary>

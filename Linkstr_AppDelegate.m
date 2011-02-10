@@ -15,28 +15,14 @@
 #import "Poster.h"
 #import "Prefs.h"
 #import "Sites.h"
+#import "LSDefaults.h"
+#import "LSDocXBEL.h"
+#import "LSDocAtom.h"
+#import "LSDocOPML.h"
+#import "LSTimerIterator.h"
+#import "sqlite3.h"
 
 NSString *PendingLinkPBoardType = @"PendingLinkPBoardType";
-
-NSString *AGRESSIVE_CLOSE = @"agressiveClose";
-NSString *ALPHA = @"alpha";
-NSString *AVOID_FUNNY = @"avoidFunnyLinks";
-NSString *DRAWER = @"showDrawer";
-NSString *FIRST_TIME = @"firstTime";
-NSString *FLOAT = @"floatOnTop";
-NSString *IMPORT_HTTPS = @"importHTTPS";
-NSString *LAST_DELICIOUS = @"LastDeliciousDate";
-NSString *SITES = @"sites";
-NSString *SQL_DEBUG = @"sqlDebug";
-NSString *TABLE_EVEN_BG = @"tableEvenBackground";
-NSString *TABLE_ODD_BG = @"tableOddBackground";
-NSString *TABLE_TEXT_FG = @"tableTextForeground";
-
-NSString *LINK_NEW = @"New Link";
-NSString *LINK_DEL = @"Link Deleted";
-NSString *LINKS_PENDING = @"Pending Links";
-NSString *LINKS_REDUNDANT = @"Redundant Links";
-NSString *LINKS_HISTORY = @"History Links";
 
 NSString *DEL_UPDATE = @"https://api.del.icio.us/v1/posts/update";
 NSString *DEL_ALL = @"https://api.del.icio.us/v1/posts/all";
@@ -45,21 +31,6 @@ NSString *ATOM_DATE_FMT = @"%Y-%m-%dT%H:%M:%SZ";
 
 static NSArray *s_SupportedTypes;
 
-@interface NSString (LSGUIDString)
-+ (NSString*) stringWithNewUUID;
-@end
-
-@implementation NSString (LSGUIDString)
-+ (NSString*) stringWithNewUUID;
-{
-    //create a new UUID
-    CFUUIDRef	uuidObj = CFUUIDCreate(nil);
-    //get the string representation of the UUID
-    NSString	*newUUID = (NSString*)CFUUIDCreateString(nil, uuidObj);
-    CFRelease(uuidObj);
-    return newUUID;
-}
-@end
 
 @implementation Linkstr_AppDelegate
 
@@ -69,64 +40,14 @@ static NSArray *s_SupportedTypes;
 }
 
 @synthesize window = m_win;
+@synthesize unreadCount = m_unread;
 
 + (void)initialize;
 {
     if (self != [Linkstr_AppDelegate class])
         return;
-    
-    NSArray *sites = [NSDictionary dictionaryWithObjectsAndKeys:
-        [NSDictionary dictionaryWithObjectsAndKeys:
-            @"Insert URL", @"name",
-            @"%@", @"url",
-            @"%@", @"description",
-            @"u", @"key",
-            @"formatURL:", @"formatter",
-            [NSNumber numberWithUnsignedInt:NSControlKeyMask], @"mask",
-            nil], @"URL",
-        [NSDictionary dictionaryWithObjectsAndKeys:
-            @"Google", @"name",
-            @"http://www.google.com/search?q=%@&ie=UTF-8&oe=UTF-8", @"url",
-            @"Google search for '%@'", @"description",
-            @"Google", @"image",
-            @"g", @"key",
-            [NSNumber numberWithUnsignedInt:NSControlKeyMask], @"mask",
-            nil], @"Google",
-        [NSDictionary dictionaryWithObjectsAndKeys:
-            @"Wikipedia", @"name",
-            @"http://www.wikipedia.org/w/wiki.phtml?search=%@", @"url",
-            @"Wikipedia search for '%@'", @"description",
-            @"Wiki", @"image",
-            @"w", @"key",
-            [NSNumber numberWithUnsignedInt:NSControlKeyMask], @"mask",
-            nil], @"Wikipedia",
-        nil];
-    
-    [NSColor setIgnoresAlpha:NO];
-    NSColor *txt_fg = [NSColor colorWithDeviceRed:1.0
-                                            green:1.0
-                                             blue:1.0
-                                            alpha:0.6];
-    NSColor *table_even_bg = [NSColor colorWithDeviceRed:0.2 
-                                                   green:0.2 
-                                                    blue:0.2
-                                                   alpha:1.0];
 
-    [[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-        @"YES", DRAWER,
-        @"NO", SQL_DEBUG,
-        @"NO", FLOAT,
-        @"YES", AGRESSIVE_CLOSE,
-        @"YES", FIRST_TIME,
-        @"NO", IMPORT_HTTPS,
-        @"YES", AVOID_FUNNY,
-        [NSNumber numberWithFloat:0.55], ALPHA,
-        @"http://linkstr.net/changes.xml", @"SUFeedURL",
-        sites, SITES,
-        [NSArchiver archivedDataWithRootObject:txt_fg], TABLE_TEXT_FG,
-        [NSArchiver archivedDataWithRootObject:table_even_bg], TABLE_EVEN_BG,
-        [NSArchiver archivedDataWithRootObject:[NSColor blackColor]], TABLE_ODD_BG,
-        nil]];
+    [LSDefaults setDefaults];
     
     s_SupportedTypes = [NSArray arrayWithObjects:
         PendingLinkPBoardType,
@@ -140,6 +61,7 @@ static NSArray *s_SupportedTypes;
 - (void)awakeFromNib;
 {
     m_closing = NO;
+    self.offline = NO;
     if ([[NSUserDefaults standardUserDefaults] boolForKey:FLOAT])
         [m_win setLevel:NSFloatingWindowLevel];
     
@@ -147,38 +69,102 @@ static NSArray *s_SupportedTypes;
     [self setupToolbar]; 
 
     [m_table setDoubleAction:@selector(openSelected:)];
-    [self setUnread:self];
-    m_nagler = [[GrowlNagler alloc] init];
+    [self setUnread:nil];
+    m_nagler = [[GrowlNagler alloc] initWithDelegate:self];
     [GrowlApplicationBridge setGrowlDelegate:self];
     m_poster = [[Poster alloc] initWithDelegate:self];
-    
-    NSMenu *menu = [m_action submenu];
-    Sites *s = [[Sites alloc] init];
-    NSEnumerator *en = [s objectEnumerator];
-    NSDictionary *site;
-    while ((site = [en nextObject]))
-    {
-        NSMenuItem *item = [[NSMenuItem alloc] init];
-        [item setTitle:[site objectForKey:@"name"]];
-        NSString *key = [site objectForKey:@"key"];
-        if (key)
-            [item setKeyEquivalent:key];
-        NSNumber *mask = [site objectForKey:@"mask"];
-        if (mask)
-            [item setKeyEquivalentModifierMask:[mask unsignedIntValue]];
-        [item setAction:@selector(genericPopup:)];
-        [item setRepresentedObject:site];
-        [menu addItem:item];
-    }        
+    [Sites addSitesToMenu:[m_action submenu] target:self action:@selector(genericPopup:)];
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey:FIRST_TIME])
     {
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:FIRST_TIME];
         if ([[self links] count] == 0)
         {
-            [self insertURL:@"http://linkstr.net/GettingStarted.html" withDescription:@"Double-click here to start"];
+            [self insertURL:@"http://linkstr.net/GettingStarted.html" withDescription:@"Double-click here to start" fromSource:nil];
         }
     }
+    
+    m_hostReach = [[LSHostReach alloc] initWithHost:[[NSUserDefaults standardUserDefaults] stringForKey:REACH_HOST]
+                                          forTarget:self 
+                                        andSelector:@selector(hostChanged:)];
+    
+    NSAppleEventManager *aem = [NSAppleEventManager sharedAppleEventManager];
+    [aem setEventHandler:self 
+             andSelector:@selector(getUrl:withReplyEvent:) 
+           forEventClass:kInternetEventClass 
+              andEventID:kAEGetURL];
+    [aem setEventHandler:self 
+             andSelector:@selector(getUrl:withReplyEvent:) 
+           forEventClass:'WWW!' 
+              andEventID:'OURL'];
+}
+
+- (void)setHandler:(NSString*)bundleID forScheme:(NSString*)scheme
+{
+    NSString *key = [NSString stringWithFormat:OLD_DEFAULT_APP, scheme];
+    NSString *oldBundle = [[NSUserDefaults standardUserDefaults] stringForKey:key];
+    
+    if (bundleID)
+    {
+        CFStringRef def = LSCopyDefaultHandlerForURLScheme((CFStringRef)scheme);
+        NSString *sdef = (NSString*)def;
+        NSLog(@"old default for %@: %@", scheme, def);
+        if ([bundleID isEqualToString:sdef])
+        {
+            // is it already us?
+            CFRelease(def);
+            return;
+        }
+        if (![oldBundle isEqualToString:sdef])
+            [[NSUserDefaults standardUserDefaults] setObject:sdef forKey:key];
+        CFRelease(def);
+    }
+    else 
+    {
+        bundleID = oldBundle;
+    }
+    
+    if (!bundleID)
+        return;
+    
+    OSStatus res = LSSetDefaultHandlerForURLScheme((CFStringRef)scheme, (CFStringRef)bundleID);
+    if (res != noErr)
+    {
+        NSLog(@"Handler error (%@): %d", scheme, res);
+    }
+}
+
+- (void)setOffline:(BOOL)off
+{
+    if (m_offline == off)
+        return;
+    
+    m_offline = off;
+    
+    NSLog(@"Reach: %d", !off);
+    if (off)
+    {
+        NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
+        [self setHandler:bundleID forScheme:@"http"];
+        [self setHandler:bundleID forScheme:@"https"];
+    }  
+    else
+    {        
+        [self setHandler:nil forScheme:@"http"];
+        [self setHandler:nil forScheme:@"https"];
+    }
+    [self setUnread:self];
+}
+
+- (BOOL)offline
+{
+    return m_offline;
+}
+
+- (void)hostChanged:(NSDictionary*)notify
+{
+    NSNumber *num = [notify objectForKey:LSHostReach_REACHABLE];    
+    self.offline = ![num boolValue];
 }
 
 - (NSString *)applicationSupportFolder;
@@ -191,12 +177,14 @@ static NSArray *s_SupportedTypes;
     return [basePath stringByAppendingPathComponent:[[NSProcessInfo processInfo] processName]];
 }
 
-// Set the undread count in the icon
+// Set the unread count in the icon
 - (IBAction)setUnread:(id)sender;
 {
-    [self saveAction:nil];
+    if (sender)
+        [self saveAction:nil];
     NSArray *unviewed = [self unviewedLinks];
     unsigned count = [unviewed count];
+    self.unreadCount = count;
     
     if (count == 1)
         [m_win setTitle:[NSString stringWithFormat:NSLocalizedString(@"%@: %ld Pending Link", @"window title, one link"), [[NSProcessInfo processInfo] processName], count]];
@@ -204,27 +192,51 @@ static NSArray *s_SupportedTypes;
         [m_win setTitle:[NSString stringWithFormat:NSLocalizedString(@"%@: %ld Pending Links", @"window title, multiple links"), [[NSProcessInfo processInfo] processName], count]];
     
     NSImage *base = [NSImage imageNamed:@"Linkstr"];
-    if (count == 0)
+    if ((count == 0) && !self.offline)
     {
         [NSApp setApplicationIconImage:base];
         return;
     }
-    NSFont *font = [NSFont fontWithName:@"Helvetica-Bold" size:48];
-    NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
-		[NSColor redColor], NSForegroundColorAttributeName,
-		font, NSFontAttributeName,
-		nil];
-    NSString *cs = [NSString stringWithFormat:@"%ld", count];
-    NSSize c_size = [cs sizeWithAttributes:attr];
+    
+    NSFont *font;
+    NSDictionary *attr;
+    NSString *cs;
+    NSSize c_size;    
+    NSRect rect = { NSZeroPoint, [base size] };
+
     NSImage *red = [[NSImage alloc] initWithSize:[base size]];
     [red setFlipped:YES];
-    NSRect rect = { NSZeroPoint, [base size] };
-    rect.origin.x = rect.size.width - c_size.width - 3;
-    rect.origin.y = rect.size.height - c_size.height - 3;
-    
-    [red lockFocus];
+    [red lockFocus];        
     [base compositeToPoint:NSMakePoint(0,rect.size.height) operation:NSCompositeSourceOver];    
-    [cs drawInRect:rect withAttributes:attr];
+    
+    if (count > 0)
+    {
+        font = [NSFont fontWithName:@"Helvetica-Bold" size:48];
+        attr = [NSDictionary dictionaryWithObjectsAndKeys:
+                [NSColor redColor], NSForegroundColorAttributeName,
+                font, NSFontAttributeName,
+                nil];
+        cs = [NSString stringWithFormat:@"%ld", count];
+        c_size = [cs sizeWithAttributes:attr];
+        rect.origin.x = rect.size.width - c_size.width - 3;
+        rect.origin.y = rect.size.height - c_size.height - 3;
+        [cs drawInRect:rect withAttributes:attr];        
+    }
+    
+    if (self.offline)
+    {        
+        font = [NSFont fontWithName:@"Helvetica-Bold" size:24];
+        attr = [NSDictionary dictionaryWithObjectsAndKeys:
+                [NSColor blueColor], NSForegroundColorAttributeName,
+                font, NSFontAttributeName,
+                nil];
+        cs = @"offline";
+        c_size = [cs sizeWithAttributes:attr];
+        rect.origin.x = rect.size.width - c_size.width - 9;
+        rect.origin.y = 0;
+        [cs drawInRect:rect withAttributes:attr];        
+    }
+    
     [red unlockFocus];
     [NSApp setApplicationIconImage:red];
 }
@@ -303,6 +315,7 @@ static NSArray *s_SupportedTypes;
             NSImage *iconImage = [[NSWorkspace sharedWorkspace] iconForFile:[appURL path]];
             [item setImage:iconImage];
         }
+        CFRelease(appURL);  // no really.  honest to god.
     }    
     else if ([itemIdentifier isEqualToString:@"drawer"]) 
     {
@@ -361,11 +374,6 @@ static NSArray *s_SupportedTypes;
     [[NSUserDefaults standardUserDefaults] setBool:![[NSUserDefaults standardUserDefaults] boolForKey:DRAWER] forKey:DRAWER];
 }
 
-- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
-{
-    [(KeyPressTableView*)aTableView willDisplayCell:aCell forTableColumn:aTableColumn row:rowIndex];
-}
-
 - (IBAction)openSelected:(id)sender;
 {
     NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
@@ -404,53 +412,100 @@ static NSArray *s_SupportedTypes;
     [self setUnread:self];
 }
 
-- (IBAction)launchAll:(id)sender;
+- (uint)firedIterator:(LSTimerIterator*)it withObjects:(NSArray*)group
 {
-    // save.  there may be pending changes that haven't been saved.
-    [self saveAction:nil];
-    
-    [m_progress startAnimation:self];
-    NSArray *unviewed = [self unviewedLinks];
-    if ([unviewed count] == 0)
+    int count = 0;
+    if (!group)
     {
-        [m_progress stopAnimation:self];
-        return;
+        // the end
+        NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
+        [undo endUndoGrouping];
+
+        count = [it count];
+        [GrowlApplicationBridge notifyWithTitle:@"Links Opened" 
+                                    description:[NSString stringWithFormat:@"%d %@", count, (count==1) ? @"Link" : @"Links"] 
+                               notificationName:LINKS_PENDING
+                                       iconData:nil
+                                       priority:0
+                                       isSticky:NO
+                                   clickContext:@""];
+        [m_nagler scheduleAddObject:[NSNumber numberWithInt:count]];
+        return 0;
     }
     
     NSMutableArray *urls = [NSMutableArray array];
-    
-    NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
-    [undo beginUndoGrouping];
-    NSCalendarDate *date = [NSCalendarDate calendarDate];
-    for (PendingLink *p in unviewed)
+    for (PendingLink *p in group)
     {
         NSURL *url = [NSURL URLWithString:[p url]];
         if (url)
+        {
+            count++;
             [urls addObject:url];
+        }
         else
             NSLog(@"Invalid URL: '%@'", [p url]);
-        [p setViewed:date];
+        [p setViewed:[it startTime]];
     }
-    [undo endUndoGrouping];
-    
-    // TODO: batch in groups of 5 and sleep for a second between.
     [[NSWorkspace sharedWorkspace] openURLs:urls 
                     withAppBundleIdentifier:nil 
                                     options:NSWorkspaceLaunchAsync | NSWorkspaceLaunchWithoutActivation
              additionalEventParamDescriptor:nil
                           launchIdentifiers:nil];
-        
-    [m_progress stopAnimation:self];    
-    [self setUnread:self];
+    return count;
+}
+
+- (IBAction)launchAll:(id)sender;
+{
+    // save.  there may be pending changes that haven't been saved.
+    [self saveAction:nil];
+    if (self.offline)
+        return;
     
-    int count = [urls count];
-    [GrowlApplicationBridge notifyWithTitle:@"Links Opened" 
-                                description:[NSString stringWithFormat:@"%d %@", count, (count==1) ? @"Link" : @"Links"] 
-                           notificationName:LINKS_PENDING
-                                   iconData:nil
-                                   priority:0
-                                   isSticky:NO
-                               clickContext:@""];
+    NSArray *unviewed = [self unviewedLinksWithLimit:20];        
+    NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
+    [undo beginUndoGrouping];
+    
+    [[LSTimerIterator alloc] initWithArray:unviewed
+                              timeInterval:3.0
+                                    target:self
+                                  selector:@selector(firedIterator:withObjects:)
+                                   repeats:YES 
+                                  progress:m_progress];
+}
+
+- (IBAction)undoLaunch:(id)sender;
+{
+    NSArray *last = [self lastBatch];
+    NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
+    [undo beginUndoGrouping];
+    for (PendingLink *p in last)
+    {
+        [p setViewed:nil];
+    }
+    [undo endUndoGrouping];
+    [self setUnread:self];
+}
+
+#pragma mark -
+#pragma mark Sparkle methods
+
+- (NSMutableArray *)updaterCustomizeProfileInfo:(NSMutableArray *)profileInfo;
+{
+    NSURL *appURL = nil;
+    OSStatus err = LSGetApplicationForURL((CFURLRef)[NSURL URLWithString:@"http:"],
+                                          kLSRolesAll, NULL, (CFURLRef *)&appURL);
+    if (err != noErr)
+        return profileInfo;
+    
+    NSString *path = [[appURL path] lastPathComponent];
+    [profileInfo addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+                            @"browser", @"key",
+                            path, @"value",
+                            @"Default Browser", @"visibleKey", 
+                            path, @"visibleValue",
+                            nil ]];
+    CFRelease(appURL);  // no really.  honest to god.
+    return profileInfo;
 }
 
 #pragma mark -
@@ -458,7 +513,7 @@ static NSArray *s_SupportedTypes;
 
 - (NSDictionary *)registrationDictionaryForGrowl;
 {
-    NSArray *all = [NSArray arrayWithObjects:LINK_NEW, LINK_DEL, LINKS_PENDING, LINKS_REDUNDANT, LINKS_HISTORY, nil];
+    NSArray *all = [NSArray arrayWithObjects:LINK_NEW, LINK_DEL, LINKS_PENDING, LINKS_REDUNDANT, LINKS_HISTORY, LINKS_IMPORT, nil];
     NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:all, GROWL_NOTIFICATIONS_ALL, all, GROWL_NOTIFICATIONS_DEFAULT, nil];
     return dict;
 }
@@ -473,6 +528,51 @@ static NSArray *s_SupportedTypes;
     [self unfade:self];
     // TODO: if clickContext is not @"", search for that URL, 
     // select it, and scroll it visible.
+}
+
+- (void)nagler:(GrowlNagler*)growlNagler firedForPending:(NSArray*)pending;
+{
+    int count = 0;
+    PendingLink *first = nil;
+    for (id p in pending)
+    {
+        if ([p isKindOfClass:[PendingLink class]])
+        {
+            if (!((PendingLink*)p).viewed)
+            {
+                count++;
+                if (!first)
+                    first = p;
+            }
+        }
+    }
+    switch (count)
+    {
+        case 0:
+            break;
+        case 1:
+            [GrowlApplicationBridge notifyWithTitle:[first text] 
+                                        description:[first url]
+                                   notificationName:@"New Link"
+                                           iconData:nil
+                                           priority:0
+                                           isSticky:NO
+                                       clickContext:[first url]];    
+            break;
+        default:
+            [GrowlApplicationBridge notifyWithTitle:@"Pending Links"
+                                        description:[NSString stringWithFormat:@"%d Links Added", count] 
+                                   notificationName:@"New Link"
+                                           iconData:nil
+                                           priority:0
+                                           isSticky:NO
+                                       clickContext:@""];
+            break;
+    }
+ 
+    NSLog(@"done growling");
+    // let the growl run, then step back in to save and set the unread.
+    [self performSelector:@selector(setUnread:) withObject:self afterDelay:0.01];
 }
 
 #pragma mark -
@@ -525,6 +625,9 @@ static NSArray *s_SupportedTypes;
 
 - (void)windowWillClose:(NSNotification *)aNotification
 {
+    [self setHandler:nil forScheme:@"http"];
+    [self setHandler:nil forScheme:@"https"];
+    
     if ([[NSUserDefaults standardUserDefaults] boolForKey:AGRESSIVE_CLOSE])
         [NSApp terminate:self];
     else
@@ -587,7 +690,7 @@ static NSArray *s_SupportedTypes;
     {
         NSLog(@"%@ = %@", t, [pb stringForType:t]);
     }
-     */
+    */
     
     NSString *typ = [pb availableTypeFromArray:s_SupportedTypes];
     if (!typ)
@@ -607,8 +710,8 @@ static NSArray *s_SupportedTypes;
             p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
                                               inManagedObjectContext:[self managedObjectContext]];
             [p setValuesForKeysWithDictionary:loopItem];
+            [m_nagler scheduleAddObject:p];
         }
-        [self setUnread:self];
         return YES;
     }
     
@@ -624,9 +727,9 @@ static NSArray *s_SupportedTypes;
         for (i=0; i<[url_list count]; i++)
         {
             [self insertURL:[url_list objectAtIndex:i]
-            withDescription:[desc_list objectAtIndex:i]];
+            withDescription:[desc_list objectAtIndex:i]
+                 fromSource:nil];
         }
-        [self setUnread:self];
         return YES;
     }
     
@@ -640,9 +743,9 @@ static NSArray *s_SupportedTypes;
         {
             NSURL *url = [NSURL fileURLWithPath:fil];
             [self insertURL:[url relativeString]
-            withDescription:fil];
+            withDescription:fil
+                 fromSource:nil];
         }
-        [self setUnread:self];
         return YES;        
     }
     
@@ -667,7 +770,6 @@ static NSArray *s_SupportedTypes;
                 str = html;
             PendingLink *p = [self insertTerms:str forSite:@"Google"];
             [p setSource:source];
-            [self setUnread:self];
         }
         return YES;
     }
@@ -678,10 +780,12 @@ static NSArray *s_SupportedTypes;
         if (!url)
             return NO;
         
-        // Firefox links.
-        NSString *desc = [pb stringForType:@"CorePasteboardFlavorType 0x75726C64"];
-        [self insertURL:[url relativeString] withDescription:desc];            
-        [self setUnread:self];
+        // leopard-y things, like Mail.app
+        NSString *desc = [pb stringForType:@"public.url-name"];
+        if (!desc)
+            // Firefox links.
+            desc = [pb stringForType:@"CorePasteboardFlavorType 0x75726C64"];
+        [self insertURL:[url relativeString] withDescription:desc fromSource:nil];            
         return YES;
     }
     
@@ -691,12 +795,11 @@ static NSArray *s_SupportedTypes;
         NSURL *url = [NSURL URLWithString:str];
         if (url && [url scheme])
         {
-            [self insertURL:str withDescription:nil];
+            [self insertURL:str withDescription:nil fromSource:nil];
             return YES;
         }
 
         [self insertTerms:str forSite:@"Google"];
-        [self setUnread:self];
         return YES;
     }
     
@@ -706,18 +809,17 @@ static NSArray *s_SupportedTypes;
 - (IBAction)copy:(id)sender;
 {    
     NSArray *selectedObjects = [m_controller selectedObjects];
-    unsigned i, count = [selectedObjects count];
-    if (count == 0) {
+    unsigned count = [selectedObjects count];
+    if (count == 0) 
         return;
-    }
     
     NSMutableArray *copyObjectsArray = [NSMutableArray arrayWithCapacity:count];
     NSMutableArray *copyStringsArray = [NSMutableArray arrayWithCapacity:count];
     PendingLink *p;
     
-    for (i = 0; i < count; i++) 
+    for (id loopItem in selectedObjects) 
     {
-        p = (PendingLink *)[selectedObjects objectAtIndex:i];
+        p = (PendingLink *)loopItem;
         [copyObjectsArray addObject:[p dictionaryRepresentation]];
         [copyStringsArray addObject:[p url]];
     }
@@ -753,7 +855,7 @@ static NSArray *s_SupportedTypes;
     if (!m_sheet)
     {
         m_sheet = [[ImageTextSheet alloc] init];
-        [m_sheet setDelegate:self];
+        m_sheet.delegate = self;
     }    
 }
 
@@ -802,7 +904,7 @@ static NSArray *s_SupportedTypes;
     }
     NSString *url = [NSString stringWithFormat:[site objectForKey:@"url"], pct];        
     NSString *desc = [NSString stringWithFormat:[site objectForKey:@"description"], text]; 
-    return [self insertURL:url withDescription:desc];
+    return [self insertURL:url withDescription:desc fromSource:nil];
 }
 
 - (PendingLink*)insertTerms:(NSString*)terms forSite:(NSString*)site;
@@ -822,11 +924,12 @@ static NSArray *s_SupportedTypes;
     {
         us = [@"http://" stringByAppendingString:text];
     }
-    [self insertURL:us withDescription:text];
+    [self insertURL:us withDescription:text fromSource:nil];
 }
 
 - (IBAction)scriptsMenu:(id)sender;
 {
+    // Linkstr.app/Contents/MacOS/Linkstr/../../Resources/Scripts
     NSString *proc = [[[NSProcessInfo processInfo] arguments] objectAtIndex:0];
     proc = [proc stringByDeletingLastPathComponent];
     proc = [proc stringByDeletingLastPathComponent];    
@@ -888,6 +991,11 @@ static NSArray *s_SupportedTypes;
     return [self urlsForType:@"R"];
 }
 
+- (NSArray*)shorteners;
+{
+    return [self urlsForType:@"S"];    
+}
+
 - (NSArray*)urlsForType:(NSString*)type;
 {
     NSFetchRequest *fetch = 
@@ -915,30 +1023,52 @@ static NSArray *s_SupportedTypes;
 - (NSArray*)unviewedLinks;
 {
     NSFetchRequest *fetch = [[[self managedObjectModel] fetchRequestTemplateForName:@"unviewed"] copy];
-    NSAssert(fetch, @"Fetch not found");
+    NSAssert(fetch, @"Fetch not found");    
     [fetch setSortDescriptors:[self createdSortOrder]];
     return [[self managedObjectContext] executeFetchRequest:fetch error:nil];
 }
 
-- (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
+- (NSArray*)unviewedLinksWithLimit:(NSUInteger)limit;
+{
+    NSFetchRequest *fetch = [[[self managedObjectModel] fetchRequestTemplateForName:@"unviewed"] copy];
+    NSAssert(fetch, @"Fetch not found");    
+    [fetch setSortDescriptors:[self createdSortOrder]];
+    [fetch setFetchLimit:limit];
+    return [[self managedObjectContext] executeFetchRequest:fetch error:nil];
+}
+
+- (NSArray*)lastBatch;
+{
+    NSFetchRequest *fetch = [[[self managedObjectModel] fetchRequestTemplateForName:@"lastBatch"] copy];
+    NSAssert(fetch, @"Fetch not found");    
+    return [[self managedObjectContext] executeFetchRequest:fetch error:nil];
+}
+
+
+- (id)insertURL:(NSString*)url withDescription:(NSString*)desc fromSource:(NSString*)source;
 {
     return [self insertURL:url 
            withDescription:desc 
                 withViewed:nil 
-               withCreated:[NSCalendarDate calendarDate]];
+               withCreated:[NSCalendarDate calendarDate]
+                fromSource:source];
 }
 
 - (PendingLink *)createLink:(NSString*)url 
             withDescription:(NSString*)desc
                 withCreated:(NSCalendarDate*)created
+                 fromSource:(NSString*)source
 {
     NSLog(@"Create: %@", url);
     PendingLink *p = [NSEntityDescription insertNewObjectForEntityForName:@"PendingLink" 
                                                    inManagedObjectContext:[self managedObjectContext]];
     [p setUrl:url];
     if (desc && [desc length])
-        [p setText:[PendingLink DeHTML:desc]];
+        p.text = [PendingLink DeHTML:desc];
+    if (source && [source length])
+        p.source = source;
     [p setCreated:created];
+    [m_nagler scheduleAddObject:p];
     return p;
 }
 
@@ -1001,23 +1131,22 @@ static NSArray *s_SupportedTypes;
             title = nil;
         p = [self createLink:url
              withDescription:title
-                 withCreated:date];
+                 withCreated:date
+                  fromSource:sourceURL];
         if (dates != nil)
             p.viewed = date;
-        if (sourceURL != nil)
-            p.source = sourceURL;
         changes++;            
     }
 
     [undo endUndoGrouping];
-    [self setUnread:nil];
     return changes;
 }
 
 - (id)insertURL:(NSString*)url 
 withDescription:(NSString*)desc
      withViewed:(NSCalendarDate*)viewed
-    withCreated:(NSCalendarDate*)created;
+    withCreated:(NSCalendarDate*)created
+     fromSource:(NSString*)source;
 {
     if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
         ([url hasPrefix:@"https"]))
@@ -1026,15 +1155,18 @@ withDescription:(NSString*)desc
     if ([PendingLink isFunny:desc])
         return nil;
     
+    for (urlList *s in [self shorteners])
+    {
+        if ([url hasPrefix:s.url])
+            return nil;
+    }
+    
     PendingLink *p = [self pendingForUrl:url];
     if (!p)
-        p = [self createLink:url withDescription:desc withCreated:created];
-    
-    [p setViewed:viewed];
-    if (!viewed)
-        [m_nagler scheduleAdd:p];
-    
-    [self setUnread:self];
+        p = [self createLink:url withDescription:desc withCreated:created fromSource:source];
+    else if (!p.source && source && ([source length] > 0))
+        p.source = source;  // if there wasn't a source already, set it now.  Othewise, keep the old one.
+        
     [m_table scrollRowToVisible:0];
     return p;
 }
@@ -1044,6 +1176,9 @@ withDescription:(NSString*)desc
               withDate:(NSCalendarDate*)date
        withDescription:(NSString*)desc;
 {
+    if (!url || ([url length] == 0))
+        return YES;
+    
     PendingLink *p = [self pendingForUrl:url];
     if (p)
         return YES;
@@ -1051,6 +1186,12 @@ withDescription:(NSString*)desc
     if ([PendingLink isFunny:desc])
         return YES;
     
+    for (urlList *s in [self shorteners])
+    {
+        if ([url hasPrefix:s.url])
+            return YES;
+    }
+
     NSFetchRequest *fetch = 
     [[self managedObjectModel] fetchRequestFromTemplateWithName:@"checkRedundant"
                                           substitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:url, @"URL", nil]];
@@ -1111,6 +1252,7 @@ withDescription:(NSString*)desc
     NSString *url;
     NSMutableDictionary *possible = [[NSMutableDictionary alloc] init];
     NSMutableDictionary *dates = [[NSMutableDictionary alloc] init];
+    BOOL do_https = [[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS];
     
     NSArray *h = (NSArray*)[plist objectForKey:@"WebHistoryDates"];
     for (NSDictionary *entry in h)
@@ -1125,8 +1267,7 @@ withDescription:(NSString*)desc
             break;
         
         url = [entry objectForKey:@""];
-        if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
-            ([url hasPrefix:@"https"]))
+        if ((!do_https) && ([url hasPrefix:@"https"]))
             continue;
 
         NSAssert(url, @"Bad URL");
@@ -1150,6 +1291,134 @@ withDescription:(NSString*)desc
     [m_progress stopAnimation:self];
       
       
+    [GrowlApplicationBridge notifyWithTitle:@"History Links" 
+                                description:[NSString stringWithFormat:@"%d Links Added", changes] 
+                           notificationName:LINKS_HISTORY
+                                   iconData:nil
+                                   priority:0
+                                   isSticky:NO
+                               clickContext:@""];
+}
+
+- (IBAction)importChromeHistory:(id)sender;
+{
+    [m_progress startAnimation:self];
+    int changes = 0;
+
+    NSString *hf = @"~/Library/Application Support/Google/Chrome/Default/History";
+    hf = [hf stringByExpandingTildeInPath];
+    
+    NSString *tempFileTemplate = [NSTemporaryDirectory() stringByAppendingPathComponent:@"History.XXXXXXX"];
+    const char *template = [tempFileTemplate fileSystemRepresentation];
+    size_t thf_len = strlen(template);
+    char *thf = (char*)malloc(thf_len);
+    strcpy(thf, template);
+    mktemp(thf);
+    NSString *new_hf = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:thf length:thf_len];
+    free(thf);
+    
+    NSError *err;
+    if (![[NSFileManager defaultManager] copyItemAtPath:hf toPath:new_hf error:&err])
+    {
+        [[NSAlert alertWithError:err] runModal];
+        return;
+    }
+    
+    int res = SQLITE_OK;
+    sqlite3 *db = NULL;
+
+    if ((res = sqlite3_open_v2([new_hf UTF8String], &db, SQLITE_OPEN_READONLY | SQLITE_OPEN_NOMUTEX, NULL)) != SQLITE_OK)
+    { goto SQL_ERROR; }
+        
+    NSNumber *last = [[NSUserDefaults standardUserDefaults] objectForKey:@"LastChromeUrlDate"];
+    if (!last)
+        last = [NSNumber numberWithLongLong:0];
+    sqlite3_stmt *ppStmt = NULL;
+    if ((res = sqlite3_prepare_v2(db, 
+                                  "select url, title, last_visit_time from urls where hidden=0 and last_visit_time > ? order by last_visit_time limit 1000", 
+                                  -1,
+                                  &ppStmt,
+                                  NULL)) != SQLITE_OK)
+    { goto SQL_ERROR; }
+
+    if ((res = sqlite3_bind_int64(ppStmt, 1, [last longLongValue])) != SQLITE_OK)
+    { goto SQL_ERROR; }
+    
+    sqlite3_int64 last_visit_time = 0;
+    // sqlite3_int64 ll = -1;
+    
+    // calculate the Chrome epoch, which is 1/1/1601
+    NSCalendar *gregorian = [[NSCalendar alloc]
+                             initWithCalendarIdentifier:NSGregorianCalendar];
+    [gregorian setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+    NSDateComponents *components = [[NSDateComponents alloc] init];
+    [components setMonth:1];
+    [components setDay:1];
+    [components setYear:1601];
+    NSDate *epoch = [gregorian dateFromComponents:components];
+    NSCalendarDate *d;
+    NSString *url;
+    id title;
+    NSMutableDictionary *possible = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *dates = [[NSMutableDictionary alloc] init];
+    BOOL do_https = [[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS];
+    
+    while ((res = sqlite3_step(ppStmt)) == SQLITE_ROW)
+    {
+        last_visit_time = sqlite3_column_int64(ppStmt, 2);
+        //NSAssert(last_visit_time > ll, @"Order!");
+        //ll = last_visit_time;
+        
+        url = [NSString stringWithUTF8String:(const char*)sqlite3_column_text(ppStmt, 0)];
+        if ((!do_https) && ([url hasPrefix:@"https"]))
+        {
+            continue;
+        }
+        
+        title = [NSString stringWithUTF8String:(const char*)sqlite3_column_text(ppStmt, 1)];
+        if (!title || ![title length])
+            title = [NSNull null];
+        [possible setObject:title forKey:url];
+        
+        d = [NSCalendarDate dateWithTimeInterval:(last_visit_time/1000000.0) sinceDate:epoch];
+        NSParameterAssert(d);
+        [dates setObject:d forKey:url];
+    }
+    
+    if ((res == SQLITE_DONE) || (res == SQLITE_ROW))
+    {
+        res = SQLITE_OK;
+        
+        if ([possible count] > 0)
+            changes = [self createLinksFromDictionary:possible onDates:dates fromSource:nil];
+
+        if (([last longLongValue] != last_visit_time) && (last_visit_time != 0))
+        {
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithLongLong:last_visit_time] forKey:@"LastChromeUrlDate"];
+        }
+    }
+
+    if (ppStmt)
+    {
+        res = sqlite3_finalize(ppStmt);
+    }
+
+SQL_ERROR:
+    
+    if (res != SQLITE_OK)
+    {
+        NSLog(@"SQLite error(%d): %s", res, sqlite3_errmsg(db));
+    }
+    if (db)
+        sqlite3_close(db);
+
+    if (![[NSFileManager defaultManager] removeItemAtPath:new_hf error:&err])
+    {
+        [[NSAlert alertWithError:err] runModal];
+    }
+    
+    [m_progress stopAnimation:nil];
+    
     [GrowlApplicationBridge notifyWithTitle:@"History Links" 
                                 description:[NSString stringWithFormat:@"%d Links Added", changes] 
                            notificationName:LINKS_HISTORY
@@ -1356,7 +1625,7 @@ withDescription:(NSString*)desc
 - (IBAction)refresh:(id)sender;
 {
     [m_controller fetch:sender];
-    [self setUnread:self];
+    [self setUnread:nil];
 }
 
 /**
@@ -1370,7 +1639,7 @@ withDescription:(NSString*)desc
     if (managedObjectModel != nil) {
         return managedObjectModel;
     }
-	
+    
     NSMutableSet *allBundles = [[NSMutableSet alloc] init];
     [allBundles addObject: [NSBundle mainBundle]];
     [allBundles addObjectsFromArray: [NSBundle allFrameworks]];
@@ -1398,7 +1667,10 @@ withDescription:(NSString*)desc
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *applicationSupportFolder = [self applicationSupportFolder];
     if ( ![fileManager fileExistsAtPath:applicationSupportFolder isDirectory:NULL] )
-        [fileManager createDirectoryAtPath:applicationSupportFolder attributes:nil];
+        [fileManager createDirectoryAtPath:applicationSupportFolder 
+               withIntermediateDirectories:YES
+                                attributes:nil
+                                     error:nil];
     
     NSURL *url = [NSURL fileURLWithPath: [applicationSupportFolder stringByAppendingPathComponent: @"Linkstr.lite"]];
     persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel: [self managedObjectModel]];
@@ -1452,6 +1724,11 @@ withDescription:(NSString*)desc
  
 - (IBAction) saveAction:(id)sender 
 {
+    if (![[self managedObjectContext] hasChanges])
+    {
+        NSLog(@"Unchanged");
+        return;
+    }
     NSLog(@"Saving...");
     [m_progress startAnimation:self];
     NSError *error = nil;
@@ -1463,77 +1740,16 @@ withDescription:(NSString*)desc
     NSLog(@"Saved");
 }
 
-- (void)saveSelectedAsOPML:(NSString*)file;
+- (NSString *)panel:(id)sender userEnteredFilename:(NSString *)filename confirmed:(BOOL)okFlag
 {
-    NSXMLDocument *doc = [NSXMLNode document];
-    [doc setCharacterEncoding:@"UTF-8"];
-    [doc addChild:[NSXMLNode commentWithStringValue:@"OPML generated by Linkstr"]];
-    NSXMLElement *opml = [NSXMLElement elementWithName:@"opml"];
-    [doc setRootElement:opml];
-    [opml addAttribute:[NSXMLNode attributeWithName:@"version" stringValue:@"1.1"]];
-    NSXMLElement *head = [NSXMLNode elementWithName:@"head"];
-    [opml addChild:head];
-    [head addChild:[NSXMLNode elementWithName:@"title" stringValue:@"Linkstr Links"]];
-    NSCalendarDate *now = [NSCalendarDate calendarDate];
-    [head addChild:[NSXMLNode elementWithName:@"dateCreated" 
-                                  stringValue:[now descriptionWithCalendarFormat:@"%d %b %Y %H:%M:%S Z"]]];
-    NSXMLElement *body = [NSXMLNode elementWithName:@"body"];
-    [opml addChild:body];
-    
-    for (PendingLink *p in [m_controller selectedObjects])
-    {        
-        [body addChild:[p asOPML]];
-    }
-    
-    NSData *data = [doc XMLDataWithOptions:
-        NSXMLDocumentIncludeContentTypeDeclaration |
-        NSXMLNodePrettyPrint | 
-        NSXMLNodeUseSingleQuotes];
-    [data writeToFile:file atomically:NO];
-}
-
-- (void)saveSelectedAsAtom:(NSString*)file;
-{
-    NSXMLDocument *doc = [NSXMLNode document];
-    [doc setCharacterEncoding:@"UTF-8"];
-    NSXMLElement *feed = [NSXMLNode elementWithName:@"feed"];
-    [feed addNamespace:[NSXMLNode namespaceWithName:@"" stringValue:@"http://www.w3.org/2005/Atom"]];
-    [doc setRootElement:feed];
-    [feed addChild:[NSXMLNode elementWithName:@"title" stringValue:@"Linkstr Links"]];
-    NSXMLElement *lnk = [NSXMLNode elementWithName:@"link"];
-    [feed addChild:lnk];
-    [lnk setAttributesAsDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-        @"http://linkstr.net/", @"href",
-        @"related", @"rel",
-        nil]];
-    NSCalendarDate *now = [NSCalendarDate calendarDate];
-    NSString *nows = [now descriptionWithCalendarFormat:ATOM_DATE_FMT];
-    [feed addChild:[NSXMLNode elementWithName:@"updated"
-                                  stringValue:nows]];
-    NSXMLElement *author = [NSXMLNode elementWithName:@"author"];
-    [feed addChild:author];
-    [author addChild:[NSXMLNode elementWithName:@"name"
-                                    stringValue:NSFullUserName()]];
-    NSString *uurn = [NSString stringWithFormat:@"urn:uuid:%@", [NSString stringWithNewUUID]];
-    [feed addChild:[NSXMLNode elementWithName:@"id" 
-                                  stringValue:uurn]];
-    
-    for (PendingLink *p in [m_controller selectedObjects])
-        [feed addChild:[p asAtom]];
-    
-    NSData *data = [doc XMLDataWithOptions:
-        NSXMLDocumentIncludeContentTypeDeclaration |
-        NSXMLNodePrettyPrint | 
-        NSXMLNodeCompactEmptyElement |
-        NSXMLNodeUseSingleQuotes];
-    [data writeToFile:file atomically:NO];  // heh.  writeToAtomAtomically
-}
-
-- (NSString*)replaceExtension:(NSString*)extension inPath:(NSString*)path;
-{
-    if ([path hasSuffix:extension])
-        return path;
-    return [[path stringByDeletingPathExtension] stringByAppendingPathExtension:extension];
+    NSString *type = [m_fileType stringValue];
+    if ([type isEqualToString:@"OPML"])
+        return [filename stringByAppendingPathExtension:@"opml"];
+    else if ([type isEqualToString:@"Atom"])
+        return [filename stringByAppendingPathExtension:@"atom"];
+    else if ([type isEqualToString:@"XBEL"])
+        return [filename stringByAppendingPathExtension:@"xbel"];
+    return nil;
 }
 
 - (void)savePanelDidEnd:(NSSavePanel *)sheet returnCode:(int)returnCode contextInfo:(void  *)contextInfo;
@@ -1541,23 +1757,37 @@ withDescription:(NSString*)desc
     if (returnCode == NSFileHandlingPanelCancelButton)
         return;
     NSString *type = [m_fileType stringValue];
-    NSString *fn = [sheet filename];
+    NSURL *url = [sheet URL];
     
+    NSDocument *doc = nil;
     if ([type isEqualToString:@"OPML"])
-        [self saveSelectedAsOPML:[self replaceExtension:@"opml" inPath:fn]];        
+        doc = [[LSDocOPML alloc] initWithSelection:[m_controller selectedObjects]];
     else if ([type isEqualToString:@"Atom"])
-        [self saveSelectedAsAtom:[self replaceExtension:@"atom" inPath:fn]];        
+        doc = [[LSDocAtom alloc] initWithSelection:[m_controller selectedObjects]];
+    else if ([type isEqualToString:@"XBEL"])
+        doc = [[LSDocXBEL alloc] initWithSelection:[m_controller selectedObjects]];
+    else
+    {
+        NSLog(@"Unknown doc type: %@", type);
+        return;
+    }
+    
+    NSError *error;
+    if ([doc writeToURL:url ofType:type error:&error])
+        return;
+    [[NSApplication sharedApplication] presentError:error];
 }
 
 - (IBAction) exportAction:(id)sender 
 {
     NSSavePanel *panel = [NSSavePanel savePanel];
+    [panel setDelegate:self];
     [panel setTitle:@"Export Selected"];
     [panel setPrompt:@"Export"];
     [panel setAllowsOtherFileTypes:NO];
     [panel setAccessoryView:m_fileTypeView];
     [panel setExtensionHidden:NO];
-    [panel setAllowedFileTypes:[NSArray arrayWithObjects:@"atom", @"opml", nil]];
+    [panel setAllowedFileTypes:[NSArray arrayWithObjects:@"atom", @"opml", @"xbel", nil]];
     [panel beginSheetForDirectory:nil file:@"Linkstr_Links.atom" modalForWindow:m_win modalDelegate:self didEndSelector:@selector(savePanelDidEnd:returnCode:contextInfo:) contextInfo:nil];
 }
 
@@ -1578,7 +1808,7 @@ withDescription:(NSString*)desc
         {
             if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) 
             {
-				
+                
                 // This error handling simply presents error information in a panel with an 
                 // "Ok" button, which does not include any attempt at error recovery (meaning, 
                 // attempting to fix the error.)  As a result, this implementation will 
@@ -1589,16 +1819,16 @@ withDescription:(NSString*)desc
                 // recovery steps.  
 
                 BOOL errorResult = [[NSApplication sharedApplication] presentError:error];
-				
+                
                 if (errorResult == YES) {
                     reply = NSTerminateCancel;
                 } 
 
                 else {
-					
+                    
                     int alertReturn = NSRunAlertPanel(nil, @"Could not save changes while quitting. Quit anyway?" , @"Quit anyway", @"Cancel", nil);
                     if (alertReturn == NSAlertAlternateReturn) {
-                        reply = NSTerminateCancel;	
+                        reply = NSTerminateCancel;  
                     }
                 }
             }
@@ -1637,5 +1867,12 @@ withDescription:(NSString*)desc
     return nil;
 }
 
+- (void)getUrl:(NSAppleEventDescriptor *)event 
+withReplyEvent:(NSAppleEventDescriptor *)replyEvent
+{
+    NSString *sURL = [[event paramDescriptorForKeyword:keyDirectObject] stringValue];
 
+    [self insertURL:sURL withDescription:nil fromSource:nil];
+    [self fade:self];
+}
 @end

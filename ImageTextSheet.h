@@ -4,6 +4,7 @@
 
 @interface ImageTextSheet : NSObject
 {
+@private
     IBOutlet NSWindow *m_win;
     IBOutlet NSImageView *m_image;
     IBOutlet NSTextField *m_text;
@@ -13,8 +14,8 @@
     SEL m_callback;
 }
 
-- (void)setDelegate:(id)delegate;
-- (id)delegate;
+@property SEL callback ;
+@property id delegate ;
 
 - (void)popup:(NSWindow*)parent callback:(SEL)sel context:(void*)contextInfo;
 - (IBAction)done:(id)sender;

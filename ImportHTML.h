@@ -5,8 +5,9 @@
 
 @interface ImportHTML : NSObject
 {
+@private
     IBOutlet NSWindow *m_win;
-    IBOutlet NSTableView *m_table;
+//    IBOutlet NSTableView *m_table;
     IBOutlet NSArrayController *m_controller;
     IBOutlet NSButton *m_all;
     NSString *m_html;
@@ -16,14 +17,11 @@
 
 @property (retain) NSString *source;
 @property (retain) Linkstr_AppDelegate *delegate;
-@property (retain) NSString* html;
+@property (retain, getter=getHtml, setter=setHtml:) NSString* html;
 
 - (id)initWithHtmlString:(NSString*)html 
                   source:(NSString*)source 
                  linkstr:(Linkstr_AppDelegate*)delegate;
-
-- (void)setHtml:(NSString*)html;
-- (NSString*)html;
 
 - (void)insertCheckedLinks;
 - (int)popup;

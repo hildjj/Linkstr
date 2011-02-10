@@ -5,7 +5,6 @@
 
 @synthesize source = m_source;
 @synthesize delegate = m_delegate;
-@synthesize html = m_html;
 
 - (id)init
 {
@@ -30,6 +29,11 @@
 
 - (void)awakeFromNib;
 {
+}
+
+- (NSString*)getHtml;
+{
+    return m_html;
 }
 
 - (void)searchElement:(NSXMLElement*)e
@@ -63,11 +67,6 @@
                                          options:NSXMLDocumentTidyHTML
                                            error:nil];
     [self searchElement:[doc rootElement]];
-}
-
-- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
-{
-    [(KeyPressTableView*)aTableView willDisplayCell:aCell forTableColumn:aTableColumn row:rowIndex];
 }
 
 - (int)popup;

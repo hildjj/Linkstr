@@ -11,10 +11,12 @@
 #import "ImageTextSheet.h"
 #import "GrowlNagler.h"
 #import "Poster.h"
+#import "PendingLink.h"
+#import "LSHostReach.h"
 
 NSString *ATOM_DATE_FMT;
 
-@interface Linkstr_AppDelegate : NSObject <GrowlApplicationBridgeDelegate>
+@interface Linkstr_AppDelegate : NSObject <GrowlApplicationBridgeDelegate, NSToolbarDelegate, NSOpenSavePanelDelegate>
 {
     IBOutlet NSWindow *m_win;
     IBOutlet NSArrayController *m_controller;  
@@ -27,17 +29,20 @@ NSString *ATOM_DATE_FMT;
     IBOutlet NSView *m_fileTypeView;
     IBOutlet NSComboBox *m_fileType;
         
+    LSHostReach *m_hostReach;
     NSWindowController *m_prefs;
     NSWindowController *m_feeds;
     NSWindowController *m_history;
     GrowlNagler *m_nagler;
     Poster *m_poster;
+    int m_unread;
     
     NSPersistentStoreCoordinator *persistentStoreCoordinator;
     id persistentStore;
     NSManagedObjectModel *managedObjectModel;
     NSManagedObjectContext *managedObjectContext;
     BOOL m_closing;
+    BOOL m_offline;
 }
 
 + (void)initialize;
@@ -48,6 +53,9 @@ NSString *ATOM_DATE_FMT;
 - (IBAction)setTopLevel:(id)sender;
 
 @property (readonly) NSWindow *window;
+@property int unreadCount;
+@property BOOL offline;
+
 - (NSMutableArray*)links;
 - (BOOL)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
 
@@ -62,6 +70,7 @@ NSString *ATOM_DATE_FMT;
 - (IBAction)toggleDrawer:(id)sender;
 - (IBAction)openSelected:(id)sender;
 - (IBAction)launchAll:(id)sender;
+- (IBAction)undoLaunch:(id)sender;
 
 #pragma mark -
 #pragma mark Copy/Paste/Drag/Drop
@@ -76,8 +85,6 @@ NSString *ATOM_DATE_FMT;
 #pragma mark -
 #pragma mark Popups
 
-- (void)ensureSheet;
-- (IBAction)genericPopup:(id)sender;
 - (PendingLink*)insertTerms:(NSString*)terms forSite:(NSString*)site;
 - (IBAction)scriptsMenu:(id)sender;
 
@@ -93,21 +100,26 @@ NSString *ATOM_DATE_FMT;
 
 - (NSArray*)incompletes;
 - (NSArray*)redundants;
+- (NSArray*)shorteners;
 
 - (NSArray*)urlsForType:(NSString*)type;
 - (NSArray*)unviewedLinks;
+- (NSArray*)unviewedLinksWithLimit:(NSUInteger)limit;
+- (NSArray*)lastBatch;
 - (int) createLinksFromDictionary:(NSMutableDictionary*)possible
                           onDates:(NSDictionary*)dates
                        fromSource:(NSString*)sourceURL;
 - (id)insertURL:(NSString*)url withDescription:(NSString*)desc
      withViewed:(NSCalendarDate*)viewed
-    withCreated:(NSCalendarDate*)created;
-- (id)insertURL:(NSString*)url withDescription:(NSString*)desc;
+    withCreated:(NSCalendarDate*)created
+     fromSource:(NSString*)source;
+- (id)insertURL:(NSString*)url withDescription:(NSString*)desc fromSource:(NSString*)source;
 - (BOOL)checkRedundant:(NSString*)url 
                forType:(NSString*)type 
               withDate:(NSCalendarDate*)date
        withDescription:(NSString*)desc;
 - (IBAction)importSafariHistory:(id)sender;
+- (IBAction)importChromeHistory:(id)sender;
 - (IBAction)importDeliciousHistory:(id)sender;
 - (IBAction)postDeliciously:(id)sender;
 - (IBAction)removeSelected:(id)sender;
@@ -120,8 +132,7 @@ NSString *ATOM_DATE_FMT;
 
 - (IBAction)saveAction:sender;
 - (IBAction)exportAction:sender;
-- (void)saveSelectedAsOPML:(NSString*)file;
-- (void)saveSelectedAsAtom:(NSString*)file;
+- (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window;
 
 @end
 

@@ -7,60 +7,37 @@
 //
 
 #import "GrowlNagler.h"
-#import "Growl/Growl.h"
+#import "LSDefaults.h"
 
 @implementation GrowlNagler
 
-- (id)init;
+@synthesize delegate = m_delegate;
+
+- (id)initWithDelegate:(id)delegate;
 {
     self = [super init];
     if (!self)
         return nil;
+    self.delegate = delegate;
     m_queue = [[NSMutableArray alloc] init];
-    m_timer = [NSTimer scheduledTimerWithTimeInterval:1000.0
-                                               target:self
-                                             selector:@selector(timerFired:)
-                                             userInfo:nil
-                                              repeats:YES];
     return self;
 }
 
-- (void)timerFired:(NSTimer*)theTimer;
+- (void)timerFired;
 {
-    [m_timer setFireDate:[NSDate dateWithTimeIntervalSinceNow:1000.0]];
-    int count = [m_queue count];
-    PendingLink *p;
-    switch (count)
-    {
-    case 0:
-        return;
-    case 1:
-        p = [m_queue objectAtIndex:0];
-        [GrowlApplicationBridge notifyWithTitle:[p text] 
-                                    description:[p url]
-                               notificationName:@"New Link"
-                                       iconData:nil
-                                       priority:0
-                                       isSticky:NO
-                                   clickContext:[p url]];    
-        break;
-    default:
-        [GrowlApplicationBridge notifyWithTitle:@"Pending Links"
-                                    description:[NSString stringWithFormat:@"%d Links Added", count] 
-                               notificationName:@"New Link"
-                                       iconData:nil
-                                       priority:0
-                                       isSticky:NO
-                                   clickContext:@""];    
-        break;
-    }
+    NSLog(@"fire: %@", [NSCalendarDate date]);
+    if ([self.delegate respondsToSelector:@selector(nagler:firedForPending:)])
+        [self.delegate nagler:self firedForPending:m_queue];
+
     [m_queue removeAllObjects];
-    
 }
 
-- (void)scheduleAdd:(PendingLink *)p;
+- (void)scheduleAddObject:(id)object;
 {
-    [m_timer setFireDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    [m_queue addObject:p];
+    NSLog(@"add: %@", [NSCalendarDate date]);
+    [[self class] cancelPreviousPerformRequestsWithTarget:self];
+    [m_queue addObject:object];
+    double delay = [[NSUserDefaults standardUserDefaults] floatForKey:NAGLE_TIME_S];
+    [self performSelector:@selector(timerFired) withObject:nil afterDelay:delay];
 }
 @end
