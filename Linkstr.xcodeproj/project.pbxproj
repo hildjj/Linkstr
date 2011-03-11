@@ -59,10 +59,10 @@
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		BC1B9ED5122DCD410033B031 /* LSShortenerCategory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = BC1B9ED3122DCD410033B031 /* LSShortenerCategory.h */; };
 		BC1B9ED6122DCD410033B031 /* LSShortenerCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = BC1B9ED4122DCD410033B031 /* LSShortenerCategory.m */; };
+		BC50721F131EF93300A677E6 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BC50721E131EF93300A677E6 /* libsqlite3.dylib */; };
 		BC5D4BD910E0560500051955 /* LSTimerIterator.m in Sources */ = {isa = PBXBuildFile; fileRef = BC5D4BD810E0560500051955 /* LSTimerIterator.m */; };
 		BC6438911226E82400387FF7 /* LSAddChromeHistoryCommand.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = BC64388F1226E82400387FF7 /* LSAddChromeHistoryCommand.h */; };
 		BC6438921226E82400387FF7 /* LSAddChromeHistoryCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6438901226E82400387FF7 /* LSAddChromeHistoryCommand.m */; };
-		BC6438991226F07200387FF7 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BC6438981226F07200387FF7 /* libsqlite3.dylib */; };
 		BC672BC81094E59100B87D9E /* LSHostReach.m in Sources */ = {isa = PBXBuildFile; fileRef = BC672BC71094E59100B87D9E /* LSHostReach.m */; };
 		BC672C1C1094EBD700B87D9E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC672C1B1094EBD700B87D9E /* SystemConfiguration.framework */; };
 		BCAA970310E2836A00741BC2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCAA970110E2836A00741BC2 /* MainMenu.xib */; };
@@ -172,11 +172,11 @@
 		8D1107320486CEB800E47090 /* Linkstr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Linkstr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC1B9ED3122DCD410033B031 /* LSShortenerCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LSShortenerCategory.h; sourceTree = SOURCE_ROOT; };
 		BC1B9ED4122DCD410033B031 /* LSShortenerCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LSShortenerCategory.m; sourceTree = SOURCE_ROOT; };
+		BC50721E131EF93300A677E6 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		BC5D4BD710E0560500051955 /* LSTimerIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LSTimerIterator.h; sourceTree = "<group>"; };
 		BC5D4BD810E0560500051955 /* LSTimerIterator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LSTimerIterator.m; sourceTree = "<group>"; };
 		BC64388F1226E82400387FF7 /* LSAddChromeHistoryCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LSAddChromeHistoryCommand.h; path = ../LSAddChromeHistoryCommand.h; sourceTree = "<group>"; };
 		BC6438901226E82400387FF7 /* LSAddChromeHistoryCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LSAddChromeHistoryCommand.m; path = ../LSAddChromeHistoryCommand.m; sourceTree = "<group>"; };
-		BC6438981226F07200387FF7 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = Xcode4/SDKs/MacOSX10.6.sdk/usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		BC672BC61094E59100B87D9E /* LSHostReach.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LSHostReach.h; sourceTree = "<group>"; };
 		BC672BC71094E59100B87D9E /* LSHostReach.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LSHostReach.m; sourceTree = "<group>"; };
 		BC672C1B1094EBD700B87D9E /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
@@ -197,7 +197,7 @@
 				29080F4D0C7CC8D8006814DD /* Sparkle.framework in Frameworks */,
 				29080F510C7CC8E3006814DD /* Growl.framework in Frameworks */,
 				BC672C1C1094EBD700B87D9E /* SystemConfiguration.framework in Frameworks */,
-				BC6438991226F07200387FF7 /* libsqlite3.dylib in Frameworks */,
+				BC50721F131EF93300A677E6 /* libsqlite3.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,11 +244,11 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				BC6438981226F07200387FF7 /* libsqlite3.dylib */,
 				29080F500C7CC8E3006814DD /* Growl.framework */,
 				29080F4C0C7CC8D8006814DD /* Sparkle.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 				BC672C1B1094EBD700B87D9E /* SystemConfiguration.framework */,
+				BC50721E131EF93300A677E6 /* libsqlite3.dylib */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";
