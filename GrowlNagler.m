@@ -25,7 +25,7 @@
 
 - (void)timerFired;
 {
-    NSLog(@"fire: %@", [NSCalendarDate date]);
+    //    NSLog(@"fire: %@", [NSCalendarDate date]);
     if ([self.delegate respondsToSelector:@selector(nagler:firedForPending:)])
         [self.delegate nagler:self firedForPending:m_queue];
 
