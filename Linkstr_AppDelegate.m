@@ -255,6 +255,7 @@ static NSArray *s_SupportedTypes;
 
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar;
 {
+    #pragma unused(toolbar)
     return [NSArray arrayWithObjects:@"launch",
         @"clear",
         @"removeLink",
@@ -269,6 +270,7 @@ static NSArray *s_SupportedTypes;
 
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar;
 {
+    #pragma unused(toolbar)
     return [NSArray arrayWithObjects:@"launch", 
         @"clear",
         @"removeLink",
@@ -278,8 +280,10 @@ static NSArray *s_SupportedTypes;
         nil];    
 }
 
-- (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag;
+- (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag ;
 {
+    #pragma unused(toolbar)
+    #pragma unused(flag)
     NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     if ([itemIdentifier isEqualToString:@"removeLink"]) 
     {
@@ -371,11 +375,13 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)toggleDrawer:(id)sender;
 {
+    #pragma unused(sender)
     [[NSUserDefaults standardUserDefaults] setBool:![[NSUserDefaults standardUserDefaults] boolForKey:DRAWER] forKey:DRAWER];
 }
 
 - (IBAction)openSelected:(id)sender;
 {
+    #pragma unused(sender)
     NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
     [undo beginUndoGrouping];
     
@@ -456,6 +462,7 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)launchAll:(id)sender;
 {
+#pragma unused(sender)
     // save.  there may be pending changes that haven't been saved.
     [self saveAction:nil];
     if (self.offline)
@@ -475,6 +482,7 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)undoLaunch:(id)sender;
 {
+#pragma unused(sender)
     NSArray *last = [self lastBatch];
     NSUndoManager *undo = [self windowWillReturnUndoManager:nil];
     [undo beginUndoGrouping];
@@ -525,6 +533,7 @@ static NSArray *s_SupportedTypes;
 
 - (void) growlNotificationWasClicked:(id)clickContext;
 {
+#pragma unused(clickContext)
     [self unfade:self];
     // TODO: if clickContext is not @"", search for that URL, 
     // select it, and scroll it visible.
@@ -532,6 +541,7 @@ static NSArray *s_SupportedTypes;
 
 - (void)nagler:(GrowlNagler*)growlNagler firedForPending:(NSArray*)pending;
 {
+#pragma unused(growlNagler)
     int count = 0;
     PendingLink *first = nil;
     for (id p in pending)
@@ -580,6 +590,7 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)fade:(id)sender;
 {
+    #pragma unused(sender)
     double alph = [[[NSUserDefaults standardUserDefaults] objectForKey:ALPHA] doubleValue];
     [[[m_drawer contentView] window] setAlphaValue:alph];
     [m_win setAlphaValue:alph];
@@ -595,6 +606,7 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)unfade:(id)sender;
 {
+    #pragma unused(sender)
     [[[m_drawer contentView] window] setAlphaValue:1.0];
     [m_win setAlphaValue:1.0];
     if (![[NSUserDefaults standardUserDefaults] boolForKey:FLOAT])
@@ -604,6 +616,7 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)setTopLevel:(id)sender;
 {
+    #pragma unused(sender)
     if ([[NSUserDefaults standardUserDefaults] boolForKey:FLOAT])
         [m_win setLevel:NSFloatingWindowLevel];
     else
@@ -612,11 +625,13 @@ static NSArray *s_SupportedTypes;
 
 - (void)windowDidBecomeMain:(id)sender
 {
+    #pragma unused(sender)
     [self unfade:self];
 }
 
 - (void)windowDidResignMain:(id)sender
 {
+    #pragma unused(sender)
     if (m_closing)
         m_closing = NO;
     else
@@ -625,6 +640,7 @@ static NSArray *s_SupportedTypes;
 
 - (void)windowWillClose:(NSNotification *)aNotification
 {
+    #pragma unused(aNotification)
     [self setHandler:nil forScheme:@"http"];
     [self setHandler:nil forScheme:@"https"];
     
@@ -636,6 +652,7 @@ static NSArray *s_SupportedTypes;
 
 -(BOOL)keyPressOnTableView:(NSTableView*)view event:(NSEvent *)theEvent;
 {
+#pragma unused(view)
     unichar ch = [[theEvent characters] characterAtIndex:0];
     switch (ch)
     {
@@ -808,6 +825,7 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)copy:(id)sender;
 {    
+#pragma unused(sender)
     NSArray *selectedObjects = [m_controller selectedObjects];
     unsigned count = [selectedObjects count];
     if (count == 0) 
@@ -839,10 +857,12 @@ static NSArray *s_SupportedTypes;
 - (IBAction)paste:(id)sender;
 {
     [self doPaste:[NSPasteboard generalPasteboard]];
+#pragma unused(sender)
 }
 
 - (IBAction)cut:(id)sender;
 {
+#pragma unused(sender)
     [self copy:self];
     [self removeSelected:self];
 }
@@ -918,6 +938,7 @@ static NSArray *s_SupportedTypes;
 
 - (void)urlDone:(NSString*)text context:(void*)context
 {
+#pragma unused(context)
     NSString *us = text;
     NSURL *url = [NSURL URLWithString:text];
     if ([url scheme] == nil)
@@ -929,6 +950,7 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)scriptsMenu:(id)sender;
 {
+#pragma unused(sender)
     // Linkstr.app/Contents/MacOS/Linkstr/../../Resources/Scripts
     NSString *proc = [[[NSProcessInfo processInfo] arguments] objectAtIndex:0];
     proc = [proc stringByDeletingLastPathComponent];
@@ -943,6 +965,7 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)prefsPopup:(id)sender;
 {
+#pragma unused(sender)
     if (!m_prefs)
         m_prefs = [[Prefs alloc] init];
     [m_prefs showWindow:self];
@@ -950,6 +973,7 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)feedsPopup:(id)sender;
 {
+#pragma unused(sender)
     if (!m_feeds)
         m_feeds = [[ContextWindowController alloc] initWithContext:[self managedObjectContext] 
                                                               name:NSLocalizedString(@"Feeds", @"Feed window title") 
@@ -959,6 +983,7 @@ static NSArray *s_SupportedTypes;
 
 - (IBAction)historyPopup:(id)sender;
 {
+#pragma unused(sender)
     if (!m_history)
         m_history = [[ContextWindowController alloc] initWithContext:[self managedObjectContext] 
                                                                 name:NSLocalizedString(@"History", @"History window title") 
@@ -1148,6 +1173,7 @@ withDescription:(NSString*)desc
     withCreated:(NSCalendarDate*)created
      fromSource:(NSString*)source;
 {
+#pragma unused(viewed)
     if ((![[NSUserDefaults standardUserDefaults] boolForKey:IMPORT_HTTPS]) &&
         ([url hasPrefix:@"https"]))
         return nil;
@@ -1217,6 +1243,7 @@ withDescription:(NSString*)desc
 
 - (IBAction)importSafariHistory:(id)sender;
 {
+#pragma unused(sender)
     [m_progress startAnimation:self];
     NSString *hf = @"~/Library/Safari/History.plist";
     NSError *er;
@@ -1302,6 +1329,7 @@ withDescription:(NSString*)desc
 
 - (IBAction)importChromeHistory:(id)sender;
 {
+#pragma unused(sender)
     [m_progress startAnimation:self];
     int changes = 0;
 
@@ -1430,12 +1458,14 @@ SQL_ERROR:
 
 - (IBAction)importDeliciousHistory:(id)sender;
 {
+#pragma unused(sender)
     [m_progress startAnimation:self];
     [m_poster getURL:DEL_UPDATE];
 }
 
 - (IBAction)postDeliciously:(id)sender;
 {
+#pragma unused(sender)
     NSArray *all = [m_controller selectedObjects];
     if ([all count] == 0)
         return;
@@ -1455,6 +1485,8 @@ SQL_ERROR:
 
 - (void)poster:(Poster*)poster finishedOutstanding:(int)total;
 {
+#pragma unused(poster)
+#pragma unused(total)    
     [m_progress stopAnimation:self];
 }
 
@@ -1505,6 +1537,7 @@ SQL_ERROR:
 
 - (void)poster:(Poster*)poster finishedLoadingAll:(NSDictionary*)context
 {
+#pragma unused(poster)
     NSData *data = [context objectForKey:@"data"];
     NSError *err;
     NSXMLDocument *doc = [[NSXMLDocument alloc] initWithData:data
@@ -1598,6 +1631,7 @@ SQL_ERROR:
 
 - (IBAction)toggleViewed:(id)sender;
 {
+#pragma unused(sender)
     NSArray *all = [m_controller selectedObjects];
     if ([all count] == 0)
         return;
@@ -1713,6 +1747,7 @@ SQL_ERROR:
  
 - (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window 
 {
+#pragma unused(window)
     return [[self managedObjectContext] undoManager];
 }
 
@@ -1724,6 +1759,7 @@ SQL_ERROR:
  
 - (IBAction) saveAction:(id)sender 
 {
+#pragma unused(sender)
     if (![[self managedObjectContext] hasChanges])
     {
         NSLog(@"Unchanged");
@@ -1740,8 +1776,12 @@ SQL_ERROR:
     NSLog(@"Saved");
 }
 
-- (NSString *)panel:(id)sender userEnteredFilename:(NSString *)filename confirmed:(BOOL)okFlag
+- (NSString *)panel:(id)sender 
+userEnteredFilename:(NSString *)filename 
+          confirmed:(BOOL)okFlag
 {
+#pragma unused(sender)
+#pragma unused(okFlag)
     NSString *type = [m_fileType stringValue];
     if ([type isEqualToString:@"OPML"])
         return [filename stringByAppendingPathExtension:@"opml"];
@@ -1752,8 +1792,11 @@ SQL_ERROR:
     return nil;
 }
 
-- (void)savePanelDidEnd:(NSSavePanel *)sheet returnCode:(int)returnCode contextInfo:(void  *)contextInfo;
+- (void)savePanelDidEnd:(NSSavePanel *)sheet 
+             returnCode:(int)returnCode 
+            contextInfo:(void  *)contextInfo;
 {
+#pragma unused(contextInfo)
     if (returnCode == NSFileHandlingPanelCancelButton)
         return;
     NSString *type = [m_fileType stringValue];
@@ -1780,6 +1823,7 @@ SQL_ERROR:
 
 - (IBAction) exportAction:(id)sender 
 {
+#pragma unused(sender)
     NSSavePanel *panel = [NSSavePanel savePanel];
     [panel setDelegate:self];
     [panel setTitle:@"Export Selected"];
@@ -1788,7 +1832,11 @@ SQL_ERROR:
     [panel setAccessoryView:m_fileTypeView];
     [panel setExtensionHidden:NO];
     [panel setAllowedFileTypes:[NSArray arrayWithObjects:@"atom", @"opml", @"xbel", nil]];
-    [panel beginSheetForDirectory:nil file:@"Linkstr_Links.atom" modalForWindow:m_win modalDelegate:self didEndSelector:@selector(savePanelDidEnd:returnCode:contextInfo:) contextInfo:nil];
+    [panel setNameFieldStringValue:@"Linkstr_Links.atom"];
+    /*    [panel beginSheetForDirectory:nil file:@"Linkstr_Links.atom" modalForWindow:m_win modalDelegate:self didEndSelector:@selector(savePanelDidEnd:returnCode:contextInfo:) contextInfo:nil];*/
+    [panel beginSheetModalForWindow:m_win completionHandler:^(NSInteger result) {
+        [self savePanelDidEnd:panel returnCode:result contextInfo:NULL];
+    }];
 }
 
 /**
@@ -1799,6 +1847,7 @@ SQL_ERROR:
  
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
 
+#pragma unused(sender)
     NSError *error;
     int reply = NSTerminateNow;
     
@@ -1847,6 +1896,7 @@ SQL_ERROR:
 
 - (BOOL)application:(NSApplication *)sender delegateHandlesKey:(NSString *)key
 { 
+#pragma unused(sender)
     NSLog(@"key: %@", key);
     
     static NSSet *implemented;
@@ -1870,6 +1920,7 @@ SQL_ERROR:
 - (void)getUrl:(NSAppleEventDescriptor *)event 
 withReplyEvent:(NSAppleEventDescriptor *)replyEvent
 {
+#pragma unused(replyEvent)
     NSString *sURL = [[event paramDescriptorForKeyword:keyDirectObject] stringValue];
 
     [self insertURL:sURL withDescription:nil fromSource:nil];
