@@ -2,13 +2,13 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="8.00">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">10J567</string>
-		<string key="IBDocument.InterfaceBuilderVersion">1305</string>
-		<string key="IBDocument.AppKitVersion">1038.35</string>
-		<string key="IBDocument.HIToolboxVersion">462.00</string>
+		<string key="IBDocument.SystemVersion">11A511</string>
+		<string key="IBDocument.InterfaceBuilderVersion">1617</string>
+		<string key="IBDocument.AppKitVersion">1138</string>
+		<string key="IBDocument.HIToolboxVersion">566.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">1305</string>
+			<string key="NS.object.0">1617</string>
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>NSTableHeaderView</string>
@@ -40,10 +40,7 @@
 		<array key="IBDocument.PluginDependencies">
 			<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 		</array>
-		<object class="NSMutableDictionary" key="IBDocument.Metadata">
-			<string key="NS.key.0">PluginDependencyRecalculationVersion</string>
-			<integer value="1" key="NS.object.0"/>
-		</object>
+		<dictionary class="NSMutableDictionary" key="IBDocument.Metadata"/>
 		<array class="NSMutableArray" key="IBDocument.RootObjects" id="892356101">
 			<object class="NSCustomObject" id="1038755772">
 				<string key="NSClassName">NSApplication</string>
@@ -613,6 +610,15 @@
 									<reference key="NSOnImage" ref="637741086"/>
 									<reference key="NSMixedImage" ref="954134563"/>
 								</object>
+								<object class="NSMenuItem" id="548229818">
+									<reference key="NSMenu" ref="1050989899"/>
+									<string key="NSTitle">Enter Full Screen</string>
+									<string key="NSKeyEquiv">f</string>
+									<int key="NSKeyEquivModMask">1310720</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="637741086"/>
+									<reference key="NSMixedImage" ref="954134563"/>
+								</object>
 							</array>
 						</object>
 					</object>
@@ -825,6 +831,7 @@
 				<object class="NSMutableString" key="NSViewClass">
 					<characters key="NS.bytes">View</characters>
 				</object>
+				<nil key="NSUserInterfaceItemIdentifier"/>
 				<string key="NSWindowContentMinSize">{213, 107}</string>
 				<object class="NSView" key="NSWindowView" id="724682416">
 					<reference key="NSNextResponder"/>
@@ -843,6 +850,7 @@
 											<int key="NSvFlags">8448</int>
 											<string key="NSFrameSize">{474, 119}</string>
 											<reference key="NSSuperview" ref="9582890"/>
+											<reference key="NSWindow"/>
 											<reference key="NSNextKeyView" ref="707322195"/>
 											<int key="NSTag">2</int>
 											<bool key="NSEnabled">YES</bool>
@@ -851,15 +859,14 @@
 												<int key="NSvFlags">256</int>
 												<string key="NSFrameSize">{474, 17}</string>
 												<reference key="NSSuperview" ref="980127739"/>
+												<reference key="NSWindow"/>
 												<reference key="NSNextKeyView" ref="297725398"/>
 												<reference key="NSTableView" ref="571848228"/>
 											</object>
-											<object class="_NSCornerView" key="NSCornerView" id="555428210">
-												<reference key="NSNextResponder" ref="768063199"/>
+											<object class="_NSCornerView" key="NSCornerView">
+												<nil key="NSNextResponder"/>
 												<int key="NSvFlags">-2147483392</int>
 												<string key="NSFrame">{{-26, 0}, {16, 17}}</string>
-												<reference key="NSSuperview" ref="768063199"/>
-												<reference key="NSNextKeyView" ref="980127739"/>
 											</object>
 											<array class="NSMutableArray" key="NSTableColumns">
 												<object class="NSTableColumn" id="74779743">
@@ -1205,8 +1212,13 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 												<string key="NSCatalogName">System</string>
 												<string key="NSColorName">_sourceListBackgroundColor</string>
 												<object class="NSColor" key="NSColor">
-													<int key="NSColorSpace">1</int>
-													<bytes key="NSRGB">MC44MzkyMTU2OTU5IDAuODY2NjY2Njc0NiAwLjg5ODAzOTIyMTgAA</bytes>
+													<int key="NSColorSpace">6</int>
+													<string key="NSCatalogName">System</string>
+													<string key="NSColorName">alternateSelectedControlColor</string>
+													<object class="NSColor" key="NSColor">
+														<int key="NSColorSpace">1</int>
+														<bytes key="NSRGB">MCAwIDEAA</bytes>
+													</object>
 												</object>
 											</object>
 											<object class="NSColor" key="NSGridColor" id="112435717">
@@ -1219,7 +1231,7 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 												</object>
 											</object>
 											<double key="NSRowHeight">17</double>
-											<int key="NSTvFlags">-71303168</int>
+											<int key="NSTvFlags">-608174080</int>
 											<reference key="NSDelegate"/>
 											<reference key="NSDataSource"/>
 											<string key="NSAutosaveName">linksTable</string>
@@ -1229,10 +1241,12 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 											<bool key="NSAllowsTypeSelect">YES</bool>
 											<int key="NSTableViewSelectionHighlightStyle">1</int>
 											<int key="NSTableViewDraggingDestinationStyle">1</int>
+											<int key="NSTableViewGroupRowStyle">1</int>
 										</object>
 									</array>
 									<string key="NSFrame">{{0, 17}, {474, 119}}</string>
 									<reference key="NSSuperview" ref="768063199"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="571848228"/>
 									<reference key="NSDocView" ref="571848228"/>
 									<reference key="NSBGColor" ref="116491942"/>
@@ -1243,6 +1257,7 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 									<int key="NSvFlags">-2147483392</int>
 									<string key="NSFrame">{{-30, 17}, {15, 119}}</string>
 									<reference key="NSSuperview" ref="768063199"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="9582890"/>
 									<reference key="NSTarget" ref="768063199"/>
 									<string key="NSAction">_doScroller:</string>
@@ -1253,7 +1268,8 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 									<int key="NSvFlags">-2147483392</int>
 									<string key="NSFrame">{{0, -30}, {459, 15}}</string>
 									<reference key="NSSuperview" ref="768063199"/>
-									<reference key="NSNextKeyView" ref="555428210"/>
+									<reference key="NSWindow"/>
+									<reference key="NSNextKeyView" ref="980127739"/>
 									<int key="NSsFlags">1</int>
 									<reference key="NSTarget" ref="768063199"/>
 									<string key="NSAction">_doScroller:</string>
@@ -1267,22 +1283,22 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 									</array>
 									<string key="NSFrameSize">{474, 17}</string>
 									<reference key="NSSuperview" ref="768063199"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="445163988"/>
 									<reference key="NSDocView" ref="445163988"/>
 									<reference key="NSBGColor" ref="116491942"/>
 									<int key="NScvFlags">4</int>
 								</object>
-								<reference ref="555428210"/>
 							</array>
 							<string key="NSFrame">{{0, 20}, {474, 136}}</string>
 							<reference key="NSSuperview" ref="724682416"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="566395579"/>
-							<int key="NSsFlags">560</int>
+							<int key="NSsFlags">133680</int>
 							<reference key="NSVScroller" ref="297725398"/>
 							<reference key="NSHScroller" ref="566395579"/>
 							<reference key="NSContentView" ref="9582890"/>
 							<reference key="NSHeaderClipView" ref="980127739"/>
-							<reference key="NSCornerView" ref="555428210"/>
 							<bytes key="NSScrollAmts">AAAAAAAAAABBmAAAQZgAAA</bytes>
 						</object>
 						<object class="NSTextField" id="75531419">
@@ -1290,6 +1306,7 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 							<int key="NSvFlags">270</int>
 							<string key="NSFrame">{{7, 164}, {284, 13}}</string>
 							<reference key="NSSuperview" ref="724682416"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="934928807"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="456829034">
@@ -1316,6 +1333,7 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 							<int key="NSvFlags">258</int>
 							<string key="NSFrame">{{22, 5}, {435, 14}}</string>
 							<reference key="NSSuperview" ref="724682416"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="447572238">
@@ -1339,6 +1357,7 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 							<object class="NSPSMatrix" key="NSDrawMatrix"/>
 							<string key="NSFrame">{{287, 165}, {16, 16}}</string>
 							<reference key="NSSuperview" ref="724682416"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="85090023"/>
 							<bool key="NSViewCanDrawConcurrently">YES</bool>
 							<int key="NSpiFlags">28940</int>
@@ -1349,6 +1368,7 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 							<int key="NSvFlags">265</int>
 							<string key="NSFrame">{{307, 161}, {143, 22}}</string>
 							<reference key="NSSuperview" ref="724682416"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="718568797"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSSearchFieldCell" key="NSCell" id="522477938">
@@ -1402,6 +1422,7 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 							<int key="NSvFlags">265</int>
 							<string key="NSFrame">{{448, 163}, {28, 18}}</string>
 							<reference key="NSSuperview" ref="724682416"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="768063199"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="377160958">
@@ -1426,17 +1447,20 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 							</object>
 						</object>
 					</array>
-					<string key="NSFrame">{{7, 11}, {474, 190}}</string>
+					<string key="NSFrameSize">{474, 190}</string>
 					<reference key="NSSuperview"/>
+					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="75531419"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMinSize">{213, 129}</string>
-				<string key="NSMaxSize">{1e+13, 1e+13}</string>
+				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<string key="NSFrameAutosaveName">Linkstr Main</string>
+				<int key="NSWindowCollectionBehavior">128</int>
+				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
 			<object class="NSCustomView" id="705657804">
-				<reference key="NSNextResponder"/>
+				<nil key="NSNextResponder"/>
 				<int key="NSvFlags">264</int>
 				<array class="NSMutableArray" key="NSSubviews">
 					<object class="NSTextField" id="695814874">
@@ -1504,7 +1528,6 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 						<int key="NSvFlags">258</int>
 						<string key="NSFrame">{{68, 18}, {240, 22}}</string>
 						<reference key="NSSuperview" ref="705657804"/>
-						<reference key="NSNextKeyView"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSTextFieldCell" key="NSCell" id="561716474">
 							<int key="NSCellFlags">341966400</int>
@@ -1632,7 +1655,6 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 					</object>
 				</array>
 				<string key="NSFrameSize">{328, 160}</string>
-				<reference key="NSSuperview"/>
 				<reference key="NSNextKeyView" ref="695814874"/>
 				<object class="NSMutableString" key="NSClassName">
 					<characters key="NS.bytes">NSView</characters>
@@ -1705,7 +1727,6 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 								<bool key="NSEnabled">YES</bool>
 								<array class="NSMutableArray" key="NSTableColumns">
 									<object class="NSTableColumn">
-										<integer value="0" key="NSIdentifier"/>
 										<double key="NSWidth">10</double>
 										<double key="NSMinWidth">10</double>
 										<double key="NSMaxWidth">1000</double>
@@ -1755,6 +1776,7 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 								<int key="NSDraggingSourceMaskForNonLocal">0</int>
 								<bool key="NSAllowsTypeSelect">YES</bool>
 								<int key="NSTableViewDraggingDestinationStyle">0</int>
+								<int key="NSTableViewGroupRowStyle">1</int>
 							</object>
 						</object>
 					</object>
@@ -2628,6 +2650,14 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 					</object>
 					<int key="connectionID">933</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleFullScreen:</string>
+						<reference key="source" ref="183434026"/>
+						<reference key="destination" ref="548229818"/>
+					</object>
+					<int key="connectionID">935</int>
+				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<array key="orderedObjects">
@@ -3158,6 +3188,7 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 							<reference ref="800373296"/>
 							<reference ref="67643575"/>
 							<reference ref="243132824"/>
+							<reference ref="548229818"/>
 						</array>
 						<reference key="parent" ref="101814553"/>
 					</object>
@@ -3583,243 +3614,133 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 						<reference key="object" ref="243132824"/>
 						<reference key="parent" ref="1050989899"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">934</int>
+						<reference key="object" ref="548229818"/>
+						<reference key="parent" ref="1050989899"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
+				<string key="-1.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="-2.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="-3.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="-3.ImportedFromIB2"/>
 				<string key="103.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="103.ImportedFromIB2"/>
 				<string key="106.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="106.ImportedFromIB2"/>
 				<string key="111.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="111.ImportedFromIB2"/>
 				<string key="112.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="112.ImportedFromIB2"/>
 				<string key="124.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="124.ImportedFromIB2"/>
 				<string key="125.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="125.ImportedFromIB2"/>
 				<string key="126.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="126.ImportedFromIB2"/>
 				<string key="129.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="129.ImportedFromIB2"/>
 				<string key="130.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="130.ImportedFromIB2"/>
 				<string key="131.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="131.ImportedFromIB2"/>
 				<string key="134.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="134.ImportedFromIB2"/>
 				<string key="136.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="136.ImportedFromIB2"/>
 				<string key="143.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="143.ImportedFromIB2"/>
 				<string key="144.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="144.ImportedFromIB2"/>
 				<string key="145.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="145.ImportedFromIB2"/>
 				<string key="149.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="149.ImportedFromIB2"/>
 				<string key="150.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="150.ImportedFromIB2"/>
 				<string key="154.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="154.ImportedFromIB2"/>
 				<string key="155.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="155.ImportedFromIB2"/>
 				<string key="156.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="156.ImportedFromIB2"/>
 				<string key="157.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="157.ImportedFromIB2"/>
 				<string key="158.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="158.ImportedFromIB2"/>
 				<string key="159.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="159.ImportedFromIB2"/>
 				<string key="160.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="160.ImportedFromIB2"/>
 				<string key="161.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="161.ImportedFromIB2"/>
 				<string key="162.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="162.ImportedFromIB2"/>
 				<string key="163.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="163.ImportedFromIB2"/>
 				<string key="164.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="164.ImportedFromIB2"/>
 				<string key="167.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="167.ImportedFromIB2"/>
 				<string key="168.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="168.ImportedFromIB2"/>
-				<string key="169.IBEditorWindowLastContentRect">{{123, 591}, {250, 223}}</string>
 				<string key="169.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="169.ImportedFromIB2"/>
 				<string key="171.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="171.ImportedFromIB2"/>
 				<string key="172.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="172.ImportedFromIB2"/>
 				<string key="173.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="173.ImportedFromIB2"/>
 				<string key="174.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="174.ImportedFromIB2"/>
 				<string key="184.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="184.ImportedFromIB2"/>
 				<string key="185.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="185.ImportedFromIB2"/>
 				<string key="187.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="187.ImportedFromIB2"/>
 				<string key="189.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="189.ImportedFromIB2"/>
 				<string key="19.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="19.ImportedFromIB2"/>
 				<string key="191.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="191.ImportedFromIB2"/>
 				<string key="196.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="196.ImportedFromIB2"/>
 				<string key="197.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="197.ImportedFromIB2"/>
-				<boolean value="YES" key="205.ImportedFromIB2"/>
+				<string key="205.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="209.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="209.ImportedFromIB2"/>
 				<string key="23.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="23.ImportedFromIB2"/>
 				<string key="24.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="24.ImportedFromIB2"/>
 				<string key="283.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="283.ImportedFromIB2"/>
-				<string key="284.IBEditorWindowLastContentRect">{{0, 655}, {474, 190}}</string>
 				<string key="284.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="284.IBWindowTemplateEditedContentRect">{{0, 655}, {474, 190}}</string>
-				<boolean value="YES" key="284.ImportedFromIB2"/>
 				<boolean value="YES" key="284.NSWindowTemplate.visibleAtLaunch"/>
 				<string key="285.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="285.ImportedFromIB2"/>
 				<string key="286.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="286.ImportedFromIB2"/>
-				<string key="29.IBEditorWindowLastContentRect">{{0, 814}, {418, 20}}</string>
 				<string key="29.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="29.ImportedFromIB2"/>
 				<string key="292.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="292.ImportedFromIB2"/>
 				<string key="354.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="354.ImportedFromIB2"/>
 				<string key="414.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="414.ImportedFromIB2"/>
 				<string key="415.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="415.ImportedFromIB2"/>
 				<string key="419.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="419.ImportedFromIB2"/>
 				<string key="420.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="420.ImportedFromIB2"/>
 				<string key="421.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="421.ImportedFromIB2"/>
 				<string key="422.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="422.ImportedFromIB2"/>
 				<string key="423.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="423.ImportedFromIB2"/>
 				<string key="424.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="424.ImportedFromIB2"/>
 				<string key="425.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="425.ImportedFromIB2"/>
 				<string key="426.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="426.ImportedFromIB2"/>
 				<string key="427.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="427.ImportedFromIB2"/>
 				<string key="429.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="429.ImportedFromIB2"/>
 				<string key="430.CustomClassName">KeyPressTableView</string>
 				<string key="430.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="430.ImportedFromIB2"/>
 				<string key="433.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="433.ImportedFromIB2"/>
 				<string key="435.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="435.ImportedFromIB2"/>
 				<string key="436.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="436.ImportedFromIB2"/>
 				<string key="440.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="440.ImportedFromIB2"/>
 				<string key="5.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="5.ImportedFromIB2"/>
 				<string key="518.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="518.ImportedFromIB2"/>
 				<string key="56.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="56.ImportedFromIB2"/>
 				<string key="57.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="57.ImportedFromIB2"/>
 				<string key="58.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="58.ImportedFromIB2"/>
 				<string key="586.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="586.ImportedFromIB2"/>
 				<string key="588.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="588.ImportedFromIB2"/>
 				<string key="590.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="590.ImportedFromIB2"/>
 				<string key="598.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="598.ImportedFromIB2"/>
 				<string key="599.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="599.ImportedFromIB2"/>
 				<string key="665.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="665.ImportedFromIB2"/>
-				<string key="666.IBEditorWindowLastContentRect">{{217, 721}, {232, 93}}</string>
 				<string key="666.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="666.ImportedFromIB2"/>
 				<string key="693.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="693.ImportedFromIB2"/>
 				<string key="694.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="694.ImportedFromIB2"/>
 				<string key="695.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="695.ImportedFromIB2"/>
-				<boolean value="YES" key="700.ImportedFromIB2"/>
+				<string key="700.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="701.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="701.ImportedFromIB2"/>
 				<string key="717.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="717.ImportedFromIB2"/>
 				<string key="72.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="72.ImportedFromIB2"/>
 				<string key="73.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="73.ImportedFromIB2"/>
 				<string key="74.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="74.ImportedFromIB2"/>
 				<string key="75.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="75.ImportedFromIB2"/>
 				<string key="77.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="77.ImportedFromIB2"/>
 				<string key="78.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="78.ImportedFromIB2"/>
 				<string key="79.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="79.ImportedFromIB2"/>
 				<string key="806.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="806.ImportedFromIB2"/>
 				<string key="809.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="809.ImportedFromIB2"/>
 				<string key="81.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="81.ImportedFromIB2"/>
 				<string key="813.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="813.ImportedFromIB2"/>
 				<string key="815.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="815.ImportedFromIB2"/>
-				<string key="816.IBEditorWindowLastContentRect">{{167, 711}, {199, 103}}</string>
 				<string key="816.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="816.ImportedFromIB2"/>
 				<string key="818.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="818.ImportedFromIB2"/>
 				<string key="819.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="819.ImportedFromIB2"/>
 				<string key="82.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="82.ImportedFromIB2"/>
 				<string key="820.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="820.ImportedFromIB2"/>
 				<string key="824.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="824.ImportedFromIB2"/>
 				<string key="826.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="826.ImportedFromIB2"/>
 				<string key="83.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="83.ImportedFromIB2"/>
 				<string key="835.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="835.ImportedFromIB2"/>
 				<string key="837.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="837.ImportedFromIB2"/>
 				<string key="839.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="839.ImportedFromIB2"/>
 				<string key="841.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="841.ImportedFromIB2"/>
 				<string key="904.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="905.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="906.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3838,7 +3759,6 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 				<string key="919.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<boolean value="YES" key="919.IBShouldRemoveOnLegacySave"/>
 				<string key="92.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="YES" key="92.ImportedFromIB2"/>
 				<string key="920.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<boolean value="YES" key="920.IBShouldRemoveOnLegacySave"/>
 				<string key="921.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3859,12 +3779,13 @@ cGxlLCBJbmMuLCAyMDA5AA</bytes>
 				<string key="925.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="928.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="931.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="934.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">933</int>
+			<int key="maxID">935</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
