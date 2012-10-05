@@ -28,13 +28,13 @@ NSInteger compareSites(id one, id two, void *context)
 
     NSMutableString *keyString = [NSMutableString stringWithCapacity:10];
     if (mask & NSControlKeyMask)
-        [keyString appendFormat:@"%C", 0x2303];
+        [keyString appendFormat:@"%d", 0x2303];
     if (mask & NSAlternateKeyMask)
-        [keyString appendFormat:@"%C", 0x2325];
+        [keyString appendFormat:@"%d", 0x2325];
     if (mask & NSShiftKeyMask)
-        [keyString appendFormat:@"%C", 0x21E7];
+        [keyString appendFormat:@"%d", 0x21E7];
     if (mask & NSCommandKeyMask)
-        [keyString appendFormat:@"%C", 0x2318];
+        [keyString appendFormat:@"%d", 0x2318];
     [keyString appendString:[key uppercaseString]];
     return keyString;
 }

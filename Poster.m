@@ -129,16 +129,19 @@
 
 - (void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 {
+#pragma unused(challenge)
     [self finished:connection];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
 {
+#pragma unused(error)
     [self finished:connection];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 {
+#pragma unused(connection)
     if ([challenge previousFailureCount] > 2)
     {
         [[challenge sender] cancelAuthenticationChallenge:challenge];
@@ -186,6 +189,8 @@
 
 -(NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse;
 {
+#pragma unused(connection)
+#pragma unused(cachedResponse)
     return nil;
 }
 

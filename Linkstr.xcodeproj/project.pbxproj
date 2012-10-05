@@ -38,7 +38,6 @@
 		29B2244D0C99930600A4CF8C /* Prefs.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B2244B0C99930600A4CF8C /* Prefs.m */; };
 		29B60E7A0C53124F00ECF6AE /* KeyPressTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B60E780C53124F00ECF6AE /* KeyPressTableView.m */; };
 		29D125D50C80120F00757E28 /* Scripts in Resources */ = {isa = PBXBuildFile; fileRef = 29D125C50C80120F00757E28 /* Scripts */; };
-		29D5102E0CEA4D4A003A286B /* Version.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 29D5102D0CEA4D4A003A286B /* Version.xcconfig */; };
 		29F6D0020C5132AA001833E4 /* ContextWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29F6D0000C5132AA001833E4 /* ContextWindowController.m */; };
 		29F6D07C0C514CA8001833E4 /* Clear.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 29F6D0710C514CA8001833E4 /* Clear.tiff */; };
 		29F6D07D0C514CA8001833E4 /* Drawer.icns in Resources */ = {isa = PBXBuildFile; fileRef = 29F6D0720C514CA8001833E4 /* Drawer.icns */; };
@@ -424,7 +423,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0410;
+				LastUpgradeCheck = 0450;
 			};
 			buildConfigurationList = 26FC0A880875C7B200E6366F /* Build configuration list for PBXProject "Linkstr" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -462,7 +461,6 @@
 				29A1FB640C5A3FB8005179D2 /* Credits.html in Resources */,
 				29A1FC3D0C5A5AD0005179D2 /* aquaball.icns in Resources */,
 				29D125D50C80120F00757E28 /* Scripts in Resources */,
-				29D5102E0CEA4D4A003A286B /* Version.xcconfig in Resources */,
 				BCAA970310E2836A00741BC2 /* MainMenu.xib in Resources */,
 				BCAA971410E289D200741BC2 /* Prefs.xib in Resources */,
 				BCAA971F10E28A2400741BC2 /* ImageTextSheet.xib in Resources */,
@@ -581,6 +579,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -613,6 +612,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 64;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -645,6 +645,8 @@
 			baseConfigurationReference = 29D5102D0CEA4D4A003A286B /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CODE_SIGN_IDENTITY = "Joe Hildebrand";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(BUILT_PRODUCTS_DIR)",
@@ -674,10 +676,12 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				LIBRARY_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = x86_64;
 				VERSIONING_SYSTEM = "apple-generic";
 				WARNING_CFLAGS = "-Wall";
 			};
@@ -689,6 +693,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CODE_SIGN_IDENTITY = "Joe Hildebrand";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(BUILT_PRODUCTS_DIR)",
@@ -717,10 +723,12 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LIBRARY_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = x86_64;
 				VERSIONING_SYSTEM = "apple-generic";
 				WARNING_CFLAGS = "-Wall";
 			};

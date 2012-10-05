@@ -84,9 +84,11 @@ static NSArray *s_SupportedTypes;
         }
     }
     
-    m_hostReach = [[LSHostReach alloc] initWithHost:[[NSUserDefaults standardUserDefaults] stringForKey:REACH_HOST]
-                                          forTarget:self 
-                                        andSelector:@selector(hostChanged:)];
+    m_hostReach = [[LSHostReach alloc]
+                   initWithHost:[[NSUserDefaults standardUserDefaults] 
+                                 stringForKey:REACH_HOST]
+                   forTarget:self 
+                   andSelector:@selector(hostChanged:)];
     
     NSAppleEventManager *aem = [NSAppleEventManager sharedAppleEventManager];
     [aem setEventHandler:self 
@@ -216,7 +218,7 @@ static NSArray *s_SupportedTypes;
                 [NSColor redColor], NSForegroundColorAttributeName,
                 font, NSFontAttributeName,
                 nil];
-        cs = [NSString stringWithFormat:@"%ld", count];
+        cs = [NSString stringWithFormat:@"%d", count];
         c_size = [cs sizeWithAttributes:attr];
         rect.origin.x = rect.size.width - c_size.width - 3;
         rect.origin.y = rect.size.height - c_size.height - 3;
@@ -1335,6 +1337,7 @@ withDescription:(NSString*)desc
 
     NSString *hf = @"~/Library/Application Support/Google/Chrome/Default/History";
     hf = [hf stringByExpandingTildeInPath];
+    NSAssert(hf, @"Bad tilde expansion");
     
     NSString *tempFileTemplate = [NSTemporaryDirectory() stringByAppendingPathComponent:@"History.XXXXXXX"];
     const char *template = [tempFileTemplate fileSystemRepresentation];
@@ -1344,6 +1347,7 @@ withDescription:(NSString*)desc
     mktemp(thf);
     NSString *new_hf = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:thf length:thf_len];
     free(thf);
+    NSAssert(new_hf, @"Bad stringWithFileSystemRepresentation");
     
     NSError *err;
     if (![[NSFileManager defaultManager] copyItemAtPath:hf toPath:new_hf error:&err])

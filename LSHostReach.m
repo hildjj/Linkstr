@@ -31,6 +31,7 @@ static void reachCB(SCNetworkReachabilityRef target,
                     SCNetworkConnectionFlags flags,
                     void *                   info)
 {
+#pragma unused(target)
     LSHostReach *reach = (id)info;
     [reach fire:flags];
 }

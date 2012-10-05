@@ -57,7 +57,7 @@
     NSXMLDocument *doc = [[NSXMLDocument alloc] initWithData:data options:0 error:outError];
     if (!doc)
     {
-        NSLog(@"Invalid XML: %@", outError);
+        NSLog(@"Invalid XML: %@", outError ? *outError : nil);
         return NO;
     }
     
@@ -84,6 +84,8 @@
 
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError;
 {
+#pragma unused(typeName)
+#pragma unused(outError)
     NSXMLDocument *doc = [NSXMLNode document];
     [doc setCharacterEncoding:@"UTF-8"];
     

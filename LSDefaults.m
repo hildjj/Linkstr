@@ -90,7 +90,7 @@ NSString *LINKS_IMPORT = @"Import Links";
       [NSArchiver archivedDataWithRootObject:txt_fg], TABLE_TEXT_FG,
       [NSArchiver archivedDataWithRootObject:table_even_bg], TABLE_EVEN_BG,
       [NSArchiver archivedDataWithRootObject:[NSColor blackColor]], TABLE_ODD_BG,
-      @"google.com", REACH_HOST,
+      @"www.google.com", REACH_HOST,
       nil]];
 }
 @end

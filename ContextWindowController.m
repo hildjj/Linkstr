@@ -113,16 +113,19 @@
 
 - (IBAction)copy:(id)sender;
 {
+#pragma unused(sender)
     
 }
 
 - (IBAction)paste:(id)sender;
 {
+#pragma unused(sender)
     [self doPaste:[NSPasteboard generalPasteboard]];    
 }
 
 - (IBAction)cut:(id)sender;
 {
+#pragma unused(sender)
     
 }
 @synthesize entity;

@@ -99,11 +99,11 @@ static NSImage *UNREAD;
 - (NSScriptObjectSpecifier *)objectSpecifier;
 {
     NSScriptClassDescription* appDesc = (NSScriptClassDescription*)[NSApp classDescription]; 
-	NSUniqueIDSpecifier *specifier = [NSUniqueIDSpecifier alloc];
-	[specifier initWithContainerClassDescription:appDesc
-                              containerSpecifier:[NSApp objectSpecifier] 
-                                             key:@"links"
-                                        uniqueID:[self identifier]];
+	NSUniqueIDSpecifier *specifier = [[NSUniqueIDSpecifier alloc]
+                                      initWithContainerClassDescription:appDesc
+                                                     containerSpecifier:[NSApp objectSpecifier] 
+                                                                    key:@"links"
+                                                               uniqueID:[self identifier]];
 	return specifier;
 }
 

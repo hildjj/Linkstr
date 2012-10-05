@@ -8,7 +8,6 @@
 
 #import "KeyPressTableView.h"
 #import "LSDefaults.h"
-#import <objc/runtime.h>
 
 static NSColor *s_foreground = nil;
 static NSArray *s_backgroundColors = nil;
@@ -34,6 +33,7 @@ static NSArray *s_backgroundColors = nil;
 
 - (void)defaultsDidChange:(NSNotification *)note
 {
+#pragma unused(note)
     s_foreground = nil;
     s_backgroundColors = nil;
     [self setNeedsDisplay];
@@ -67,26 +67,26 @@ static NSArray *s_backgroundColors = nil;
     [aCell setTextColor:s_foreground];
     return aCell;
 }
-@end
 
-@implementation NSColor (LSAlternatingColor)
-
-+ (NSArray *)controlAlternatingRowBackgroundColors; 
+- (void)drawRow:(NSInteger)row clipRect:(NSRect)clipRect
 {
     if (!s_backgroundColors)
     {
         NSData *d = [[NSUserDefaults standardUserDefaults] dataForKey:TABLE_ODD_BG];
         if (!d)
-            return nil;
+            return;
         NSColor *odd = (NSColor *)[NSUnarchiver unarchiveObjectWithData:d];
-
+        
         d = [[NSUserDefaults standardUserDefaults] dataForKey:TABLE_EVEN_BG];
         if (!d)
-            return nil;
+            return;
         NSColor *even = (NSColor *)[NSUnarchiver unarchiveObjectWithData:d];
-            
+        
         s_backgroundColors = [NSArray arrayWithObjects:odd, even, nil];
-    }
-    return s_backgroundColors;
+    }    
+    NSColor *color = [s_backgroundColors objectAtIndex:(row % 2)];
+    [color setFill];
+    NSRectFill([self rectOfRow:row]);
+    [super drawRow:row clipRect:clipRect];
 }
 @end

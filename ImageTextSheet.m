@@ -1,4 +1,5 @@
 #import "ImageTextSheet.h"
+#import <objc/message.h>
 
 @implementation ImageTextSheet
 
@@ -27,6 +28,7 @@
          returnCode:(int)returnCode 
         contextInfo:(void *)contextInfo;
 {
+#pragma unused(sheet)
     if (returnCode != NSOKButton)
         return;
     if (!m_delegate)

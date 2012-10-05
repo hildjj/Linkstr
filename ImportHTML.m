@@ -122,6 +122,7 @@
 
 - (IBAction)setAll:(id)sender;
 {
+#pragma unused(sender)
     if ([m_all state] < 0)
     {
         [m_all setState:1];

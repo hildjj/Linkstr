@@ -22,6 +22,7 @@ parser.add_option("-d", "--destination", dest="dest", default=DEST_DIR)
 parser.add_option("-b", "--build_dir", dest="build", default=BUILD_DIR)
 parser.add_option("-s", "--stage_dir", dest="stage", default=STAGE_DIR)
 parser.add_option("-c", "--scp_target", dest="scp", default=SCP_TARGET)
+parser.add_option("-n", "--dry_run", dest="dry", action="store_true")
 
 (options, args) = parser.parse_args(sys.argv)
 
@@ -29,13 +30,15 @@ def run(cmd, *opts):
     if opts:
         cmd = cmd % opts
     sys.stderr.write(cmd + "\n")
-    (ret, out) = commands.getstatusoutput(cmd)
-    if options.verbose:
-        sys.stderr.write(out + "\n")
-    if ret:
-        print "Error: %d" % (ret,)
-        sys.exit(1)
-    return out
+    if not options.dry:
+        (ret, out) = commands.getstatusoutput(cmd)
+        if options.verbose:
+            sys.stderr.write(out + "\n")
+        if ret:
+            print "Error: %d" % (ret,)
+            sys.exit(1)
+        return out
+    return None
     
 VERFILE = "Version.xcconfig"
 
@@ -59,19 +62,14 @@ else:
     print "Valid types: build | minor | major"
     sys.exit(64)
     
-ver = open(VERFILE, "w")
-ver.write("APP_VERSION=%d\n" % (BUILD,))
-ver.write("APP_VERSION_DISPLAY=%d.%d\n" % (MAJ, MIN))
-ver.close()
+if options.dry:
+    ver = open(VERFILE, "w")
+    ver.write("APP_VERSION=%d\n" % (BUILD,))
+    ver.write("APP_VERSION_DISPLAY=%d.%d\n" % (MAJ, MIN))
+    ver.close()
 
 #run("svn ci -m 'Releasing build %d' %s", BUILD, VERFILE)
 run("git add %s", VERFILE)
-run("git ci -m 'Releasing build %d' %s", BUILD, VERFILE)
-
-#run("svn copy . file:///var/svn/Linkstr/tags/%s-%d -m 'Releasing build %d'",
-#    PROJECT, BUILD, BUILD)
-run("git tag -a -m 'Releasing build %d' %s-%d", BUILD, PROJECT, BUILD)
-run("git push --tags origin master")
 
 print "Building %d.%d.%d" % (MAJ, MIN, BUILD)
 run("xcodebuild -configuration Release clean")
@@ -114,6 +112,17 @@ changes.write("""
 </rss>
 """ % (PROJECT, MAJ, MIN, BUILD, date, ZIP, MAJ, MIN, BUILD, BUILD, md5, size))
 changes.close()
+
+run("git add changes.xml")
+run("git ci -m 'Releasing build %d' %s", BUILD, VERFILE)
+
+#run("svn copy . file:///var/svn/Linkstr/tags/%s-%d -m 'Releasing build %d'",
+#    PROJECT, BUILD, BUILD)
+run("git tag -a -m 'Releasing build %d' %s-%d", BUILD, PROJECT, BUILD)
+run("git push --tags origin master")
+
+
+
 run("mv changes.xml %s", options.stage)
 run("mv %s %s", ZIP, options.stage)
 os.chdir(options.stage)
